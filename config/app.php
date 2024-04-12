@@ -185,7 +185,7 @@ return [
         /*
          * Package Service Providers...
          */
-
+        App\Providers\AmadeusServiceProvider::class,
         /*
          * Application Service Providers...
          */
