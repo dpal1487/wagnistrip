@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "957b564c9a62411f360663703432553b",
+    "content-hash": "85511eb030622f43c91f77850d0cf782",
     "packages": [
         {
             "name": "amadeus4dev/amadeus-php",

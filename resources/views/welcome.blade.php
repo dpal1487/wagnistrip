@@ -36,7 +36,6 @@
         <div class="container flightsearchbox">
             <div class="searcbox-inner rounded-10">
                 <form id="main-form" action="{{ route('search-flight-results') }}" method="get">
-
                     <div class="topradioflexdif row justify-content-between">
                         <div class="flightsearchboxradiobtns d-flex" id="radio_box-1">
                             <p class="radiobtn">
@@ -52,7 +51,6 @@
                             <label for="optradio"  class="commonTitle_1 fontWeight_600"id="multic"> Multicity </label>
                             </p> --}}
                         </div>
-
                         <span class="float-right searchflighttoptext hide-elements-in-mb">
                             <i class="fa fa-plane"></i>
                             <a href="javascript:void(0)" class="commonDesc color-blue fontWeight_500">Search Lowest Airfare </a> |
@@ -60,17 +58,13 @@
                             <a href="javascript:void(0)" class="commonDesc color-blue fontWeight_500"> Domestic Flights</a>
                         </span>
                     </div>
-
                     <div class="d-flex searchinputfields">
-
                         <div class="departure-from">
                             <div class="commonDesc fontWeight_500"> <i class="fa fa-plane"></i> FROM</div>
                             <strong class="cityname commonHeading ellipsisHeading d-block color-blue">Delhi</strong>
                             <span class="d-block airportname ellipsisHeading" onmouseover="showairportnameFrom()" onmouseout="hideairportname()">DEL, Indira Gandhi International Airport India</span>
-                            <span class="showairportnameonoverFrom mouseovertext" style="display: none"></span>
-                            
+                            <span class="showairportnameonoverFrom mouseovertext" style="display: none"></span>                            
                             <input type="hidden" name="departure" value="DEL" id="departureFrom">
-
                             <div class="dropdownlistmaindiv shadow">
                                 <div class="airportsearchdiv d-flex align-items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="15" height="15" x="0" y="0" viewBox="0 0 612.01 612.01" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M606.209 578.714 448.198 423.228C489.576 378.272 515 318.817 515 253.393 514.98 113.439 399.704 0 257.493 0S.006 113.439.006 253.393s115.276 253.393 257.487 253.393c61.445 0 117.801-21.253 162.068-56.586l158.624 156.099c7.729 7.614 20.277 7.614 28.006 0a19.291 19.291 0 0 0 .018-27.585zM257.493 467.8c-120.326 0-217.869-95.993-217.869-214.407S137.167 38.986 257.493 38.986c120.327 0 217.869 95.993 217.869 214.407S377.82 467.8 257.493 467.8z" fill="#000000" data-original="#000000" class=""></path></g></svg>
