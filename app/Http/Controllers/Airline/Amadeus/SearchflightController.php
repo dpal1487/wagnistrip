@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Airline\Amadeus;
 
+use Amadeus\Amadeus;
 use Amadeus\Client;
 use Amadeus\Client\RequestOptions\FareMasterPricerCalendarOptions;
 use Amadeus\Client\RequestOptions\FareMasterPricerTbSearch;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Airline\Galileo\AuthenticateController;
 use App\Http\Controllers\Controller;
 use App\Models\Airline\Airportiatacode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 // use App\Http\Controllers\searchAirIataCode;
 
@@ -64,6 +66,25 @@ class SearchflightController extends Controller
 
     public function Fare_MasterPricerTravelBoardSearch(Request $request)
     {
+        $amadeus = app()->make(Amadeus::class); // Using service provider
+        $config = Config::get('configuration.Amadeus');
+
+
+        // return $amadeus;
+
+        // Example flight search using Amadeus\Shopping\FlightOffers
+        $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
+            "originLocationCode" => "DEL",
+            "destinationLocationCode" => "BOM",
+            "departureDate" => "2024-12-01",
+            "adults" => 1,
+        ]);
+
+
+        // return $amadeus->getAirport()->getDirectDestinations()->get(["departureAirportCode" => "MAD"]);;
+        // return  $flightOffers[0]->getResponse()->getResult();
+
+
 
         $AuthenticateController = new AuthenticateController;
 
@@ -71,7 +92,14 @@ class SearchflightController extends Controller
 
         $HeaderController = new AmadeusHeaderController;
 
+
+        // return $HeaderController;
+
+
+        return $config;
         $params = $HeaderController->State(false);
+
+        return $params;
         
         $client = new Client($params);
 

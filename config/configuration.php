@@ -37,6 +37,8 @@ return [
         'action' => env('AMADEUS_ACTION'),
         'api_key' => env('AMADEUS_API_KEY'),
         'api_secret' => env('AMADEUS_API_SECRET'),
+        'api_key' => env('AMADEUS_API_KEY'),
+        'api_secret' => env('AMADEUS_API_SECRET'),
     ],
 
     'Galileo' => [
