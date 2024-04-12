@@ -1,0 +1,249 @@
+.flightresultsection {
+    margin: 50px 0;
+}
+
+.flightresultsection .flightcardwrapper {
+    margin-bottom: 25px;
+    box-shadow: 0 0px 3px 0px rgb(221 221 221);
+}
+
+.flightresultsection .flightcardwrapper:last-child {
+    margin-bottom: 0;
+}
+
+.flightresultsection .flightcardwrapper:hover {
+    transition: all 0.4s ease-in-out;
+    box-shadow: 0 0px 8px 3px rgb(221 221 221);
+}
+
+.flightcardwrapper .detailinner {
+    border-bottom: 1px dashed var(--gray);
+}
+
+
+.flightresultsection .borderbottom {
+    margin: 2px 0;
+}
+
+.flightresultsection .leftdetailinner {
+    border-right: 1px dashed var(--gray);
+    padding: 14px;
+}
+
+.airlinelogodiv {
+    border-bottom: 1px dashed var(--gray);
+    padding-bottom: 5px;
+}
+
+.airlinelogo {
+    width: 40px;
+    height: 40px;
+}
+
+.flightresultsection .airlinedetails {
+    padding-top: 6px;
+}
+
+.flightresultsection .pricetext {
+    margin-bottom: 8px;
+}
+
+.flightresultsection .collapseblediv {
+    padding: 10px 15px 10px 0;
+}
+
+.airlineimg {
+    width: 40px;
+}
+
+.flightcolaspsedetails {
+    border-top: 1px dashed #ddd;
+    padding-top: 10px;
+}
+
+.flightcolaspsedetails .nav-tabs .nav-link.active,
+.flightcolaspsedetails .nav-tabs .nav-link {
+    border: 0;
+    border-color: transparent;
+}
+
+.flightcolaspsedetails .nav-tabs {
+    border-bottom: 0;
+    /* padding-left: 10px; */
+}
+
+.flightcolaspsedetails .nav-tabs .nav-link.active,
+.flightcolaspsedetails .nav-tabs .nav-link:hover {
+    background: var(--blue);
+    color: var(--white);
+}
+
+.flightcolaspsedetails .tab-content {
+    padding: 10px;
+    background: #f1f1fc;
+}
+
+.watchicon {
+    color: var(--black);
+}
+
+.flightcolaspsedetails .nextarrow {
+    font-size: 20px;
+}
+
+.layorDiv {
+    margin: 20px 0;
+    position: relative;
+    z-index: 2;
+}
+
+.layorDiv::before,
+.layorDiv::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    width: 348px;
+    height: 1px;
+    background: #76bbbb;
+    top: 50%;
+    z-index: 1;
+}
+
+.layorDiv::after {
+    left: inherit;
+    right: 6px;
+}
+
+
+.layoretext {
+    padding: 4px 27px;
+    border-radius: 50px;
+    display: block;
+    border: 1px solid #76bbbb;
+    color: #76bbbb;
+    width: fit-content;
+    margin: 0 auto;
+    font-weight: 600;
+    background: var(--white);
+    position: relative;
+    z-index: 2;
+}
+
+.airlineFilter {
+    padding: 0;
+}
+
+.airlineFilter .filterheads {
+    padding: 10px;
+    background: var(--gray);
+    margin-bottom: 1px;
+}
+
+.airlineFilter .filterinputdiv {
+    gap: 0 8px;
+}
+
+.filterstickydiv {
+    position: sticky;
+    top: 30px;
+}
+
+
+.gl-review-section {
+    padding: 50px 0;
+}
+
+.faredetailbox {
+    margin-bottom: 40px;
+}
+
+.btnfaretype {
+    width: fit-content;
+}
+
+
+/* paymentbannersection */
+
+.paymentbannersection {
+    padding: 30px 0;
+    background: var(--blue);
+    color: var(--white);
+}
+
+.paymentbannersection .col-right {
+    background-color: var(--white);
+}
+
+.paymentbannersection .visaimg {
+    font-size: 52px;
+    color: var(--white);
+}
+
+.paymentbannersection .lognbtn {
+    background: var(--green);
+    padding: 10px;
+}
+
+
+.paymentmainsection {
+    padding: 30px 0;
+}
+
+.paymentmainsection .colaccpaybtns {
+    padding: 0;
+    background: var(--white);
+}
+
+.paymentmainsection .paybuton {    
+    padding: 10px;
+}
+
+.paymentmainsection .paybuton:hover,
+.paymentmainsection .activePay {
+    transition: all 0.4s ease-in-out;
+    cursor: pointer;
+    background: #dbdbdb;
+}
+
+
+@media (max-width:576px) {
+    .gl-review-section {
+        padding: 10px 0;
+    }
+
+    .layorDiv::before,
+    .layorDiv::after {
+        display: none;
+    }
+
+    .gl-flightreview-card .divflightlogo,
+    .gl-flightreview-card .faretypediv {
+        width: 94%;
+        flex: 0 0 94%;
+        max-width: 94%;
+        display: flex;
+        border-bottom: 1px dashed #ddd;
+        margin: 0 auto;
+        padding: 0;
+        padding-bottom: 10px;
+        margin-bottom: 13px;
+        gap: 0 22px;
+    }
+
+    .gl-flightreview-card .faretypediv {
+        justify-content: center;
+        border-top: 1px dashed #ddd;
+        padding-top: 8px;
+        margin-top: 8px;
+    }
+
+    .gl-flightreview-card .divflighfulldetail {
+        flex: 0 0 40%;
+        max-width: 40%;
+        width: 40%;
+    }
+
+    .select2.select2-container.select2-container--default.select2-container--below {
+        width: 100% !important;
+    }
+}
