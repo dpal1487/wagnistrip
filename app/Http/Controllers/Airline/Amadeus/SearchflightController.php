@@ -17,7 +17,6 @@ use App\Http\Controllers\Airline\Galileo\AuthenticateController;
 use App\Http\Controllers\Controller;
 use App\Models\Airline\Airportiatacode;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 // use App\Http\Controllers\searchAirIataCode;
 
@@ -67,10 +66,11 @@ class SearchflightController extends Controller
     public function Fare_MasterPricerTravelBoardSearch(Request $request)
     {
         $amadeus = app()->make(Amadeus::class); // Using service provider
-        $config = Config::get('configuration.Amadeus');
+        $config = config('configuration.Amadeus');
 
 
         // return $amadeus;
+        // return $config;
 
         // Example flight search using Amadeus\Shopping\FlightOffers
         $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
@@ -96,7 +96,7 @@ class SearchflightController extends Controller
         // return $HeaderController;
 
 
-        return $config;
+        // return $config;
         $params = $HeaderController->State(false);
 
         return $params;

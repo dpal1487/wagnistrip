@@ -1,8 +1,7 @@
-
 <?php
 
 namespace App\Mail;
-use Illuminate\Http\Request;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -32,6 +31,6 @@ class SendTicketemail extends Mailable
     public function build()
     {
         return $this->subject('Mail from wagnistrip.com')
-                    ->view('mails.ticketemail');
+                    ->view('emails.ticketemail');
     }
 }
