@@ -14,7 +14,6 @@ class AmadeusServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Amadeus::class, function ($app) {
             $config = $app->make('config')->get('amadeus');
-
             return Amadeus::builder($config['api_key'], $config['api_secret'])->build();
         });
     }

@@ -73,8 +73,42 @@ class SearchflightController extends Controller
     public function Fare_MasterPricerTravelBoardSearch(Request $request)
     {
 
-        $flightOffers = $this->amadeus->getShopping()->getFlightOffers()->get(["originLocationCode"=>"SYD", "destinationLocationCode"=>"BKK", "departureDate"=>"2024-11-01", "adults"=>1, "max"=>6]);
+    $departureDate = $request->get('departDate'); // Get parameters from request
+    $origin = $request->get('departure');
+    $destination = $request->get('arrival');
+    $adults = $request->get('noOfAdults', 1);
+    $children = $request->get('noOfChilds', 0);
+    $infants = $request->get('noOfInfants', 0);
+    $cabinClass = $request->get('cabinClass', 'Y');
+    $fareType = $request->get('fare', 'Regular+Fares'); // Assuming 'Regular+Fares' is a valid Amadeus fare type
+
+    // return $fareType;
+    try {
+        $flightOffers = $this->amadeus->getShopping()->getFlightOffers()->get([
+            "originLocationCode" => $origin,
+            "destinationLocationCode" => $destination,
+            "departureDate" => $departureDate,
+            "adults" => $adults,
+            "children" => $children,
+            "infants" => $infants,
+            "travelClass" => $cabinClass, // Amadeus uses travelClass instead of cabinClass
+            "type" => "oneway", // Specify oneway trip type
+            "includeFares" => $fareType // Include the desired fare type
+        ]);
+
         return $flightOffers;
+
+        // Process the flight offers response (e.g., display results, store data)
+        // ... (your logic to handle successful response)
+
+    } catch (\Amadeus\Exceptions\ResponseException $e) {
+        // Handle API errors gracefully
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+
+        // return $request;
+        // $flightOffers = $this->amadeus->getShopping()->getFlightOffers()->get(["originLocationCode"=>"SYD", "destinationLocationCode"=>"BKK", "departureDate"=>"2024-11-01", "adults"=>1, "max"=>6]);
+        // return $flightOffers;
         try {
             $response = $this->amadeus->getShopping()->getFlightOffers()->get([
                 "originLocationCode" => $request->departure,
@@ -82,9 +116,7 @@ class SearchflightController extends Controller
                 "departureDate" => $request->departDate,
                 "adults" => $request->noOfAdults,
             ]);
-
-            return $response; // Process flight data (implementation omitted)
-
+            return response()->json($flightOffers);// Process flight data (implementation omitted)
             // Return processed flight data
         } catch (Exception $e) {
             throw new Exception("Amadeus API error: " . $e->getMessage());
