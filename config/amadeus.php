@@ -8,3 +8,5 @@ return [
     'password' => env('AMADEUS_PASSWORD' , 'Mlmjfgqyu5'),
     'wsdl_path' => env('AMADEUS_WSDL_PATH', 'path/to/amadeus.wsdl'),
 ];
+
+

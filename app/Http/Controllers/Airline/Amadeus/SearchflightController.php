@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Airline\Amadeus;
 
 use Amadeus\Amadeus;
 use Amadeus\Client;
-use Amadeus\Client\RequestOptions\FareMasterPricerCalendarOptions;
 use Amadeus\Client\RequestOptions\FareMasterPricerTbSearch;
 use Amadeus\Client\RequestOptions\Fare\MPDate;
 use Amadeus\Client\RequestOptions\Fare\MPItinerary;
@@ -16,6 +15,7 @@ use App\Http\Controllers\Airline\Amadeus\AmadeusHeaderController;
 use App\Http\Controllers\Airline\Galileo\AuthenticateController;
 use App\Http\Controllers\Controller;
 use App\Models\Airline\Airportiatacode;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 // use App\Http\Controllers\searchAirIataCode;
@@ -25,6 +25,13 @@ use Illuminate\Support\Facades\Session;
 
 class SearchflightController extends Controller
 {
+    private $amadeus;
+
+    public function __construct(Amadeus $amadeus) // Or your custom service class
+    {
+        $this->amadeus = $amadeus;
+    }
+
 
     public function OnewayFlight($reqDeparture, $reqArrival, $reqDepartDate) {
         $HeaderController = new AmadeusHeaderController;
@@ -55,7 +62,7 @@ class SearchflightController extends Controller
         ]);
 
         $data = $client->fareMasterPricerTravelBoardSearch($body);
-        dd($data);
+        // dd($data);
         if ($data->status === Result::STATUS_OK) {
             return $data;
         } else {
@@ -65,25 +72,36 @@ class SearchflightController extends Controller
 
     public function Fare_MasterPricerTravelBoardSearch(Request $request)
     {
-        $amadeus = app()->make(Amadeus::class); // Using service provider
-        $config = config('configuration.Amadeus');
 
+        $flightOffers = $this->amadeus->getShopping()->getFlightOffers()->get(["originLocationCode"=>"SYD", "destinationLocationCode"=>"BKK", "departureDate"=>"2024-11-01", "adults"=>1, "max"=>6]);
+        return $flightOffers;
+        try {
+            $response = $this->amadeus->getShopping()->getFlightOffers()->get([
+                "originLocationCode" => $request->departure,
+                "destinationLocationCode" => $request->arrival,
+                "departureDate" => $request->departDate,
+                "adults" => $request->noOfAdults,
+            ]);
 
-        // return $amadeus;
-        // return $config;
+            return $response; // Process flight data (implementation omitted)
 
-        // Example flight search using Amadeus\Shopping\FlightOffers
-        $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
-            "originLocationCode" => "DEL",
-            "destinationLocationCode" => "BOM",
-            "departureDate" => "2024-12-01",
-            "adults" => 1,
+            // Return processed flight data
+        } catch (Exception $e) {
+            throw new Exception("Amadeus API error: " . $e->getMessage());
+        }
+
+        // $amadeus = app()->make(Amadeus::class); // Using service provider
+
+        $flightOffers = $this->amadeus->getShopping()->getFlightOffers()->get([
+            "originLocationCode" => $request->departure,
+            "destinationLocationCode" => $request->arrival,
+            "departureDate" => $request->departDate,
+            "adults" => $request->noOfAdults,
         ]);
 
-
-        // return $amadeus->getAirport()->getDirectDestinations()->get(["departureAirportCode" => "MAD"]);;
-        // return  $flightOffers[0]->getResponse()->getResult();
-
+        return response()->json($flightOffers);
+        // return $amadeus->getAirport()->getDirectDestinations()->get(["departureAirportCode" => "DEL"]);
+        // return  $flightOffers->getResponse()->getResult();
 
 
         $AuthenticateController = new AuthenticateController;
@@ -92,15 +110,7 @@ class SearchflightController extends Controller
 
         $HeaderController = new AmadeusHeaderController;
 
-
-        // return $HeaderController;
-
-
-        // return $config;
         $params = $HeaderController->State(false);
-
-        return $params;
-        
         $client = new Client($params);
 
 
@@ -160,7 +170,7 @@ class SearchflightController extends Controller
                 }  else {
                     return redirect()->route('no-flight')->with('message', 'Not available on this route Sagment.');
                 }
-                
+
             }
         } elseif ($request['trip-type'] === "roundtrip") {
             $opt = new FareMasterPricerTbSearch([
@@ -209,16 +219,16 @@ class SearchflightController extends Controller
                 } elseif (($roundtripdomestic->status == "ERR") && ( $availabilitys['Status'] == "Success")) {
                     return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-search', compact('roundtripOutbounds', 'roundtripInbounds', 'travellers', 'availabilityOutbounds', 'availabilityInbounds'));
                     // return redirect()->route('no-flight')->with('message', 'No Available on this route Sagment.');
-                
+
                 } else {
                     return redirect()->route('no-flight')->with('message', 'No Available on this route Sagment.');
                 }
             } else {
 
                 $roundtripInternational = $client->fareMasterPricerTravelBoardSearch($opt);
-                
+
                 $availabilitys = $AuthenticateController->AvailabilityRound(2, 'roundtrip', $request['departDate'], $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], $request['cabinClass']);
-                
+
                     // dd($roundtripInternational , $availabilitys);
                 if ($roundtripInternational->status === Result::STATUS_OK) {
 
@@ -229,64 +239,5 @@ class SearchflightController extends Controller
                 }
             }
         }
-
-        //dd($opt);
-        //  else if ($request->trip == "multicity") {
-
-        //         if ($AirPortCodeController->getCountry($request['departure']) == "India" && $AirPortCodeController->getCountry($request['arrival']) == "India") {
-
-        //         $availabilityOutbounds = $AuthenticateController->Availability(1, 'oneway', $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival']);
-
-        //         $availabilityInbounds = $AuthenticateController->Availability(1, 'oneway', $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['arrival'], $request['departure']);
-
-        //         $roundtripOutbounds = $this->OnewayFlight($request['departure'], $request['arrival'], $request['departDate']);
-
-        //         $roundtripInbounds = $this->OnewayFlight($request['arrival'], $request['departure'], $request['returnDate']);
-
-        //         // dd(["gail" => [$availabilityOutbounds, $availabilityInbounds], "amd" => [$roundtripOutbounds, $roundtripInbounds]]);
-
-        //         return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-search', compact('roundtripOutbounds', 'roundtripInbounds', 'travellers', 'availabilityOutbounds', 'availabilityInbounds'));
-
-        //     } else {
-
-        //         $opt = new FareMasterPricerTbSearch([
-        //             'nrOfRequestedResults' => 200,
-        //             'nrOfRequestedPassengers' => 1,
-        //             'passengers' => [
-        //                 new MPPassenger([
-        //                     'type' => MPPassenger::TYPE_ADULT,
-        //                     'count' => 1,
-        //                 ]),
-        //             ],
-        //             'itinerary' => [
-        //                 new MPItinerary([
-        //                     'departureLocation' => new MPLocation(['city' => $request['departure']]),
-        //                     'arrivalLocation' => new MPLocation(['city' => $request['arrival']]),
-        //                     'date' => new MPDate([
-        //                         'dateTime' => new \DateTime($request['departDate'], new \DateTimeZone('UTC')),
-        //                     ]),
-        //                 ]),
-
-        //                 new MPItinerary([
-        //                     'departureLocation' => new MPLocation(['city' => $request['arrival']]),
-        //                     'arrivalLocation' => new MPLocation(['city' => $request['departure']]),
-        //                     'date' => new MPDate([
-        //                         'dateTime' => new \DateTime($request['returnDate'], new \DateTimeZone('UTC')),
-        //                     ]),
-        //                 ]),
-        //             ],
-        //         ]);
-
-        //         $roundtripInternational = $client->fareMasterPricerTravelBoardSearch($opt);
-        //         $availabilitys = $AuthenticateController->AvailabilityRound(2, 'roundtrip', $request['departDate'], $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival']);
-
-        //         if ($roundtripInternational->status === Result::STATUS_OK) {
-        //             $roundtrips = $roundtripInternational->response;
-        //             return view('flight-pages.roundtrip-flight-pages.internation-flight-pages.flight-search', compact('roundtrips', 'travellers', 'availabilitys'));
-        //         } else {
-        //             return redirect()->route('no-flight')->with('message', 'Not Ablable on this route Sagment.');
-        //         }
-        //     }
-        // }
     }
 }
