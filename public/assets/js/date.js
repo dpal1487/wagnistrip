@@ -1,6 +1,6 @@
 // Time variable queries.
 let today = new Date();
-today.setDate(today.getDate() + 2);
+today.setDate(today.getDate() + 0);
 // All the date should be a NUMBER type!!
 
 // Variable for storing the selected date data.
@@ -74,8 +74,9 @@ function getMonthIndex(name) {
         "november": 10,
         "december": 11
     };
-    name = name.toLowerCase();
+    name = name?.toLowerCase();
     let index = shortMonthTable[name];
+    console.log(name)
     if (index === undefined) {
         index = longMonthTable[name];
     }
@@ -175,9 +176,9 @@ function highlightCellRange(currCell, calendar) {
 
 
 
-// code by uddeshya 
+// code by uddeshya
 setTimeout(() => {
-    
+
     let cookies = document.cookie.split(";");
     let startDate = cookies.find((row) => row.startsWith(' departDate'))?.split('=')[1];
     const dateone = document.getElementById('dateone');
@@ -198,19 +199,18 @@ setTimeout(() => {
     if (end !== null) {
         dateend.value = end;
     }
-    
-    // Get cookies 
+
+    // Get cookies
     let cookies = document.cookie?.split(";");
-    // console.table( cookies); 
-    
-    
+    // console.table( cookies);
+
+
     let endDate = cookies.find((row) => row.startsWith(' returnDate'))?.split('=')[1];
-    // console.table(endDate); 
+    // console.table(endDate);
     dateend.value = endDate;
-    
+
     let startDate = cookies.find((row) => row.startsWith(' departDate'))?.split('=')[1];
     date.value = startDate;
-    // console.table(startDate); 
     // Set date from cookie;
 }, 500);
 // Set a Cookie
@@ -649,8 +649,8 @@ calendarWidgets.forEach(widget => {
     let focusOutFunction;
     widget.addEventListener("focusout", function(e) {
         focusOutFunction = setTimeout(function() {
-            // console.log("focusout");
-            // hideCalendar(e, widget);
+            console.log("focusout");
+            hideCalendar(e, widget);
         }, 0);
     })
 
@@ -660,95 +660,3 @@ calendarWidgets.forEach(widget => {
         clearTimeout(focusOutFunction);
     })
 })
-
-
-
-        // // payment page js
-        // // ==============================================
-        // // ==================================
-        // //  Header button section
-        // // ==================================
-
-        // const p_btns = document.querySelector(".p-btns");
-        // const card123 = document.querySelectorAll(".card-c1");
-        
-        // p_btns.addEventListener("click", (e) => {
-        //   const p_btn_clicked = e.target.closest(".p-btn");
-        //   if (!p_btn_clicked) return;
-        
-        //   const p_btns = document.querySelectorAll(".p-btn");
-        //   p_btns.forEach((curElem) => curElem.classList.remove("activePay"));
-        //   p_btn_clicked.classList.add("activePay");
-        
-        //   const btn_num = p_btn_clicked.dataset.btnNum;
-        //   const cardActive = document.querySelectorAll(`.p-btn--${btn_num}`);
-        //   card123.forEach((curElem) => curElem.classList.add("card-not-active"));
-        //   cardActive.forEach((curElem) => curElem.classList.remove("card-not-active"));
-        // });
-
-
-        // //  =========date validation by vikas==========================================
-        // var expireDateInput = document.getElementById("card_expiry_date");
-        // var monthSelect = document.getElementById("month");
-        // var yearSelect = document.getElementById("year");
-
-        // // Add an event listener to the year select element
-        // yearSelect.addEventListener("change", updateExpireDate);
-        // // Add an event listener to the month select element
-        // monthSelect.addEventListener("change", updateExpireDate);
-
-        // // Function to update the expire date input based on the selected month and year
-        // function updateExpireDate() {
-        //     // Get the selected month and year
-        //     var selectedMonth = monthSelect.value;
-        //     var selectedYear = yearSelect.value;
-
-        //     // Update the expire date input with the selected month and year
-        //     expireDateInput.value = selectedMonth + "/" + selectedYear;
-        // }
-
-        // // Initialize the expire date input with the current month and year
-        // updateExpireDate();
-        // // ==============================
-        // // ====bank code=================
-
-        // const searchInput = document.querySelector('#bank_search');
-        // const radioLabels = document.querySelectorAll('.bank-selector label');
-        // let numShown = 4;
-    
-        // searchInput.addEventListener('input', () => {
-        //     const searchText = searchInput.value.trim().toLowerCase();
-        //     let numMatches = 0;
-    
-        //     radioLabels.forEach((label, index) => {
-        //         if (index > 0) {
-        //             const bankName = label.querySelector('.bankName').textContent.trim().toLowerCase();
-        //             const match = bankName.includes(searchText);
-    
-        //             if (match && numMatches < 4) {
-        //                 label.classList.add('show');
-        //                 numMatches++;
-        //             } else {
-        //                 label.classList.add('hide');
-        //                 label.classList.remove('show');
-        //             }
-        //         }
-        //     });
-        // });
-    
-        // if (numShown < radioLabels.length) {
-        //     const showMoreButton = document.createElement('div');
-        //     showMoreButton.textContent = 'Show more banks';
-        //     showMoreButton.classList.add('mybuttonstyle');
-        //     showMoreButton.addEventListener('click', () => {
-        //         for (let i = numShown; i < numShown + 4 && i < radioLabels.length; i++) {
-        //             const label = radioLabels[i];
-        //             label.classList.add('show');
-        //         }
-        //         numShown += 4;
-        //         if (numShown >= radioLabels.length) {
-        //             showMoreButton.style.display = 'none';
-        //         }
-        //     });
-        //     searchInput.parentElement.appendChild(showMoreButton);
-        // }

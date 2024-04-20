@@ -40,7 +40,7 @@ class CancelController extends Controller
 
                 $client->securitySignOut();
 
-                return redirect()->back()->with('message', 'Your Pnr Successfully Cancilled');
+                return redirect()->back()->with('message', 'Your PNR Successfully Cancilled');
             }
 
         }

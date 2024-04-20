@@ -36,7 +36,7 @@ class Air_SellFromRecommendationController extends Controller
             ]);
             array_push($passengers, $passengersAdt);
         }
-         
+
         if ($CHD > 0) {
             $requestChilds = [];
             for ($i = 1; $i <= $CHD; $i++) {
@@ -60,8 +60,6 @@ class Air_SellFromRecommendationController extends Controller
             ]);
             array_push($passengers, $passengersInf);
         }
-
-
         // dd($passengers,$passengers);
         return $passengers;
     }
@@ -684,7 +682,7 @@ class Air_SellFromRecommendationController extends Controller
                 $fare = ['fareOutbound' => $domesticOutboundOnestop['fareInformative']->response, 'fareInbound' => $domesticInboundNonstop['fareInformative']->response];
                 $getsession = ['sessionOutbound' => $domesticOutboundOnestop['getsession'], 'sessionInbound' => $domesticInboundNonstop['getsession']];
                 $otherInformation = ['otherInfoOutbound' => $domesticOutboundOnestop['otherInformation'], 'otherInfoInbound' => $domesticInboundNonstop['otherInformation']];
-                
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-review', compact('roundtripOnestopNonstop', 'travellers', 'fare', 'otherInformation', 'getsession'));
             } else {
 
@@ -796,7 +794,7 @@ class Air_SellFromRecommendationController extends Controller
         } elseif (isset($request['dom_gl_outbound_nonstop']) && isset($request['dom_gl_inbound_nonstop'])) {
 
             $gl_outbound_nonstop = $this->GlOnestopReview($request['OutboundSessionID'], $request['OutboundKey'], $request['OutboundPricingkey'], $request['OutboundResultIndex'], $request['OutboundProvider']);
-            
+
             $gl_inbound_nonstop = $this->GlOnestopReview($request['InboundSessionID'], $request['InboundKey'], $request['InboundPricingkey'], $request['InboundResultIndex'], $request['InboundProvider']);
 
             $GlRoundtripNonstopNonstop = [$gl_outbound_nonstop, $gl_inbound_nonstop];
@@ -831,9 +829,9 @@ class Air_SellFromRecommendationController extends Controller
             }
         } elseif (isset($request['dom_gl_outbound_onestop']) && isset($request['dom_gl_inbound_nonstop'])) {
             //  dd($request->all());
-            
-            
-            
+
+
+
             $gl_outbound_onestop = $this->GlOnestopReview($request['OutboundSessionID'], $request['OutboundKey'], $request['OutboundPricingkey'], $request['OutboundResultIndex'], $request['OutboundProvider']);
             // dd($gl_outbound_onestop);
             $gl_inbound_nonstop = $this->GlOnestopReview($request['InboundSessionID'], $request['InboundKey'], $request['InboundPricingkey'], $request['InboundResultIndex'], $request['InboundProvider']);

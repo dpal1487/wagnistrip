@@ -63,7 +63,7 @@
                             <div class="commonDesc fontWeight_500"> <i class="fa fa-plane"></i> FROM</div>
                             <strong class="cityname commonHeading ellipsisHeading d-block color-blue">Delhi</strong>
                             <span class="d-block airportname ellipsisHeading" onmouseover="showairportnameFrom()" onmouseout="hideairportname()">DEL, Indira Gandhi International Airport India</span>
-                            <span class="showairportnameonoverFrom mouseovertext" style="display: none"></span>                            
+                            <span class="showairportnameonoverFrom mouseovertext" style="display: none"></span>
                             <input type="hidden" name="departure" value="DEL" id="departureFrom">
                             <div class="dropdownlistmaindiv shadow">
                                 <div class="airportsearchdiv d-flex align-items-center">
@@ -79,7 +79,7 @@
                                         </div>
                                     </li>
                                      --}}
-    
+
                                 </ul>
                             </div>
 
@@ -92,7 +92,7 @@
                                 <option value="DEL" class="departureFromPlace">Delhi (DEL)</option>
                             </select> --}}
                         </div>
-                     
+
                         <div class="transferdata cursorPointer" id="transfetairpors">
                             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="24" height="24" x="0" y="0" viewBox="0 0 6.35 6.35" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M1.849.53a.264.264 0 0 0-.182.08L.61 1.665a.264.264 0 0 0 0 .375l1.057 1.057a.264.264 0 1 0 .373-.374l-.605-.605h4.117a.264.264 0 0 0 0-.529h-4.12L2.04.983A.264.264 0 0 0 1.849.53zm2.646 2.642a.264.264 0 0 0-.183.455l.604.604H.8a.264.264 0 1 0 0 .529h4.12l-.607.607a.264.264 0 1 0 .374.372l1.057-1.055a.264.264 0 0 0 0-.375L4.686 3.252a.264.264 0 0 0-.191-.08z" fill="#000000" data-original="#000000" class=""></path></g></svg>
                         </div>
@@ -100,7 +100,7 @@
                         <div class="departure-to">
                             <div class="commonDesc fontWeight_500"> <i class="fa fa-plane toplane rotate-90"></i> TO</div>
                             <strong class="cityname commonHeading ellipsisHeading d-block color-blue">Mumbai</strong>
-                            
+
                             <span class="d-block airportname ellipsisHeading" onmouseover="showairportnameTo()" onmouseout="hideairportname()">BOM, Chhatrapati Shivaji International Airport India</span>
                             <span class="showairportnameonoverTo mouseovertext" style="display: none"></span>
                             <input type="hidden" name="arrival" value="BOM" id="arrivalTo">
@@ -109,21 +109,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" width="15" height="15" x="0" y="0" viewBox="0 0 612.01 612.01" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M606.209 578.714 448.198 423.228C489.576 378.272 515 318.817 515 253.393 514.98 113.439 399.704 0 257.493 0S.006 113.439.006 253.393s115.276 253.393 257.487 253.393c61.445 0 117.801-21.253 162.068-56.586l158.624 156.099c7.729 7.614 20.277 7.614 28.006 0a19.291 19.291 0 0 0 .018-27.585zM257.493 467.8c-120.326 0-217.869-95.993-217.869-214.407S137.167 38.986 257.493 38.986c120.327 0 217.869 95.993 217.869 214.407S377.82 467.8 257.493 467.8z" fill="#000000" data-original="#000000" class=""></path></g></svg>
                                     <input class="airportsearchField" onkeyup="filterairportlist(1)" type="text" placeholder="From">
                                 </div>
-                                <ul class="airpordroplist" id="airpordroplistTo">
-                                    {{-- <li class="lists d-flex align-items-center" airpor-cityname="Delhi"> 
-                                        <img src="../../assets/images/common/flighticon.png" alt="">
-                                        <div class="airportnametexts">
-                                            <span class="citynameinner">Delhi</span>
-                                            <p class="airportnameinnner ellipsisHeading d-block">DEL, Indira Gandhi International Airport India</p>
-                                        </div>
-                                    </li>
-                                     --}}
-                                </ul>
                             </div>
-                            {{-- <select class="js-example-basic-single getLocation" name="arrival" id="select2_arrival">
-                                <option value="BOM" class="arrivalFromPlace">Mumbai (BOM)</option>
-                            </select> --}}
-                            {{-- <div class="slitxt">Chhatrapati Shivaji Airport</div> --}}
                             <div class="city-msg mt-2" id="cisty_mesg-12"></div>
                         </div>
 
@@ -250,7 +236,7 @@
                         </div>
 
                         <div class="selectBox">
-                            <div class="selecttoggeldiv" onclick="togglePopup()"> 
+                            <div class="selecttoggeldiv" onclick="togglePopup()">
                                 <div class="commonDesc fontWeight_500">Travellers & class <i class="fa fa-chevron-down" aria-hidden="true"></i></div>
                                 <div class="commonDesc fontWeight_500" id="total-travller"></div>
                                 <div class="commonDesc fontWeight_500" id="cabClass"></div>
@@ -391,10 +377,10 @@
                                     </div>
                                     <div class="msgandapplydiv py-2 d-flex justify-content-between align-items">
                                         <div class="msg-travllers"></div>
-                                        <button 
-                                            type="button" 
-                                            id="travller-btn" 
-                                            class="btn blueBtn" 
+                                        <button
+                                            type="button"
+                                            id="travller-btn"
+                                            class="btn blueBtn"
                                             onclick="togglePopup()"
                                         >Apply</button>
                                     </div>
@@ -406,30 +392,30 @@
                     <input type="hidden" id='fare4' name="fare" value="Regular Fares">
 
                     <div class="d-flex align-items-center flightfilterbyfare hide-elements-in-mb">
-                        <button 
-                            type="button" 
-                            id="regular1" 
+                        <button
+                            type="button"
+                            id="regular1"
                             class="btn btn-sm btn-outline-info bshadow btn1 active"
                             value="Regular Fares"
                             >Regular Fares</button>
-                        <button 
-                            type="button" 
-                            id="regular2" 
+                        <button
+                            type="button"
+                            id="regular2"
                             class="btn btn-sm btn-outline-info bshadow btn1"
                             >Armed Forces Fares </button>
-                        <button 
-                            type="button" 
-                            id="regular3" 
+                        <button
+                            type="button"
+                            id="regular3"
                             class="btn btn-sm btn-outline-info bshadow btn1"
                             > Students Fares </button>
-                        <button 
-                            type="button" 
-                            id="regular4" 
+                        <button
+                            type="button"
+                            id="regular4"
                             class="btn btn-sm btn-outline-info bshadow btn1"
                             >Senior Citizen Fares</button>
-                        <a 
-                            href="{{ route('web-check-in') }}" 
-                            class="btn btn-primary webcheck link-color" 
+                        <a
+                            href="{{ route('web-check-in') }}"
+                            class="btn btn-primary webcheck link-color"
                             data-loading="true"> WEB CHECKIN ABC</a>
                     </div>
 
@@ -465,8 +451,8 @@
     </script>
 
     {{-- <div class="container impTextHome w-fitcontent bg-white rounded-10">
-        <div class="textdiv commonDesc"> 
-            <b class="fontWeight_600 commonDesc">Important Info:</b> To cancel/claim refund or reschedule/modify your booking. <a href="https://www.wagnistrip.com/contact" class="commonDesc">Click here</a> 
+        <div class="textdiv commonDesc">
+            <b class="fontWeight_600 commonDesc">Important Info:</b> To cancel/claim refund or reschedule/modify your booking. <a href="https://www.wagnistrip.com/contact" class="commonDesc">Click here</a>
         </div>
     </div> --}}
 
@@ -621,11 +607,11 @@
                                 </a>
                             </div>
                         </div>
-                    </div>                    
-                </div>    
+                    </div>
+                </div>
             </div>
 
-        </div>        
+        </div>
     </div>
 
 
@@ -689,7 +675,7 @@
                             <tr>
                                 <td class="commonDesc">Delhi to Singapore (DEL-SIN)</td>
                                 <td><a id="deltosin" href="#" class="btn commonDesc btn-primary btn-sm">Search Now</a></td>
-                            </tr>                            
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -741,7 +727,7 @@
     </div>
 
     {{-- <x-frontend.sections.maketruetripoffer /> --}}
-    
+
     <div class="container flight_sliderOffers mobileVes1 mt-5 mb-5 FlightBlog">
         <div class="commonWhiteBg">
             <h2 class="font-weight-bold commonHeading">Travel Blogs</h2>
@@ -771,7 +757,7 @@
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>
     </div>
 
     <!--//////////////////////////////////////////////////////////////////////////////////////////////-->
@@ -814,7 +800,7 @@
         </div>
     </div>
 
-    
+
     <div class="offerPopup" style="display: none">
         <div class="flexDivPopup">
             <div class="contentDiv">
@@ -852,18 +838,18 @@
 
     <script>
 
-        // == == start  script for flight search == == //        
+        // == == start  script for flight search == == //
 
         async function getairportList(departrefrom) {
             let searchairport = document.getElementsByClassName('airportsearchField')[departrefrom].value;
             const response = await fetch(`api/airlinecodes?search=${searchairport}`);
             const resjson = await response.json();
             let airpordroplistFrom = document.getElementsByClassName('airpordroplist');
-            
-            
+
+
             let htmllist = '';
             resjson.forEach(element => {
-                htmllist += `<li class="lists d-flex align-items-center" airportcode="${element.id}" airpor-cityname="${element.head}" airpor-fullname="${element.text}"> <img src="../../assets/images/common/flighticon.png" alt=""> <div class="airportnametexts"> <span class="citynameinner fontWeight_600">${element.head}</span> <p class="airportnameinnner ellipsisHeading d-block">${element.text}</p> </div>`;                
+                htmllist += `<li class="lists d-flex align-items-center" airportcode="${element.id}" airpor-cityname="${element.head}" airpor-fullname="${element.text}"> <img src="../../assets/images/common/flighticon.png" alt=""> <div class="airportnametexts"> <span class="citynameinner fontWeight_600">${element.head}</span> <p class="airportnameinnner ellipsisHeading d-block">${element.text}</p> </div>`;
             });
             airpordroplistFrom[departrefrom].innerHTML = (htmllist);
         }
@@ -940,17 +926,17 @@
         });
 
         function showairportnameFrom(){
-            let airportnametextFrom = $('.departure-from .airportname').text();            
+            let airportnametextFrom = $('.departure-from .airportname').text();
             let showairportnameonoverFrom = $('.showairportnameonoverFrom');
             showairportnameonoverFrom.css('display','block')
             showairportnameonoverFrom.html(airportnametextFrom);
         }
 
-        function showairportnameTo(){            
-            let airportnametextTo = $('.departure-to .airportname').text();            
-            let showairportnameonoverTo = $('.showairportnameonoverTo');            
-            showairportnameonoverTo.css('display','block')            
-            showairportnameonoverTo.html(airportnametextTo);            
+        function showairportnameTo(){
+            let airportnametextTo = $('.departure-to .airportname').text();
+            let showairportnameonoverTo = $('.showairportnameonoverTo');
+            showairportnameonoverTo.css('display','block')
+            showairportnameonoverTo.html(airportnametextTo);
         }
 
         function hideairportname(){
@@ -959,7 +945,7 @@
         }
 
         // end script for flight search == == //
-        
+
         // //  == = == start popular flight Scripts == = = //
         const months = ["+Jan+", "+Feb+", "+Mar+", "+Apr+", "+May+", "+Jun+", "+Jul+", "+Aug+", "+Sep+", "+Oct+", "+Nov+","+Dec+"];
 
@@ -997,7 +983,7 @@
         $(document).ready(function() {
             let selectedVal = 'oneway';
             $('.trip-type').change(function() {
-                let selectedVal = $(this).val();                
+                let selectedVal = $(this).val();
             });
 
             $('#main-search-btn').on('click', function() {
@@ -1008,7 +994,7 @@
             interval: 4000
         })
     </Script>
-    
+
 
     <script>
         $('.btn1').click(function() {

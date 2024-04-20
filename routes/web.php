@@ -45,16 +45,16 @@ Route::Post('/api/login', [UserLoginController::class, 'index'])->name('api/logi
  Route::get('/AMD_email_view',[PNR_AddMultiElementsController::class, 'amd_email_view'])->name('AMD_email_view');
  Route::get('/GAL_email_view',[PNR_AddMultiElementsController::class, 'GAL_email_view'])->name('GAL_email_view');
  Route::get('/Mix-email-view',[BookingController::class, 'both_email_view'])->name('both_email_view');
- 
+
  //  --------------- Email View ticket ------------------
- 
+
   Route::get('/both_email_view_ticke',[BookingController::class, 'both_email_view'])->name('email_view_mix');
-  
+
  //  --------------- Email View ticket end ------------------
- 
+
  Route::view('gal-ticket-mail-new','booking-pdf.flight.gal-ticket-mail-new');
- 
- 
+
+
  Route::view('edit_ticket','flight-pages/booking-confirm/edit-roundtrip-amd-flight-booking-confirm');
  Route::get('/group-fare',[GroupFare::class, 'Group_fare_Page']);
  Route::get('/group-fares/{id}',[GroupFare::class, 'Group_fare_seatselect']);
@@ -103,9 +103,9 @@ Route::group(['prefix' => 'Payment'], function () {
     Route::post('roundIntpay', [CartController::class, 'roundIntpay'])->name('booking.roundIntpay');
 });
 
-Route::group(['prefix' => 'payment'], function () {	
-     Route::post('razorpay-payment', [RazorpayPaymentController::class, 'store'])->name('razorpay.payment.store');	
-    Route::post('cashfree-process', [cashfreeprocess::class, 'process'])->name('cashfree.payment.process');	
+Route::group(['prefix' => 'payment'], function () {
+     Route::post('razorpay-payment', [RazorpayPaymentController::class, 'store'])->name('razorpay.payment.store');
+    Route::post('cashfree-process', [cashfreeprocess::class, 'process'])->name('cashfree.payment.process');
     //  Route::post('cashfree-process', [cashfreeprocess::class, 'processround'])->name('cashfree.payment.process');
     ////////////// udd //////////////////////////
     Route::post('cashfree-process-round', [cashfreeprocess::class, 'processround'])->name('cashfree.payment.process.round');
@@ -123,16 +123,16 @@ Route::group(['prefix' => 'Hotels'], function () {
 Route::group(['prefix' => 'Galileo'], function () {
     Route::get('/galileo', [AuthenticateController::class, 'Authenticate']);
     Route::get('/AgencyBalance', [AuthenticateController::class, 'AgencyBalance']);
-    
+
     Route::get('/Pricing', [PricingController::class, 'Pricing'])->name('galileo-pricing');
-    
+
     Route::post('/Pricing', [PricingController::class, 'Pricing'])->name('galileo-pricing');
     Route::post('/booking', [TicketingController::class, 'Ticketing'])->name('galileo-ticketing');
     Route::post('/bookings-round-trip', [TicketingController::class, 'DomGalBooking'])->name('gal-roundtrip-booking');
-    
+
      Route::post('/returnurl', [TicketingController::class, 'ReturnUrl'])->name('galileo-returnurl');
     Route::post('/bookingsroundtrip', [TicketingController::class, 'DomGalBooking'])->name('bookingsroundtrip');
-    
+
 });
 
 
@@ -155,7 +155,7 @@ Route::group(['prefix' => 'booking-pdf'], function () {
 Route::group(['prefix' => 'booking'], function () {
     Route::post('/bookings', [BookingController::class, 'Bookings'])->name('mix-booking');
     Route::post('/mix', [CartController::class, 'MixRoundDom'])->name('mix-review');
-     //Route::post('/bookings', [BookingController::class, 'Bookings'])->name('mix-booking');	
+     //Route::post('/bookings', [BookingController::class, 'Bookings'])->name('mix-booking');
 });
 
 Route::group(['prefix' => 'cart'], function () {
@@ -273,7 +273,7 @@ Route::view('domastic-himachal-10day', 'holiday/domastic/himachal-10day')->name(
 //goa
 Route::view('domastic-goa-5day', 'holiday/domastic/goa-5day')->name('domastic-goa-5day');
  Route::view('domastic-goa-9day', 'holiday/domastic/goa-9day')->name('domastic-goa-9day');
- 
+
  Route::view('domastic-golden-trangle', 'holiday/domastic/golden-trangle')->name('domastic-golden-trangle');
 //kasmir
  Route::view('domastic-kashmir&ladakh-10day', 'holiday/domastic/kashmir&ladakh-10day')->name('domastic-kashmir&ladakh-10day');
@@ -281,12 +281,12 @@ Route::view('domastic-goa-5day', 'holiday/domastic/goa-5day')->name('domastic-go
  Route::view('domastic-kashmir-8day', 'holiday/domastic/kashmir-8day')->name('domastic-kashmir-8day');
  Route::view('domastic-ladakh-4day', 'holiday/domastic/ladakh-4day')->name('domastic-ladakh-4day');
  Route::view('domastic-ladakh-6day', 'holiday/domastic/ladakh-6day')->name('domastic-ladakh-6day');
- 
+
  //kerla
  Route::view('domastic-kerala-10day', 'holiday/domastic/kerala-10day')->name('domastic-kerala-10day');
  Route::view('domastic-kerala-5day', 'holiday/domastic/kerala-5day')->name('domastic-kerala-5day');
  Route::view('domastic-kerala-6day', 'holiday/domastic/kerala-6day')->name('domastic-kerala-6day');
- 
+
  Route::view('domastic-lanavala+khandala-3day', 'holiday/domastic/lanavala+khandala-3day')->name('domastic-lanavala+khandala-3day');
  //Tamilnaidu
  Route::view('domastic-mysore+ooty-7day', 'holiday/domastic/mysore+ooty-7day')->name('domastic-mysore+ooty-7day');
@@ -295,7 +295,7 @@ Route::view('domastic-goa-5day', 'holiday/domastic/goa-5day')->name('domastic-go
  Route::view('domastic-domastic-ranthambore&bharatur-8day', 'holiday/domastic/ranthambore&bharatur-8day')->name('domastic-ranthambore&bharatur-8day');
  Route::view('domastic-udaipur-7day', 'holiday/domastic/udaipur-7day')->name('domastic-udaipur-7day');
 Route::view('domastic-udaipur-9day', 'holiday/domastic/udaipur-9day')->name('domastic-udaipur-9day');
- 
+
  //himaanchal
  Route::view('domastic-shimla+manali-6day', 'holiday/domastic/shimla+manali-6day')->name('domastic-shimla+manali-6day');
  Route::view('domastic-shimla-4day', 'holiday/domastic/shimla-4day')->name('domastic-shimla-4day');
@@ -312,7 +312,7 @@ Route::view('/holidays', 'pages/holidays')->name('holidays');
 
 
 Route::view('/visa', 'pages/visa')->name('visa');
-Route::get('visa','pagecontroller@visa');	
+Route::get('visa','pagecontroller@visa');
 Route::post('createvisa',"pagecontroller@visastore");
 
 Route::view('/terms-and-conditions', 'pages/termcondition')->name('terms-and-conditions');
@@ -428,7 +428,7 @@ Route::view('/booking-form', 'pages/booking-form')->name('booking-form');
 Route::view('/travel-insurance', 'pages/travel-insurance')->name('travel-insurance');
 
 
-// vikas checkin 
+// vikas checkin
 Route::view('/web-check-in','flight-pages/webcheck')->name('web-check-in');
 
 
@@ -495,7 +495,7 @@ Route::get('show', [AirlineCodeController::class, 'show_data'])->name('show_iata
 
 
 
-// Agent Login 
+// Agent Login
 Route::group(['prefix' => 'Agent'], function(){
     Route::get('/login', [AgentLogin ::class , 'Login'])->name('Agent.loginShow');
     Route::post('/login', [AgentLogin ::class , 'SingIn'])->name('Agent.login');
