@@ -16,6 +16,14 @@ class HotelSearchController extends Controller
 
     public function hotelSearch()
     {
+
+        $amadeus = $this->amadeus->getClient();
+
+        $hotel = $amadeus->getReferenceData()->getLocations(["subType"=>"CITY,AIRPORT", "keyword"=>"MUC"]);
+
+        return $hotel;
+
+
         $searchParams = [
             'cityCode' => 'DEL', // Replace with desired city code
             'checkInDate' => date('Y-m-d', strtotime('+1 day')), // Check-in date (tomorrow)
@@ -24,9 +32,15 @@ class HotelSearchController extends Controller
         ];
 
         try {
-            $amadeus = $this->amadeus->getClient();
 
-            $hotels = $amadeus->getHotelOffers()->search($searchParams);
+
+            // $hotel = $amadeus->getBooking()->getHotelBookings()->post(json_encode($searchParams));
+
+            // return $hotel;
+
+
+
+            // $hotels = $amadeus->getHotelOffers()->search($searchParams);
 
             // Process hotel results (e.g., display in a view or return as JSON)
         } catch (\Exception $e) {

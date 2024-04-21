@@ -1,4 +1,7 @@
 <?php
+
+use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,3 +33,20 @@ Route::get('/country-iso', [AirportiatacodesController::class, 'searchCountryIso
 Route::get('/Hotel-city', [AirportiatacodesController::class, 'HotelCity'])->name('HotelCity');
 
 
+
+Route::controller(ImageController::class)->group(function () {
+    Route::post('/image/{entity}', 'store')->name('image.store');
+});
+
+//  --------------- BLOG ------------------
+Route::controller(BlogController::class)->group(function () {
+    Route::get('blogs', 'index')->name('blog.index');
+    Route::prefix('blog')->group(function () {
+        Route::get('create', 'create')->name('blog.create');
+        Route::post('store',  'store')->name('blog.store');
+        Route::get('{id}/edit',  'edit')->name('blog.edit');
+        Route::get('{id}',  'show')->name('blog.show');
+        Route::put('{id}/update',  'update')->name('blog.update');
+        Route::delete('{id}',  'destroy')->name('blog.delete');
+    });
+});
