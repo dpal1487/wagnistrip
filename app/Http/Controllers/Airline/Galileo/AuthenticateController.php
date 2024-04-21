@@ -6,10 +6,12 @@ use App\Models\GalileoFlightLog;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 
-class AuthenticateController extends Controller {
+class AuthenticateController extends Controller
+{
 
-    public function Authenticate() {
-        
+    public function Authenticate()
+    {
+
         $config = Config::get('configuration.Galileo');
         $body = [
             "UserName" => $config['user_name'],
@@ -18,53 +20,55 @@ class AuthenticateController extends Controller {
         $response = $this->callApiWithHeadersGal("Authenticate", $body);
         return $response['SessionID'];
     }
-    
-    public static function callApiWithHeadersGal($action, $body) {
+
+    public static function callApiWithHeadersGal($action, $body)
+    {
         $config = Config::get('configuration.Galileo');
         $response = Http::withHeaders([
-            "Accept" =>"application/json",
-            "Content-Type" => "application/json",
-            ])->send("POST", $config['url'] . $action, [
-                "body" => json_encode($body, true),
-                ])->json();
-
-                if ($action == "Authenticate") {
-                    $response['SessionID'];
-                    $flightLogs = new GalileoFlightLog;
-                    $flightLogs->session_id = $response['SessionID'];
-                    $flightLogs->authenticate = json_encode($response, true);
-                    $flightLogs->availability = json_encode($response, true);
-
-                    // something go's there 
-                    $flightLogs->save();
-                } else {
-                    $action = strtolower($action);
-                    if($body['SessionID'] == ''){
-                            // return redirect()->route('error')->with('message', 'Authenticate Error!');
-                            throw new \Exception('User not authenticated.');
-                            // dd('Session Expire');
-                            // dd($body);
-                    }
-
-                    // dd($body['SessionID']);
-                    $flightLogs = GalileoFlightLog::where('session_id', '=', $body['SessionID'])->first();
-                    $flightLogs->$action = json_encode(['Request_Of_'.$action => $body, 'Response_Of_'.$action => $response], true);
-                    $flightLogs->save();
-                    
-                }
-          return $response;        
-    }
-    public static function Booking($action , $body){
-       
-        $config = Config::get('configuration.Galileo');
-        
-        $response = Http::withHeaders([
-            "Accept" =>"application/json",
+            "Accept" => "application/json",
             "Content-Type" => "application/json",
         ])->send("POST", $config['url'] . $action, [
             "body" => json_encode($body, true),
         ])->json();
-      
+
+        if ($action == "Authenticate") {
+            $response['SessionID'];
+            $flightLogs = new GalileoFlightLog;
+            $flightLogs->session_id = $response['SessionID'];
+            $flightLogs->authenticate = json_encode($response, true);
+            $flightLogs->availability = json_encode($response, true);
+
+            // something go's there
+            $flightLogs->save();
+        } else {
+            $action = strtolower($action);
+            if ($body['SessionID'] == '') {
+                // return redirect()->route('error')->with('message', 'Authenticate Error!');
+                throw new \Exception('User not authenticated.');
+                // dd('Session Expire');
+                // dd($body);
+            }
+
+            // dd($body['SessionID']);
+            $flightLogs = GalileoFlightLog::where('session_id', '=', $body['SessionID'])->first();
+            $flightLogs->$action = json_encode(['Request_Of_' . $action => $body, 'Response_Of_' . $action => $response], true);
+            $flightLogs->save();
+
+        }
+        return $response;
+    }
+    public static function Booking($action, $body)
+    {
+
+        $config = Config::get('configuration.Galileo');
+
+        $response = Http::withHeaders([
+            "Accept" => "application/json",
+            "Content-Type" => "application/json",
+        ])->send("POST", $config['url'] . $action, [
+            "body" => json_encode($body, true),
+        ])->json();
+
         if ($action == "Authenticate") {
             $response['SessionID'];
             $flightLogs = new GalileoFlightLog;
@@ -74,19 +78,20 @@ class AuthenticateController extends Controller {
             $flightLogs->save();
         } else {
             $action = strtolower($action);
-            if($body['SessionID'] == ''){
-                // 
+            if ($body['SessionID'] == '') {
+                //
             }
             $flightLogs = GalileoFlightLog::where('session_id', '=', $body['SessionID'])->first();
-            $flightLogs->$action =  json_encode(['Request_Of_'.$action => $body, 'Response_Of_'.$action => $response], true);
+            $flightLogs->$action = json_encode(['Request_Of_' . $action => $body, 'Response_Of_' . $action => $response], true);
             $flightLogs->save();
-        }    
-       return $response;
+        }
+        return $response;
     }
-    
-    public function Availability($trip, $tripType, $date, $adult, $child, $infant, $origin, $destination , $class) {
+
+    public function Availability($trip, $tripType, $date, $adult, $child, $infant, $origin, $destination, $class)
+    {
         // dd([$trip, $tripType, $date, $adult, $child, $infant, $origin, $destination]);
-        
+
         $config = Config::get('configuration.Galileo');
         if ($tripType == 'roundtrip') {
             $tripType = 2;
@@ -96,11 +101,17 @@ class AuthenticateController extends Controller {
             $tripType = 3;
         }
         $SessionID = $this->Authenticate();
-        $date = \DateTime::createFromFormat("d M Y", "$date");
+        // $dateTimeObject = \DateTime::createFromFormat("Y-m-d", $date);
+        // // dd($dateTimeObject);
+
+        // $formattedDate = $dateTimeObject->format("d/m/Y");
+
+        // dd($formattedDate);
+        $date = \DateTime::createFromFormat("Y-m-d", $date);
         $date = $date->format("d/m/Y");
-        
+
         $body = [
-            "ClientCode"=>"MakeTrueTrip",
+            "ClientCode" => "MakeTrueTrip",
             "Trip" => $trip,
             "TripType" => $tripType,
             "Adult" => $adult,
@@ -119,20 +130,21 @@ class AuthenticateController extends Controller {
                     "Destination" => $destination,
                     "DepartDate" => $date,
                     "PreferredClass" => $class,
-                ]
-            ]
+                ],
+            ],
         ];
-        
+
         $response = $this->callApiWithHeadersGal("Availability", $body);
         // dd($response);
         return $response;
     }
-    
-    public function AvailabilityRound($trip, $tripType, $date, $returnDate, $adult, $child, $infant, $origin, $destination , $class) {
+
+    public function AvailabilityRound($trip, $tripType, $date, $returnDate, $adult, $child, $infant, $origin, $destination, $class)
+    {
         // dd([$trip, $tripType, $date, $adult, $child, $infant, $origin, $destination]);
-      
+
         $config = Config::get('configuration.Galileo');
-        
+
         if ($tripType == 'roundtrip') {
             $tripType = 2;
         } elseif ($tripType == 'oneway') {
@@ -140,16 +152,16 @@ class AuthenticateController extends Controller {
         } elseif ($tripType == 'multicity') {
             $tripType = 3;
         }
-        
+
         $SessionID = $this->Authenticate();
         $date = \DateTime::createFromFormat("d M Y", "$date");
         $date = $date->format("d/m/Y");
-        
+
         $returnDate = \DateTime::createFromFormat("d M Y", "$returnDate");
         $returnDate = $returnDate->format("d/m/Y");
-        
+
         $body = [
-            "ClientCode"=>"MakeTrueTrip",
+            "ClientCode" => "MakeTrueTrip",
             "Trip" => $trip,
             "TripType" => $tripType,
             "Adult" => $adult,
@@ -182,6 +194,5 @@ class AuthenticateController extends Controller {
         // dd($response);
         return $response;
     }
-    
-}
 
+}

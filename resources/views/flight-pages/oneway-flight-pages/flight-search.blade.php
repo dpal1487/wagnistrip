@@ -169,26 +169,26 @@
                                         </div>
                                         <div class="filterinputdiv d-flex align-items-center py-1">
                                             <input type="checkbox" value="AI">
-                                            <img src="{{ asset('/assets/images/flight/AI.png')}}"
-                                                width="16px" height="16px">
+                                            <img src="{{ asset('/assets/images/flight/AI.png') }}" width="16px"
+                                                height="16px">
                                             <label class="d-block fontWeight_600">Air India</label>
                                         </div>
                                         <div class="filterinputdiv d-flex align-items-center py-1">
                                             <input type="checkbox" value="AI">
-                                            <img src="{{ asset('/assets/images/flight/AI.png')}}"
-                                                width="16px" height="16px">
+                                            <img src="{{ asset('/assets/images/flight/AI.png') }}" width="16px"
+                                                height="16px">
                                             <label class="d-block fontWeight_600">Air India</label>
                                         </div>
                                         <div class="filterinputdiv d-flex align-items-center py-1">
                                             <input type="checkbox" value="AI">
-                                            <img src="{{ asset('/assets/images/flight/6E.png')}}"
-                                                width="16px" height="16px">
+                                            <img src="{{ asset('/assets/images/flight/6E.png') }}" width="16px"
+                                                height="16px">
                                             <label class="d-block fontWeight_600">IndiGo</label>
                                         </div>
                                         <div class="filterinputdiv d-flex align-items-center py-1">
                                             <input type="checkbox" value="AI">
-                                            <img src="{{ asset('/assets/images/flight/UK.png')}}"
-                                                width="16px" height="16px">
+                                            <img src="{{ asset('/assets/images/flight/UK.png') }}" width="16px"
+                                                height="16px">
                                             <label class="d-block fontWeight_600">Vistara</label>
                                         </div>
                                     </div>
@@ -367,7 +367,7 @@
 
                     <div class="flightdetailcard">
                         {{-- {{ $availability }} --}}
-                       {{--  @if (!empty($availability))
+                        {{--  @if (!empty($availability))
                             @php
                                 $SessionID = $availability['SessionID'];
                                 $availabilityKey = $availability['Key'];
@@ -2342,19 +2342,16 @@
                             @endforeach
                         @endif
                                     --}}
-
-                                    {{ dd($oneways) }}
                         @if (!empty($oneways))
                             @php
-                                is_array($oneways->recommendation) == true
-                                    ? ($onewaysRecommendation = $oneways->recommendation)
-                                    : ($onewaysRecommendation = [$oneways->recommendation]);
+                                is_array($oneways->itineraries) == true
+                                    ? ($onewaysRecommendation = $oneways->itineraries)
+                                    : ($onewaysRecommendation = [$oneways->itineraries]);
                                 is_array($oneways->flightIndex->groupOfFlights) == true
                                     ? ($onewaysGroupOfFlights = $oneways->flightIndex->groupOfFlights)
                                     : ($onewaysGroupOfFlights = [$oneways->flightIndex->groupOfFlights]);
                             @endphp
                             @foreach ($onewaysGroupOfFlights as $rowkey => $flightResults)
-                                {{-- {{dd($flightResults)}} --}}
                                 @if (is_array($flightResults->flightDetails) == true &&
                                         isset($flightResults->flightDetails[2]) &&
                                         !isset($flightResults->flightDetails[3]))
@@ -2368,853 +2365,215 @@
                                     @endphp
                                     <div class="cardlist take airline_hide stops_hide 2-Stop {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . ' ' . $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}"
                                         data-price1="{{ $itineraries['PricingInfos']['PricingInfo'][0]['FareBreakDowns']['FareBreakDown'][0]['TotalFare'] }}">
-                                        {{-- <div class="grid-item" > --}}
-                                        <div class="boxunder grid-item takingoff">
-                                            <div class="row">
-                                                <div class="col-6 col-md-6 col-sm-6">
-                                                    <div class="row ranjepp">
-                                                        <div class="col-3 col-md-3 col-sm-2">
-                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                width="40px" height="40px" alt=""
-                                                                class="imgonewayw">
-                                                        </div>
-                                                        <div class="col-8 col-md-8 col-sm-6">
-                                                            <div class="owstitle1">
-                                                                {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier ?? $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}
-                                                            </div>
-                                                            <div class="owstitle">
-                                                                {{ ($flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier ?? '') . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}
-
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-6 col-md-6 col-sm-6">
-                                                    <div class="float-right ranjepp">
-                                                        <form action="{{ route('flight-review') }}" method="POST">
-                                                            @csrf
-
-                                                            @foreach ($onewaysRecommendation as $recommendation)
-                                                                @php(is_array($recommendation->segmentFlightRef) == true) ? $newSegmentFlightRef =
-                                                                $recommendation->segmentFlightRef : $newSegmentFlightRef =
-                                                                [$recommendation->segmentFlightRef];
-                                                                @endphp
-
-                                                                @foreach ($newSegmentFlightRef as $segmentFlightRef)
-                                                                    @if ($segmentFlightRef->referencingDetail[0]->refNumber == $flightResults->propFlightGrDetail->flightProposal[0]->ref)
-                                                                        @php
-
-                                                                            $baggRefArray = array_reverse(
-                                                                                $segmentFlightRef->referencingDetail,
-                                                                            );
-                                                                            $baggRef = $baggRefArray[0]->refNumber;
-
-                                                                            is_array($recommendation->paxFareProduct) ==
-                                                                            true
-                                                                                ? ($paxFareDetails =
-                                                                                    $recommendation->paxFareProduct[0])
-                                                                                : ($paxFareDetails =
-                                                                                    $recommendation->paxFareProduct);
-                                                                            is_array($paxFareDetails->fare)
-                                                                                ? ($fareDetailsRule =
-                                                                                    $paxFareDetails->fare)
-                                                                                : ($fareDetailsRule = [
-                                                                                    $paxFareDetails->fare,
-                                                                                ]);
-
-                                                                            is_array(
-                                                                                $fareDetailsRule[0]->pricingMessage
-                                                                                    ->description,
-                                                                            )
-                                                                                ? ($farerule = 'NON-REFUNDABLE')
-                                                                                : ($farerule =
-                                                                                    $fareDetailsRule[0]->pricingMessage
-                                                                                        ->description);
-
-                                                                            $farerule == 'PENALTY APPLIES'
-                                                                                ? ($farerule = 'REFUNDABLE')
-                                                                                : ($farerule = 'NON-REFUNDABLE');
-
-                                                                        @endphp
-
-                                                                        <input type="hidden" name="bookingClass_1"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct[0]->rbd }}">
-
-                                                                        <input type="hidden" name="bookingClass_2"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct[0]->rbd }} ">
-
-                                                                        <input type="hidden" name="bookingClass_3"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[2]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[2]->productInformation->cabinProduct[0]->rbd }} ">
-
-
-                                                                        <input type="hidden" name="fareBasis_1"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->fareProductDetail->fareBasis }}">
-
-                                                                        <input type="hidden" name="fareBasis_2"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->fareProductDetail->fareBasis }}">
-
-                                                                        <input type="hidden" name="fareBasis_3"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[2]->productInformation->fareProductDetail->fareBasis }}">
-                                                                    @endif
-                                                                @endforeach
-                                                            @endforeach
-
-                                                            <input type="hidden" name="onewayTwostop">
-
-                                                            <input type="hidden" name="arrivalingTime"
-                                                                value="{{ $flightResults->propFlightGrDetail->flightProposal[1]->ref }}">
-
-                                                            <input type="hidden" name="arrivalDate_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival }}">
-
-                                                            <input type="hidden" name="arrivalDate_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival }}">
-
-                                                            <input type="hidden" name="arrivalDate_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfArrival }}">
-
-                                                            <input type="hidden" name="arrivalTime_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival }}">
-
-                                                            <input type="hidden" name="arrivalTime_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival }}">
-
-                                                            <input type="hidden" name="arrivalTime_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfArrival }}">
-
-                                                            <input type="hidden" name="departure_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId }}">
-
-                                                            <input type="hidden" name="departure_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}">
-
-                                                            <input type="hidden" name="departure_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->location[0]->locationId }}">
-
-                                                            <input type="hidden" name="arrival_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}">
-
-                                                            <input type="hidden" name="arrival_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}">
-
-                                                            <input type="hidden" name="arrival_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->location[1]->locationId }}">
-
-                                                            <input type="hidden" name="departureDate_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture }}">
-
-                                                            <input type="hidden" name="departureDate_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture }}">
-
-                                                            <input type="hidden" name="departureDate_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfDeparture }}">
-
-                                                            <input type="hidden" name="departureTime_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture }}">
-
-                                                            <input type="hidden" name="departureTime_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture }}">
-
-                                                            <input type="hidden" name="departureTime_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfDeparture }}">
-
-                                                            <input type="hidden" name="flightNumber_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}">
-
-                                                            <input type="hidden" name="flightNumber_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}">
-
-                                                            <input type="hidden" name="flightNumber_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->flightOrtrainNumber }}">
-
-                                                            <input type="hidden" name="marketingCompany_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->marketingCarrier }}">
-
-                                                            <input type="hidden" name="marketingCompany_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->marketingCarrier }}">
-
-                                                            <input type="hidden" name="marketingCompany_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->companyId->marketingCarrier }}">
-
-                                                            <input type="hidden" name="operatingCompany_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}">
-
-                                                            <input type="hidden" name="operatingCompany_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier }}">
-
-                                                            <input type="hidden" name="operatingCompany_3"
-                                                                value="{{ $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier }}">
-
-
-                                                            <input type="hidden" name="noOfAdults"
-                                                                value="{{ $travellers['noOfAdults'] }}">
-
-                                                            <input type="hidden" name="noOfChilds"
-                                                                value="{{ $travellers['noOfChilds'] }}">
-
-                                                            <input type="hidden" name="noOfInfants"
-                                                                value="{{ $travellers['noOfInfants'] }}">
-
-                                                            <span class="fontsize-22"><i class="fa fa-rupee"></i>
-                                                                @if ($isAgent)
-                                                                    <span class="TotalFare product-card"
-                                                                        data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}">
-                                                                        {{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}
-                                                                    </span>
-                                                                @else
-                                                                    <span class="TotalFare product-card"
-                                                                        data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount }}">
-                                                                        {{ $paxFareDetails->paxFareDetail->totalFareAmount - $paxFareDetails->paxFareDetail->totalTaxAmount }}
-                                                                    </span>
-                                                                @endif
-
-                                                            </span>
-
-                                                            <a class="btn btn-primary btn-sm submit-btn">Book Now</a>
-
-                                                            @php
-                                                                $totalFareAmount =
-                                                                    $paxFareDetails->paxFareDetail->totalFareAmount;
-                                                                $totalTaxAmount =
-                                                                    $paxFareDetails->paxFareDetail->totalTaxAmount;
-                                                                array_push($airlineArr, [
-                                                                    'code' =>
-                                                                        $flightResults->flightDetails[0]
-                                                                            ->flightInformation->companyId
-                                                                            ->operatingCarrier,
-                                                                    'name' =>
-                                                                        $flightResults->flightDetails[0]
-                                                                            ->flightInformation->companyId
-                                                                            ->operatingCarrier,
-                                                                    'stop' => '2-Stop',
-                                                                    'layover' =>
-                                                                        $flightResults->flightDetails[1]
-                                                                            ->flightInformation->location[0]
-                                                                            ->locationId,
-                                                                    'airFare' => $totalFareAmount,
-                                                                ]);
-
-                                                            @endphp
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="boxunder margin-20">
+                                        <div class="grid-item">
+                                            <div class="boxunder grid-item takingoff">
                                                 <div class="row">
-                                                    <div class="col-4 col-md-4 col-sm-4 marginleft-20">
-                                                        <div class="searchtitle">
-                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
-                                                            <span
-                                                                class=" takeoff">{{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}</span>
-                                                        </div>
-                                                        <div class="searchtitle colorgrey">
-                                                            {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-3 col-md-3 col-sm-3">
-                                                        <div class="searchtitle text-center">
-                                                            {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
-                                                            | 2-Stop </div>
-                                                        <div class="borderbotum"></div>
-                                                        <div class="searchtitle colorgrey text-center">
-                                                            {{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId . '-' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-4 col-md-4 col-sm-4">
-                                                        <div class="float-right">
-                                                            <div class="searchtitle">
-                                                                <span
-                                                                    class=" landing">{{ substr_replace($flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}</span>
-                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[2]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[2]->flightInformation->location[1]->locationId . ')' }}
+                                                    <div class="col-6 col-md-6 col-sm-6">
+                                                        <div class="row ranjepp">
+                                                            <div class="col-3 col-md-3 col-sm-2">
+                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                    width="40px" height="40px" alt=""
+                                                                    class="imgonewayw">
                                                             </div>
-                                                            <div class="searchtitle colorgrey">
-                                                                {{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfArrival) }}
+                                                            <div class="col-8 col-md-8 col-sm-6">
+                                                                <div class="owstitle1">
+                                                                    {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier ?? $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}
+                                                                </div>
+                                                                <div class="owstitle">
+                                                                    {{ ($flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier ?? '') . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}
+
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div style="border-bottom: 1px solid #ccc; padding-top:7px;"></div>
-                                            <div class="container pt-10 pb-10">
-                                                {{-- <span class="onewflydetbtn {{ $farerule }}">{{ $farerule }}</span> --}}
-                                                <span data-toggle="collapse" data-target="#details{{ $rowkey }}"
-                                                    class="onewflydetbtn float-right">Flight Details <i
-                                                        class="fa fa-regular fa-angle-down"></i></span>
-                                                <!-- <span class="badge badge-info float-right">Flight Details</span> -->
-                                            </div>
-                                            <div id="details{{ $rowkey }}" class="collapse">
-                                                <div class="container">
-                                                    <ul class="nav nav-tabs">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link active" data-toggle="tab"
-                                                                href="#Information{{ $rowkey }}"> Flight
-                                                                Information </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Details{{ $rowkey }}"> Fare
-                                                                Details </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Baggage{{ $rowkey }}">
-                                                                Baggage Information </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Cancellation{{ $rowkey }}">
-                                                                Cancellation Rules </a>
-                                                        </li>
-                                                    </ul>
 
-                                                    <!-- Tab panes -->
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane container active"
-                                                            id="Information{{ $rowkey }}">
-                                                            <div class="row">
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10">
-                                                                        <span
-                                                                            class="searchtitle">{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . '->' . $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}</span>
-                                                                        <div>
-                                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="fligt">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
+                                                    <div class="col-6 col-md-6 col-sm-6">
+                                                        <div class="float-right ranjepp">
+                                                            <form action="{{ route('flight-review') }}" method="POST">
+                                                                @csrf
 
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 float-right">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[1]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-12 col-sm-12">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="owstitle">
-                                                                            {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
-                                                                        </div>
-                                                                        <div class="flh"></div>
-                                                                        {{-- <div class="owstitle">By: Air</div> --}}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10">
-                                                                        <span
-                                                                            class="searchtitle">{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}
-                                                                            ->
-                                                                            {{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}</span>
-                                                                        <div>
-                                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="fligt">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[0]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 float-right">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-12 col-sm-12">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="owstitle">
-                                                                            {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
-                                                                        </div>
-                                                                        <div class="flh"></div>
-                                                                        {{-- <div class="owstitle">By: Air</div> --}}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10">
-                                                                        <span
-                                                                            class="searchtitle">{{ $flightResults->flightDetails[2]->flightInformation->location[0]->locationId }}
-                                                                            ->
-                                                                            {{ $flightResults->flightDetails[2]->flightInformation->location[1]->locationId }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfDeparture) }}</span>
-                                                                        <div>
-                                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="fligt">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[2]->flightInformation->flightOrtrainNumber }}</span>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[2]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[2]->flightInformation->location[0]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfDeparture) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 float-right">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[2]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[2]->flightInformation->location[1]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfArrival) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Details{{ $rowkey }}">
-
-                                                            <div class="onwfntrespons-11">
-                                                                <span class="text-left"> Fare Rules :</span>
-                                                                <span class="text-right {{ $farerule }}">
-                                                                    {{ $farerule }} </span>
-                                                            </div>
-                                                            <table class="table table-bordered">
-                                                                <tbody class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">1 x Adult</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount - $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total (Base Fare)</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount - $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total Tax +</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total (Fee & Surcharge)</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount }}</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Baggage{{ $rowkey }}">
-                                                            <table class="table table-bordered">
-                                                                <thead class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <th>Airline</th>
-                                                                        <th>Check-in Baggage</th>
-                                                                        <th>Cabin Baggage</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @php(is_array($oneways->serviceFeesGrp->serviceCoverageInfoGrp) == true) ?
-                                                                    $onewaysServiceFeesCoverageInfoGrp =
-                                                                    $oneways->serviceFeesGrp->serviceCoverageInfoGrp :
-                                                                    $onewaysServiceFeesCoverageInfoGrp =
-                                                                    [$oneways->serviceFeesGrp->serviceCoverageInfoGrp];
+                                                                @foreach ($onewaysRecommendation as $recommendation)
+                                                                    @php(is_array($recommendation->segmentFlightRef) == true) ? $newSegmentFlightRef =
+                                                                    $recommendation->segmentFlightRef : $newSegmentFlightRef
+                                                                    =
+                                                                    [$recommendation->segmentFlightRef];
                                                                     @endphp
-                                                                    @foreach ($onewaysServiceFeesCoverageInfoGrp as $serviceCoverage)
-                                                                        @if ($baggRef == $serviceCoverage->itemNumberInfo->itemNumber->number)
-                                                                            @php(is_array($oneways->serviceFeesGrp->freeBagAllowanceGrp) == true) ?
-                                                                            $onewaysServiceBagAllowanceGrp =
-                                                                            $oneways->serviceFeesGrp->freeBagAllowanceGrp :
-                                                                            $onewaysServiceBagAllowanceGrp =
-                                                                            [$oneways->serviceFeesGrp->freeBagAllowanceGrp];
+
+                                                                    @foreach ($newSegmentFlightRef as $segmentFlightRef)
+                                                                        @if ($segmentFlightRef->referencingDetail[0]->refNumber == $flightResults->propFlightGrDetail->flightProposal[0]->ref)
+                                                                            @php
+
+                                                                                $baggRefArray = array_reverse(
+                                                                                    $segmentFlightRef->referencingDetail,
+                                                                                );
+                                                                                $baggRef = $baggRefArray[0]->refNumber;
+
+                                                                                is_array(
+                                                                                    $recommendation->paxFareProduct,
+                                                                                ) == true
+                                                                                    ? ($paxFareDetails =
+                                                                                        $recommendation
+                                                                                            ->paxFareProduct[0])
+                                                                                    : ($paxFareDetails =
+                                                                                        $recommendation->paxFareProduct);
+                                                                                is_array($paxFareDetails->fare)
+                                                                                    ? ($fareDetailsRule =
+                                                                                        $paxFareDetails->fare)
+                                                                                    : ($fareDetailsRule = [
+                                                                                        $paxFareDetails->fare,
+                                                                                    ]);
+
+                                                                                is_array(
+                                                                                    $fareDetailsRule[0]->pricingMessage
+                                                                                        ->description,
+                                                                                )
+                                                                                    ? ($farerule = 'NON-REFUNDABLE')
+                                                                                    : ($farerule =
+                                                                                        $fareDetailsRule[0]
+                                                                                            ->pricingMessage
+                                                                                            ->description);
+
+                                                                                $farerule == 'PENALTY APPLIES'
+                                                                                    ? ($farerule = 'REFUNDABLE')
+                                                                                    : ($farerule = 'NON-REFUNDABLE');
+
                                                                             @endphp
-                                                                            @foreach ($onewaysServiceBagAllowanceGrp as $freeBagAllowance)
-                                                                                @if (
-                                                                                    $serviceCoverage->serviceCovInfoGrp->refInfo->referencingDetail->refNumber ??
-                                                                                        '' == $freeBagAllowance->itemNumberInfo->itemNumberDetails->number)
-                                                                                    @if ($freeBagAllowance->freeBagAllownceInfo->baggageDetails->quantityCode == 'N')
-                                                                                        @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'PC baggage'; @endphp
-                                                                                    @else
-                                                                                        @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'KG baggage'; @endphp
-                                                                                    @endif
-                                                                                @endif
-                                                                            @endforeach
+
+                                                                            <input type="hidden" name="bookingClass_1"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct[0]->rbd }}">
+
+                                                                            <input type="hidden" name="bookingClass_2"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct[0]->rbd }} ">
+
+                                                                            <input type="hidden" name="bookingClass_3"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[2]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[2]->productInformation->cabinProduct[0]->rbd }} ">
+
+
+                                                                            <input type="hidden" name="fareBasis_1"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->fareProductDetail->fareBasis }}">
+
+                                                                            <input type="hidden" name="fareBasis_2"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->fareProductDetail->fareBasis }}">
+
+                                                                            <input type="hidden" name="fareBasis_3"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[2]->productInformation->fareProductDetail->fareBasis }}">
                                                                         @endif
                                                                     @endforeach
-                                                                    <tr>
-                                                                        <td> <img
-                                                                                src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
-                                                                        </td>
-                                                                        <td class="onwfnt-11">{{ $FreeBag }}</td>
-
-                                                                        <td class="onwfnt-11">7KG</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td> <img
-                                                                                src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
-                                                                        </td>
-                                                                        <td class="onwfnt-11">{{ $FreeBag }}</td>
-
-                                                                        <td class="onwfnt-11">7KG</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td> <img
-                                                                                src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[2]->flightInformation->flightOrtrainNumber }}</span>
-                                                                        </td>
-                                                                        <td class="onwfnt-11">{{ $FreeBag }}</td>
-
-                                                                        <td class="onwfnt-11">7KG</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <span class="onwfnt-11 font-weight-bold">Terms &
-                                                                Conditions</span>
-                                                            <ul class="onwfnt-11">
-                                                                <li>Total Rescheduling Charges Airlines Rescheduling fees
-                                                                    Fare
-                                                                    Difference if applicable + WT Fees.</li>
-                                                                <li>The airline cancel reschedule fees is indicative and can
-                                                                    be
-                                                                    changed without any prior notice by the airlines..</li>
-                                                                <li>WT does not guarantee the accuracy of cancel
-                                                                    reschedule
-                                                                    fees..</li>
-                                                                <li>Partial cancellation is not allowed on the flight
-                                                                    tickets
-                                                                    which
-                                                                    are book under special round trip discounted fares..
-                                                                </li>
-                                                                <li>Airlines doesnt allow any additional baggage allowance
-                                                                    for
-                                                                    any
-                                                                    infant added in the booking</li>
-                                                                <li>In certain situations of restricted cases, no amendments
-                                                                    and
-                                                                    cancellation is allowed</li>
-                                                                <li>Airlines cancel reschedule should be reconfirmed before
-                                                                    requesting for a cancellation or amendment</li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Cancellation{{ $rowkey }}">
-                                                            <table class="table table-bordered">
-                                                                <tbody class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <td> <b>Time Frame to Reissue</b>
-                                                                            <div class="onwfnt-11">(Before scheduled
-                                                                                departure time)
-                                                                            </div>
-                                                                        </td>
-                                                                        <td> <b>Airline Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                        <td> <b>WT Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Cancel Before 4 hours of
-                                                                            departure time.</td>
-                                                                        <td> As Per Airline Policy</td>
-                                                                        <td> <i class="fa fa-inr"></i> 500</td>
-                                                                    </tr>
-
-                                                                    <tr>
-                                                                        <td> <b>Time Frame to cancel</b>
-                                                                            <div class="onwfnt-11">(Before scheduled
-                                                                                departure time)
-                                                                            </div>
-                                                                        </td>
-                                                                        <td> <b>Airline Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                        <td> <b>WT Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Cancel Before 4 hours of
-                                                                            departure time.</td>
-                                                                        <td> As Per Airline Policy</td>
-                                                                        <td> <i class="fa fa-inr"></i> 500</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <span class="onwfnt-11 font-weight-bold">Terms &
-                                                                Conditions</span>
-                                                            <ul class="onwfnt-11">
-                                                                <li>Total Rescheduling Charges Airlines Rescheduling fees
-                                                                    Fare
-                                                                    Difference if applicable + WT Fees.</li>
-                                                                <li>The airline cancel reschedule fees is indicative and can
-                                                                    be
-                                                                    changed without any prior notice by the airlines..</li>
-                                                                <li>WT does not guarantee the accuracy of cancel
-                                                                    reschedule
-                                                                    fees..</li>
-                                                                <li>Partial cancellation is not allowed on the flight
-                                                                    tickets
-                                                                    which
-                                                                    are book under special round trip discounted fares..
-                                                                </li>
-                                                                <li>Airlines doesnt allow any additional baggage allowance
-                                                                    for
-                                                                    any
-                                                                    infant added in the booking</li>
-                                                                <li>In certain situations of restricted cases, no amendments
-                                                                    and
-                                                                    cancellation is allowed</li>
-                                                                <li>Airlines cancel reschedule should be reconfirmed before
-                                                                    requesting for a cancellation or amendment</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {{-- </div> --}}
-                                    </div>
-                                @elseif (is_array($flightResults->flightDetails) == true &&
-                                        isset($flightResults->flightDetails[1]) &&
-                                        !isset($flightResults->flightDetails[2]))
-                                    @php
-                                        if (
-                                            $flightResults->flightDetails[0]->flightInformation->companyId
-                                                ->operatingCarrier == 'SG'
-                                        ) {
-                                            continue;
-                                        }
-                                    @endphp
-                                    <div class="cardlist take airline_hide stops_hide 1-Stop {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . ' ' . $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}"
-                                        data-price1="{{ $itineraries['PricingInfos']['PricingInfo'][0]['FareBreakDowns']['FareBreakDown'][0]['TotalFare'] }}">
-                                        {{-- <div class="grid-item" > --}}
-                                        <div class="boxunder grid-item takingoff">
-                                            <div class="row">
-                                                <div class="col-6 col-md-6 col-sm-6">
-                                                    <div class="row ranjepp">
-                                                        <div class="col-3 col-md-3 col-sm-2">
-                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                width="40px" height="40px" alt=""
-                                                                class="imgonewayw">
-                                                        </div>
-                                                        <div class="col-8 col-md-8 col-sm-6">
-                                                            <div class="owstitle1">
-                                                                {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier ?? $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}
-                                                            </div>
-                                                            <div class="owstitle">
-                                                                {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}
-                                                                {{-- $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber --}}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-6 col-sm-6">
-                                                    <div class="float-right ranjepp">
-                                                        <form action="{{ route('flight-review') }}" method="POST">
-
-                                                            @csrf
-
-                                                            @foreach ($onewaysRecommendation as $recommendation)
-                                                                @php(is_array($recommendation->segmentFlightRef) == true) ? $newSegmentFlightRef =
-                                                                $recommendation->segmentFlightRef : $newSegmentFlightRef =
-                                                                [$recommendation->segmentFlightRef];
-                                                                @endphp
-                                                                @foreach ($newSegmentFlightRef as $segmentFlightRef)
-                                                                    @if ($segmentFlightRef->referencingDetail[0]->refNumber == $flightResults->propFlightGrDetail->flightProposal[0]->ref)
-                                                                        @php
-                                                                            $baggRefArray = array_reverse(
-                                                                                $segmentFlightRef->referencingDetail,
-                                                                            );
-                                                                            $baggRef = $baggRefArray[0]->refNumber;
-
-                                                                            is_array($recommendation->paxFareProduct) ==
-                                                                            true
-                                                                                ? ($paxFareDetails =
-                                                                                    $recommendation->paxFareProduct[0])
-                                                                                : ($paxFareDetails =
-                                                                                    $recommendation->paxFareProduct);
-                                                                            is_array($paxFareDetails->fare)
-                                                                                ? ($fareDetailsRule =
-                                                                                    $paxFareDetails->fare)
-                                                                                : ($fareDetailsRule = [
-                                                                                    $paxFareDetails->fare,
-                                                                                ]);
-
-                                                                            is_array(
-                                                                                $fareDetailsRule[0]->pricingMessage
-                                                                                    ->description,
-                                                                            )
-                                                                                ? ($farerule = 'NON-REFUNDABLE')
-                                                                                : ($farerule =
-                                                                                    $fareDetailsRule[0]->pricingMessage
-                                                                                        ->description);
-
-                                                                            $farerule == 'PENALTY APPLIES'
-                                                                                ? ($farerule = 'REFUNDABLE')
-                                                                                : ($farerule = 'NON-REFUNDABLE');
-                                                                        @endphp
-
-                                                                        <input type="hidden" name="bookingClass_1"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct[0]->rbd }}">
-
-                                                                        <input type="hidden" name="bookingClass_2"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct[0]->rbd }} ">
-
-                                                                        <input type="hidden" name="fareBasis_1"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->fareProductDetail->fareBasis }}">
-
-                                                                        <input type="hidden" name="fareBasis_2"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->fareProductDetail->fareBasis }}">
-                                                                    @endif
                                                                 @endforeach
-                                                            @endforeach
 
-                                                            <input type="hidden" name="onewayOnestop">
+                                                                <input type="hidden" name="onewayTwostop">
 
-                                                            <input type="hidden" name="arrivalingTime"
-                                                                value="{{ $flightResults->propFlightGrDetail->flightProposal[1]->ref }}">
+                                                                <input type="hidden" name="arrivalingTime"
+                                                                    value="{{ $flightResults->propFlightGrDetail->flightProposal[1]->ref }}">
 
-                                                            <input type="hidden" name="arrivalDate_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival }}">
+                                                                <input type="hidden" name="arrivalDate_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival }}">
 
-                                                            <input type="hidden" name="arrivalDate_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival }}">
+                                                                <input type="hidden" name="arrivalDate_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival }}">
 
-                                                            <input type="hidden" name="arrivalTime_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival }}">
+                                                                <input type="hidden" name="arrivalDate_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfArrival }}">
 
-                                                            <input type="hidden" name="arrivalTime_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival }}">
-                                                            <input type="hidden" name="departure_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId }}">
+                                                                <input type="hidden" name="arrivalTime_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival }}">
 
-                                                            <input type="hidden" name="arrival_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}">
+                                                                <input type="hidden" name="arrivalTime_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival }}">
 
-                                                            <input type="hidden" name="departureDate_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture }}">
+                                                                <input type="hidden" name="arrivalTime_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfArrival }}">
 
-                                                            <input type="hidden" name="departureTime_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture }}">
+                                                                <input type="hidden" name="departure_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId }}">
 
-                                                            <input type="hidden" name="marketingCompany_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->marketingCarrier }}">
+                                                                <input type="hidden" name="departure_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}">
 
-                                                            <input type="hidden" name="operatingCompany_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}">
+                                                                <input type="hidden" name="departure_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->location[0]->locationId }}">
 
-                                                            <input type="hidden" name="flightNumber_1"
-                                                                value="{{ $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}">
+                                                                <input type="hidden" name="arrival_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}">
 
-                                                            <input type="hidden" name="departure_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}">
+                                                                <input type="hidden" name="arrival_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}">
 
-                                                            <input type="hidden" name="arrival_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}">
+                                                                <input type="hidden" name="arrival_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->location[1]->locationId }}">
 
-                                                            <input type="hidden" name="departureDate_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture }}">
+                                                                <input type="hidden" name="departureDate_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture }}">
 
-                                                            <input type="hidden" name="departureTime_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture }}">
+                                                                <input type="hidden" name="departureDate_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture }}">
 
-                                                            <input type="hidden" name="noOfAdults"
-                                                                value="{{ $travellers['noOfAdults'] }}">
+                                                                <input type="hidden" name="departureDate_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfDeparture }}">
 
-                                                            <input type="hidden" name="noOfChilds"
-                                                                value="{{ $travellers['noOfChilds'] }}">
+                                                                <input type="hidden" name="departureTime_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture }}">
 
-                                                            <input type="hidden" name="noOfInfants"
-                                                                value="{{ $travellers['noOfInfants'] }}">
+                                                                <input type="hidden" name="departureTime_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture }}">
 
-                                                            <input type="hidden" name="marketingCompany_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->marketingCarrier }}">
+                                                                <input type="hidden" name="departureTime_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfDeparture }}">
 
-                                                            <input type="hidden" name="operatingCompany_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier }}">
+                                                                <input type="hidden" name="flightNumber_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}">
 
-                                                            <input type="hidden" name="flightNumber_2"
-                                                                value="{{ $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}">
+                                                                <input type="hidden" name="flightNumber_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}">
 
-                                                            <span class="fontsize-22"><i class="fa fa-rupee"></i>
+                                                                <input type="hidden" name="flightNumber_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->flightOrtrainNumber }}">
+
+                                                                <input type="hidden" name="marketingCompany_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->marketingCarrier }}">
+
+                                                                <input type="hidden" name="marketingCompany_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->marketingCarrier }}">
+
+                                                                <input type="hidden" name="marketingCompany_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->companyId->marketingCarrier }}">
+
+                                                                <input type="hidden" name="operatingCompany_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}">
+
+                                                                <input type="hidden" name="operatingCompany_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier }}">
+
+                                                                <input type="hidden" name="operatingCompany_3"
+                                                                    value="{{ $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier }}">
+
+
+                                                                <input type="hidden" name="noOfAdults"
+                                                                    value="{{ $travellers['noOfAdults'] }}">
+
+                                                                <input type="hidden" name="noOfChilds"
+                                                                    value="{{ $travellers['noOfChilds'] }}">
+
+                                                                <input type="hidden" name="noOfInfants"
+                                                                    value="{{ $travellers['noOfInfants'] }}">
+
+                                                                <span class="fontsize-22"><i class="fa fa-rupee"></i>
+                                                                    @if ($isAgent)
+                                                                        <span class="TotalFare product-card"
+                                                                            data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}">
+                                                                            {{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="TotalFare product-card"
+                                                                            data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount }}">
+                                                                            {{ $paxFareDetails->paxFareDetail->totalFareAmount - $paxFareDetails->paxFareDetail->totalTaxAmount }}
+                                                                        </span>
+                                                                    @endif
+
+                                                                </span>
+
+                                                                <a class="btn btn-primary btn-sm submit-btn">Book Now</a>
+
                                                                 @php
                                                                     $totalFareAmount =
                                                                         $paxFareDetails->paxFareDetail->totalFareAmount;
@@ -3229,7 +2588,7 @@
                                                                             $flightResults->flightDetails[0]
                                                                                 ->flightInformation->companyId
                                                                                 ->operatingCarrier,
-                                                                        'stop' => '1-Stop',
+                                                                        'stop' => '2-Stop',
                                                                         'layover' =>
                                                                             $flightResults->flightDetails[1]
                                                                                 ->flightInformation->location[0]
@@ -3238,762 +2597,305 @@
                                                                     ]);
 
                                                                 @endphp
-                                                                @if ($isAgent)
-                                                                    <span class="TotalFare product-card"
-                                                                        data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}">
-                                                                        {{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}
-                                                                    </span>
-                                                                @else
-                                                                    <span class="TotalFare product-card"
-                                                                        data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount - $totalTaxAmount }}">
-                                                                        {{ $paxFareDetails->paxFareDetail->totalFareAmount - $totalTaxAmount }}
-                                                                    </span>
-                                                                @endif
-                                                            </span>
-
-                                                            <a class="btn btn-primary btn-sm submit-btn">Book Now</a>
-
-                                                        </form>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="boxunder margin-20">
-                                                <div class="row">
-                                                    <div class="col-4 col-md-4 col-sm-4 marginleft-20">
-                                                        <div class="searchtitle">
-                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
-                                                            <span
-                                                                class=" takeoff">{{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}</span>
-                                                        </div>
-                                                        <div class="searchtitle colorgrey">
-                                                            {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-3 col-md-3 col-sm-3">
-                                                        <div class="searchtitle text-center">
-                                                            {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
-                                                            | 1 - Stop </div>
-                                                        <div class="borderbotum"></div>
-                                                        <div class="searchtitle colorgrey text-center">
-                                                            {{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-4 col-md-4 col-sm-4">
-                                                        <div class="float-right">
+                                                <div class="boxunder margin-20">
+                                                    <div class="row">
+                                                        <div class="col-4 col-md-4 col-sm-4 marginleft-20">
                                                             <div class="searchtitle">
+                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
                                                                 <span
-                                                                    class=" landing">{{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}</span>
-                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId . ')' }}
+                                                                    class=" takeoff">{{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}</span>
                                                             </div>
                                                             <div class="searchtitle colorgrey">
-                                                                {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-3 col-md-3 col-sm-3">
+                                                            <div class="searchtitle text-center">
+                                                                {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
+                                                                | 2-Stop </div>
+                                                            <div class="borderbotum"></div>
+                                                            <div class="searchtitle colorgrey text-center">
+                                                                {{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId . '-' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4 col-md-4 col-sm-4">
+                                                            <div class="float-right">
+                                                                <div class="searchtitle">
+                                                                    <span
+                                                                        class=" landing">{{ substr_replace($flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}</span>
+                                                                    {{ AirportiatacodesController::getCity($flightResults->flightDetails[2]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[2]->flightInformation->location[1]->locationId . ')' }}
+                                                                </div>
+                                                                <div class="searchtitle colorgrey">
+                                                                    {{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div style="border-bottom: 1px solid #ccc; padding-top:7px;"></div>
-                                            <div class="container pt-10 pb-10">
-                                                {{-- <span class="onewflydetbtn {{ $farerule }}">{{ $farerule }}</span> --}}
-                                                <span data-toggle="collapse" data-target="#details{{ $rowkey }}"
-                                                    class="onewflydetbtn float-right">Flight Details <i
-                                                        class="fa fa-regular fa-angle-down"></i></span>
+                                                <div style="border-bottom: 1px solid #ccc; padding-top:7px;"></div>
+                                                <div class="container pt-10 pb-10">
+                                                    <span
+                                                        class="onewflydetbtn {{ $farerule }}">{{ $farerule }}</span>
+                                                    <span data-toggle="collapse"
+                                                        data-target="#details{{ $rowkey }}"
+                                                        class="onewflydetbtn float-right">Flight Details <i
+                                                            class="fa fa-regular fa-angle-down"></i></span>
+                                                    <!-- <span class="badge badge-info float-right">Flight Details</span> -->
+                                                </div>
+                                                <div id="details{{ $rowkey }}" class="collapse">
+                                                    <div class="container">
+                                                        <ul class="nav nav-tabs">
+                                                            <li class="nav-item">
+                                                                <a class="nav-link active" data-toggle="tab"
+                                                                    href="#Information{{ $rowkey }}"> Flight
+                                                                    Information </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Details{{ $rowkey }}"> Fare
+                                                                    Details </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Baggage{{ $rowkey }}">
+                                                                    Baggage Information </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Cancellation{{ $rowkey }}">
+                                                                    Cancellation Rules </a>
+                                                            </li>
+                                                        </ul>
 
-                                                <!-- <span class="badge badge-info float-right">Flight Details</span> -->
-                                            </div>
-                                            <div id="details{{ $rowkey }}" class="collapse">
-                                                <div class="container">
-                                                    <ul class="nav nav-tabs">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link active" data-toggle="tab"
-                                                                href="#Information{{ $rowkey }}"> Flight
-                                                                Information </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Details{{ $rowkey }}"> Fare
-                                                                Details </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Baggage{{ $rowkey }}">
-                                                                Baggage Information </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Cancellation{{ $rowkey }}">
-                                                                Cancellation Rules </a>
-                                                        </li>
-                                                    </ul>
-
-                                                    <!-- Tab panes -->
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane container active"
-                                                            id="Information{{ $rowkey }}">
-                                                            <div class="row">
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10">
-                                                                        <span
-                                                                            class="searchtitle">{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId }}
-                                                                            ->
-                                                                            {{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}</span>
-                                                                        <div>
-                                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="fligt">
+                                                        <!-- Tab panes -->
+                                                        <div class="tab-content">
+                                                            <div class="tab-pane container active"
+                                                                id="Information{{ $rowkey }}">
+                                                                <div class="row">
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10">
                                                                             <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-
-                                                                    <div class="pt-10 float-right">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[1]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-12 col-sm-12">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="owstitle">
-                                                                            {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
-                                                                        </div>
-                                                                        <div class="flh"></div>
-                                                                        {{-- <div class="owstitle">By: Air</div> --}}
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10">
-                                                                        <span
-                                                                            class="searchtitle">{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}
-                                                                            ->
-                                                                            {{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}</span>
-                                                                        <div>
-                                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="fligt">
+                                                                                class="searchtitle">{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . '->' . $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}
+                                                                            </span>
                                                                             <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
+                                                                                class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}</span>
+                                                                            <div>
+                                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="fligt">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
 
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[0]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-4 col-md-4 col-sm-4">
-
-                                                                    <div class="pt-10 float-right">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Details{{ $rowkey }}">
-
-                                                            <div class="onwfntrespons-11">
-                                                                <span class="text-left"> Fare Rules :</span>
-                                                                <span class="text-right {{ $farerule }}">
-                                                                    {{ $farerule }} </span>
-                                                            </div>
-                                                            <table class="table table-bordered">
-                                                                <tbody>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">1 x Adult</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount - $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total (Base Fare)</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount - $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total Tax +</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total (Fee & Surcharge)</td>
-                                                                        <td class="text-right"> <i class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount }}</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-
-
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Baggage{{ $rowkey }}">
-                                                            <table class="table table-bordered">
-                                                                <thead class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <th>Airline</th>
-                                                                        <th>Check-in Baggage</th>
-                                                                        <th>Cabin Baggage</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @php(is_array($oneways->serviceFeesGrp->serviceCoverageInfoGrp) == true) ?
-                                                                    $onewaysServiceFeesCoverageInfoGrp =
-                                                                    $oneways->serviceFeesGrp->serviceCoverageInfoGrp :
-                                                                    $onewaysServiceFeesCoverageInfoGrp =
-                                                                    [$oneways->serviceFeesGrp->serviceCoverageInfoGrp];
-                                                                    @endphp
-                                                                    @foreach ($onewaysServiceFeesCoverageInfoGrp as $serviceCoverage)
-                                                                        @if ($baggRef == $serviceCoverage->itemNumberInfo->itemNumber->number)
-                                                                            @php(is_array($oneways->serviceFeesGrp->freeBagAllowanceGrp) == true) ?
-                                                                            $onewaysServiceBagAllowanceGrp =
-                                                                            $oneways->serviceFeesGrp->freeBagAllowanceGrp :
-                                                                            $onewaysServiceBagAllowanceGrp =
-                                                                            [$oneways->serviceFeesGrp->freeBagAllowanceGrp];
-                                                                            @endphp
-                                                                            @foreach ($onewaysServiceBagAllowanceGrp as $freeBagAllowance)
-                                                                                @if (
-                                                                                    $serviceCoverage->serviceCovInfoGrp->refInfo->referencingDetail->refNumber ??
-                                                                                        '' == $freeBagAllowance->itemNumberInfo->itemNumberDetails->number)
-                                                                                    @if ($freeBagAllowance->freeBagAllownceInfo->baggageDetails->quantityCode == 'N')
-                                                                                        @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'PC baggage'; @endphp
-                                                                                    @else
-                                                                                        @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'KG baggage'; @endphp
-                                                                                    @endif
-                                                                                @endif
-                                                                            @endforeach
-                                                                        @endif
-                                                                    @endforeach
-                                                                    <tr>
-                                                                        <td> <img
-                                                                                src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
-                                                                        </td>
-
-                                                                        <td class="onwfnt-11">{{ $FreeBag }}</td>
-
-                                                                        <td class="onwfnt-11">7KG</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td> <img
-                                                                                src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="">
-                                                                            <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
-                                                                        </td>
-                                                                        <td class="onwfnt-11">{{ $FreeBag }}</td>
-                                                                        <td class="onwfnt-11">7KG</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <span class="onwfnt-11 font-weight-bold">Terms &
-                                                                Conditions</span>
-                                                            <ul class="onwfnt-11">
-                                                                <li>Total Rescheduling Charges Airlines Rescheduling fees
-                                                                    Fare
-                                                                    Difference if applicable + WT Fees.</li>
-                                                                <li>The airline cancel reschedule fees is indicative and can
-                                                                    be
-                                                                    changed without any prior notice by the airlines..</li>
-                                                                <li>WT does not guarantee the accuracy of cancel
-                                                                    reschedule
-                                                                    fees..</li>
-                                                                <li>Partial cancellation is not allowed on the flight
-                                                                    tickets
-                                                                    which
-                                                                    are book under special round trip discounted fares..
-                                                                </li>
-                                                                <li>Airlines doesnt allow any additional baggage allowance
-                                                                    for
-                                                                    any
-                                                                    infant added in the booking</li>
-                                                                <li>In certain situations of restricted cases, no amendments
-                                                                    and
-                                                                    cancellation is allowed</li>
-                                                                <li>Airlines cancel reschedule should be reconfirmed before
-                                                                    requesting for a cancellation or amendment</li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Cancellation{{ $rowkey }}">
-                                                            <table class="table table-bordered">
-                                                                <tbody class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <td> <b>Time Frame to Reissue</b>
-                                                                            <div class="onwfnt-11">(Before scheduled
-                                                                                departure time)
                                                                             </div>
-                                                                        </td>
-                                                                        <td> <b>Airline Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                        <td> <b>WT Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Cancel Before 4 hours of
-                                                                            departure time.</td>
-                                                                        <td> As Per Airline Policy</td>
-                                                                        <td> <i class="fa fa-inr"></i> 500</td>
-                                                                    </tr>
-
-                                                                    <tr>
-                                                                        <td> <b>Time Frame to cancel</b>
-                                                                            <div class="onwfnt-11">(Before scheduled
-                                                                                departure time)
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
                                                                             </div>
-                                                                        </td>
-                                                                        <td> <b>Airline Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                        <td> <b>WT Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Cancel Before 4 hours of
-                                                                            departure time.</td>
-                                                                        <td> As Per Airline Policy</td>
-                                                                        <td> <i class="fa fa-inr"></i> 500</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <span class="onwfnt-11 font-weight-bold">Terms &
-                                                                Conditions</span>
-                                                            <ul class="onwfnt-11">
-                                                                <li>Total Rescheduling Charges Airlines Rescheduling fees
-                                                                    Fare
-                                                                    Difference if applicable + WT Fees.</li>
-                                                                <li>The airline cancel reschedule fees is indicative and can
-                                                                    be
-                                                                    changed without any prior notice by the airlines..</li>
-                                                                <li>WT does not guarantee the accuracy of cancel
-                                                                    reschedule
-                                                                    fees..</li>
-                                                                <li>Partial cancellation is not allowed on the flight
-                                                                    tickets
-                                                                    which
-                                                                    are book under special round trip discounted fares..
-                                                                </li>
-                                                                <li>Airlines doesnt allow any additional baggage allowance
-                                                                    for
-                                                                    any
-                                                                    infant added in the booking</li>
-                                                                <li>In certain situations of restricted cases, no amendments
-                                                                    and
-                                                                    cancellation is allowed</li>
-                                                                <li>Airlines cancel reschedule should be reconfirmed before
-                                                                    requesting for a cancellation or amendment</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {{-- </div> --}}
-                                    </div>
-                                @else
-                                    @php
-                                        if (
-                                            $flightResults->flightDetails->flightInformation->companyId
-                                                ->operatingCarrier == 'SG'
-                                        ) {
-                                            continue;
-                                        }
-                                    @endphp
-                                    <div class="cardlist take airline_hide stops_hide Non-Stop {{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier }}"
-                                        data-price1="{{ $itineraries['PricingInfos']['PricingInfo'][0]['FareBreakDowns']['FareBreakDown'][0]['TotalFare'] }}">
-                                        {{-- <div class="grid-item" > --}}
-                                        <div class="boxunder grid-item takingoff">
-                                            <div class="row">
-                                                <div class="col-6 col-md-6 col-sm-6">
-                                                    <div class="row ranjepp">
-                                                        <div class="col-3 col-md-3 col-sm-2">
-                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                width="40px" height="40px" alt=""
-                                                                class="imgonewayw">
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
+                                                                            </div>
+                                                                            <div class="owstitle">Terminal - </div>
+                                                                        </div>
+                                                                    </div>
 
-                                                        </div>
-                                                        <div class="col-8 col-md-8 col-sm-6">
-                                                            <div class="owstitle1">
-                                                                {{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier ?? $flightResults->flightDetails->flightInformation->companyId->operatingCarrier }}
-                                                            </div>
-                                                            <div class="owstitle">
-                                                                {{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-6 col-sm-6">
-                                                    <div class="float-right ranjepp">
-                                                        <form action="{{ route('flight-review') }}" method="POST">
-                                                            @csrf
-
-                                                            @foreach ($onewaysRecommendation as $recommendation)
-                                                                @php(is_array($recommendation->segmentFlightRef) == true) ? $newSegmentFlightRef =
-                                                                $recommendation->segmentFlightRef : $newSegmentFlightRef =
-                                                                [$recommendation->segmentFlightRef];
-                                                                @endphp
-                                                                @foreach ($newSegmentFlightRef as $segmentFlightRef)
-                                                                    @if ($segmentFlightRef->referencingDetail[0]->refNumber == $flightResults->propFlightGrDetail->flightProposal[0]->ref)
-                                                                        @php
-                                                                            $baggRefArray = array_reverse(
-                                                                                $segmentFlightRef->referencingDetail,
-                                                                            );
-                                                                            $baggRef = $baggRefArray[0]->refNumber;
-
-                                                                            is_array($recommendation->paxFareProduct) ==
-                                                                            true
-                                                                                ? ($paxFareDetails =
-                                                                                    $recommendation->paxFareProduct[0])
-                                                                                : ($paxFareDetails =
-                                                                                    $recommendation->paxFareProduct);
-                                                                            is_array($paxFareDetails->fare)
-                                                                                ? ($fareDetailsRule =
-                                                                                    $paxFareDetails->fare)
-                                                                                : ($fareDetailsRule = [
-                                                                                    $paxFareDetails->fare,
-                                                                                ]);
-
-                                                                            is_array(
-                                                                                $fareDetailsRule[0]->pricingMessage
-                                                                                    ->description,
-                                                                            )
-                                                                                ? ($farerule = 'NON-REFUNDABLE')
-                                                                                : ($farerule =
-                                                                                    $fareDetailsRule[0]->pricingMessage
-                                                                                        ->description);
-
-                                                                            $farerule == 'PENALTY APPLIES'
-                                                                                ? ($farerule = 'REFUNDABLE')
-                                                                                : ($farerule = 'NON-REFUNDABLE');
-                                                                        @endphp
-
-                                                                        <input type="hidden" name="bookingClass"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares->productInformation->cabinProduct[0]->rbd }}">
-
-                                                                        <input type="hidden" name="fareBasis"
-                                                                            value="{{ $paxFareDetails->fareDetails->groupOfFares->productInformation->fareProductDetail->fareBasis }}">
-                                                                    @endif
-                                                                @endforeach
-                                                            @endforeach
-
-                                                            <input type="hidden" name="onewayNonstop">
-
-                                                            <input type="hidden" name="arrivalingTime"
-                                                                value="{{ $flightResults->propFlightGrDetail->flightProposal[1]->ref }}">
-                                                            <input type="hidden" name="departure"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->location[0]->locationId }}">
-                                                            <input type="hidden" name="arrival"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->location[1]->locationId }}">
-                                                            <input type="hidden" name="departureDate"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture }}">
-                                                            <input type="hidden" name="arrivalDate"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->productDateTime->dateOfArrival }}">
-                                                            <input type="hidden" name="marketingCompany"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->companyId->marketingCarrier }}">
-                                                            <input type="hidden" name="operatingCompany"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier }}">
-
-                                                            <input type="hidden" name="noOfAdults"
-                                                                value="{{ $travellers['noOfAdults'] }}">
-
-                                                            <input type="hidden" name="noOfChilds"
-                                                                value="{{ $travellers['noOfChilds'] }}">
-
-                                                            <input type="hidden" name="noOfInfants"
-                                                                value="{{ $travellers['noOfInfants'] }}">
-
-                                                            <input type="hidden" name="flightNumber"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}">
-
-                                                            <input type="hidden" name="departureTime"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->productDateTime->timeOfDeparture }}">
-                                                            <input type="hidden" name="arrivalTime"
-                                                                value="{{ $flightResults->flightDetails->flightInformation->productDateTime->timeOfArrival }}">
-
-                                                            <span class="fontsize-22"><i class="fa fa-rupee"></i>
-                                                                @if ($isAgent)
-                                                                    <span class="TotalFare product-card"
-                                                                        data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}">
-                                                                        {{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}
-                                                                    </span>
-                                                                @else
-                                                                    <span class="TotalFare product-card"
-                                                                        data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount - $paxFareDetails->paxFareDetail->totalTaxAmount }}">
-                                                                        {{ $paxFareDetails->paxFareDetail->totalFareAmount - $paxFareDetails->paxFareDetail->totalTaxAmount }}
-                                                                    </span>
-                                                                @endif
-                                                            </span>
-
-                                                            <a class="btn btn-primary btn-sm submit-btn">Book Now</a>
-                                                            @php
-                                                                $totalFareAmount =
-                                                                    $paxFareDetails->paxFareDetail->totalFareAmount;
-                                                                $totalTaxAmount =
-                                                                    $paxFareDetails->paxFareDetail->totalTaxAmount;
-                                                                array_push($airlineArr, [
-                                                                    'code' =>
-                                                                        $flightResults->flightDetails->flightInformation
-                                                                            ->companyId->operatingCarrier,
-                                                                    'name' =>
-                                                                        $flightResults->flightDetails->flightInformation
-                                                                            ->companyId->operatingCarrier,
-                                                                    'stop' => 'Non-Stop',
-                                                                    'layover' => 'Non-Stop',
-                                                                    'airFare' => $totalFareAmount,
-                                                                ]);
-                                                            @endphp
-                                                            {{-- </td> --}}
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="boxunder">
-                                                <div class="row">
-                                                    <div class="col-5 col-md-5 col-sm-5 text-center">
-                                                        <div class="searchtitle">
-                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[0]->locationId . ')' }}
-                                                            <span
-                                                                class=" takeoff">{{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}</span>
-                                                        </div>
-                                                        <div class="searchtitle colorgrey">
-                                                            {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture) }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-2 col-md-2 col-sm-2 text-center">
-                                                        <div class="searchtitle text-center">
-                                                            {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
-                                                        </div>
-                                                        <div class="borderbotum"></div>
-                                                        <div class="searchtitle colorgrey text-center">
-                                                            Non-Stop
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-5 col-md-5 col-sm-5">
-                                                        <div class="text-center">
-                                                            <div class="searchtitle">
-                                                                <span
-                                                                    class=" landing">{{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}</span>
-                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[1]->locationId . ')' }}
-                                                            </div>
-                                                            <div class="searchtitle colorgrey">
-                                                                {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfArrival) }}
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="container pt-10 pb-10">
-                                                {{-- <span class="onewflydetbtn {{ $farerule }}">{{ $farerule}}</span> --}}
-                                                <span data-toggle="collapse" data-target="#details{{ $rowkey }}"
-                                                    class="onewflydetbtn float-right">Flight Details <i
-                                                        class="fa fa-regular fa-angle-down"></i></span>
-                                                <!-- <span class="badge badge-info float-right">Flight Details</span> -->
-                                            </div>
-                                            <div id="details{{ $rowkey }}" class="collapse">
-                                                <div class="container">
-                                                    <ul class="nav nav-tabs">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link active" data-toggle="tab"
-                                                                href="#Information{{ $rowkey }}"> Flight
-                                                                Information </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Details{{ $rowkey }}"> Fare
-                                                                Details </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Baggage{{ $rowkey }}">
-                                                                Baggage Information </a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-toggle="tab"
-                                                                href="#Cancellation{{ $rowkey }}">
-                                                                Cancellation Rules </a>
-                                                        </li>
-                                                    </ul>
-
-                                                    <!-- Tab panes -->
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane container active"
-                                                            id="Information{{ $rowkey }}">
-                                                            <div class="row">
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10">
-                                                                        <span
-                                                                            class="searchtitle">{{ $flightResults->flightDetails->flightInformation->location[0]->locationId }}
-                                                                            ->
-                                                                            {{ $flightResults->flightDetails->flightInformation->location[1]->locationId }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture) }}</span>
-                                                                        <div>
-                                                                            <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="fligt">
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 float-right">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[1]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                            </div>
+                                                                            <div class="owstitle">Terminal - </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12 col-md-12 col-sm-12">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="owstitle">
+                                                                                {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
+                                                                            </div>
+                                                                            <div class="flh"></div>
+                                                                            <div class="owstitle">By: Air</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10">
                                                                             <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 text-center">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[0]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-4 col-md-4 col-sm-4">
-                                                                    <div class="pt-10 float-right">
-                                                                        <div class="searchtitle">
-                                                                            {{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[1]->locationId . ')' }}
-                                                                        </div>
-                                                                        <div class="owstitle">
-                                                                            {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfArrival) }}
-                                                                        </div>
-                                                                        {{-- <div class="owstitle">Terminal - </div> --}}
-                                                                    </div>
-
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="tab-pane container fade"
-                                                            id="Details{{ $rowkey }}">
-
-                                                            <div class="onwfntrespons-11">
-                                                                <span class="text-left"> Fare Rules :</span>
-                                                                <span class="text-right {{ $farerule }}">
-                                                                    {{ $farerule }} </span>
-
-                                                            </div>
-                                                            <table class="table table-bordered">
-                                                                <tbody class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">1 x Adult</td>
-
-                                                                        <td class="text-right"> <i
-                                                                                class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount - $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total (Base Fare)</td>
-                                                                        <td class="text-right"> <i
-                                                                                class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount - $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total Tax +</td>
-                                                                        <td class="text-right"> <i
-                                                                                class="fa fa-inr"></i>
-                                                                            {{ $totalTaxAmount }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Total (Fee & Surcharge)</td>
-                                                                        <td class="text-right"> <i
-                                                                                class="fa fa-inr"></i>
-                                                                            {{ $totalFareAmount }}</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Baggage{{ $rowkey }}">
-                                                            <table class="table table-bordered">
-                                                                <thead class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <th>Airline</th>
-                                                                        <th>Check-in Baggage</th>
-                                                                        <th>Cabin Baggage</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr>
-                                                                        <td> <img
-                                                                                src="{{ asset('assets/images/flight/' . $flightResults->flightDetails->flightInformation->companyId->operatingCarrier) }}.png"
-                                                                                width="40px" height="40px"
-                                                                                alt="">
+                                                                                class="searchtitle">{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}
+                                                                                ->
+                                                                                {{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}
+                                                                            </span>
                                                                             <span
-                                                                                class="onwfnt-11">{{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}</span>
-                                                                        </td>
+                                                                                class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}</span>
+                                                                            <div>
+                                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="fligt">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[0]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}
+                                                                            </div>
+                                                                            <div class="owstitle">Terminal - </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 float-right">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                            </div>
+                                                                            <div class="owstitle">Terminal - </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12 col-md-12 col-sm-12">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="owstitle">
+                                                                                {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
+                                                                            </div>
+                                                                            <div class="flh"></div>
+                                                                            <div class="owstitle">By: Air</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10">
+                                                                            <span
+                                                                                class="searchtitle">{{ $flightResults->flightDetails[2]->flightInformation->location[0]->locationId }}
+                                                                                ->
+                                                                                {{ $flightResults->flightDetails[2]->flightInformation->location[1]->locationId }}
+                                                                            </span>
+                                                                            <span
+                                                                                class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfDeparture) }}</span>
+                                                                            <div>
+                                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="fligt">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[2]->flightInformation->flightOrtrainNumber }}</span>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[2]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[2]->flightInformation->location[0]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfDeparture) }}
+                                                                            </div>
+                                                                            <div class="owstitle">Terminal - </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 float-right">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[2]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[2]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[2]->flightInformation->location[1]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[2]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                            </div>
+                                                                            <div class="owstitle">Terminal - </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Details{{ $rowkey }}">
+
+                                                                <div class="onwfntrespons-11">
+                                                                    <span class="text-left"> Fare Rules :</span>
+                                                                    <span class="text-right {{ $farerule }}">
+                                                                        {{ $farerule }} </span>
+                                                                </div>
+                                                                <table class="table table-bordered">
+                                                                    <tbody class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">1 x Adult</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount - $totalTaxAmount }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total (Base Fare)</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount - $totalTaxAmount }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total Tax +</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalTaxAmount }}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total (Fee & Surcharge)
+                                                                            </td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount }}</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Baggage{{ $rowkey }}">
+                                                                <table class="table table-bordered">
+                                                                    <thead class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <th>Airline</th>
+                                                                            <th>Check-in Baggage</th>
+                                                                            <th>Cabin Baggage</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
                                                                         @php(is_array($oneways->serviceFeesGrp->serviceCoverageInfoGrp) == true) ?
                                                                         $onewaysServiceFeesCoverageInfoGrp =
                                                                         $oneways->serviceFeesGrp->serviceCoverageInfoGrp :
                                                                         $onewaysServiceFeesCoverageInfoGrp =
                                                                         [$oneways->serviceFeesGrp->serviceCoverageInfoGrp];
                                                                         @endphp
-
                                                                         @foreach ($onewaysServiceFeesCoverageInfoGrp as $serviceCoverage)
                                                                             @if ($baggRef == $serviceCoverage->itemNumberInfo->itemNumber->number)
                                                                                 @php(is_array($oneways->serviceFeesGrp->freeBagAllowanceGrp) == true) ?
@@ -4008,131 +2910,1320 @@
                                                                                         $serviceCoverage->serviceCovInfoGrp->refInfo->referencingDetail->refNumber ??
                                                                                             '' == $freeBagAllowance->itemNumberInfo->itemNumberDetails->number)
                                                                                         @if ($freeBagAllowance->freeBagAllownceInfo->baggageDetails->quantityCode == 'N')
-                                                                                            <td class="onwfnt-11">
-                                                                                                {{ $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance }}PC
-                                                                                                baggage</td>
+                                                                                            @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'PC baggage'; @endphp
                                                                                         @else
-                                                                                            <td class="onwfnt-11">
-                                                                                                {{ $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance }}KG
-                                                                                                baggage</td>
+                                                                                            @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'KG baggage'; @endphp
                                                                                         @endif
                                                                                     @endif
                                                                                 @endforeach
                                                                             @endif
                                                                         @endforeach
+                                                                        <tr>
+                                                                            <td> <img
+                                                                                    src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
+                                                                            </td>
+                                                                            <td class="onwfnt-11">{{ $FreeBag }}
+                                                                            </td>
 
-                                                                        {{-- <td class="onwfnt-11">7KG</td> --}}
-                                                                        <td class="onwfnt-11">7KG</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <span class="onwfnt-11 font-weight-bold">Terms &
-                                                                Conditions</span>
-                                                            <ul class="onwfnt-11">
-                                                                <li>Total Rescheduling Charges Airlines Rescheduling fees
-                                                                    Fare
-                                                                    Difference if applicable + WT Fees.</li>
-                                                                <li>The airline cancel reschedule fees is indicative and can
-                                                                    be
-                                                                    changed without any prior notice by the airlines..</li>
-                                                                <li>WT does not guarantee the accuracy of cancel
-                                                                    reschedule
-                                                                    fees..</li>
-                                                                <li>Partial cancellation is not allowed on the flight
-                                                                    tickets
-                                                                    which
-                                                                    are book under special round trip discounted fares..
-                                                                </li>
-                                                                <li>Airlines doesnt allow any additional baggage allowance
-                                                                    for
-                                                                    any
-                                                                    infant added in the booking</li>
-                                                                <li>In certain situations of restricted cases, no amendments
-                                                                    and
-                                                                    cancellation is allowed</li>
-                                                                <li>Airlines cancel reschedule should be reconfirmed before
-                                                                    requesting for a cancellation or amendment</li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="tab-pane container fade"
-                                                            id="Cancellation{{ $rowkey }}">
-                                                            <table class="table table-bordered">
-                                                                <tbody class="onwfntrespons-11">
-                                                                    <tr>
-                                                                        <td> <b>Time Frame to Reissue</b>
-                                                                            <div class="onwfnt-11">(Before scheduled
-                                                                                departure time)
-                                                                            </div>
-                                                                        </td>
-                                                                        <td> <b>Airline Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                        <td> <b>WT Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Cancel Before 4 hours of
-                                                                            departure time.</td>
-                                                                        <td> As Per Airline Policy</td>
-                                                                        <td> <i class="fa fa-inr"></i> 500</td>
-                                                                    </tr>
+                                                                            <td class="onwfnt-11">7KG</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td> <img
+                                                                                    src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
+                                                                            </td>
+                                                                            <td class="onwfnt-11">{{ $FreeBag }}
+                                                                            </td>
 
-                                                                    <tr>
-                                                                        <td> <b>Time Frame to cancel</b>
-                                                                            <div class="onwfnt-11">(Before scheduled
-                                                                                departure time)
-                                                                            </div>
-                                                                        </td>
-                                                                        <td> <b>Airline Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                        <td> <b>WT Fees</b>
-                                                                            <div class="onwfnt-11"> (per passenger) </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td class="onwfnt-11">Cancel Before 4 hours of
-                                                                            departure time.</td>
-                                                                        <td> As Per Airline Policy</td>
-                                                                        <td> <i class="fa fa-inr"></i> 500</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <span class="onwfnt-11 font-weight-bold">Terms &
-                                                                Conditions</span>
-                                                            <ul class="onwfnt-11">
-                                                                <li>Total Rescheduling Charges Airlines Rescheduling fees
-                                                                    Fare
-                                                                    Difference if applicable + WT Fees.</li>
-                                                                <li>The airline cancel reschedule fees is indicative and can
-                                                                    be
-                                                                    changed without any prior notice by the airlines..</li>
-                                                                <li>WT does not guarantee the accuracy of cancel
-                                                                    reschedule
-                                                                    fees..</li>
-                                                                <li>Partial cancellation is not allowed on the flight
-                                                                    tickets
-                                                                    which
-                                                                    are book under special round trip discounted fares..
-                                                                </li>
-                                                                <li>Airlines doesnt allow any additional baggage allowance
-                                                                    for
-                                                                    any
-                                                                    infant added in the booking</li>
-                                                                <li>In certain situations of restricted cases, no amendments
-                                                                    and
-                                                                    cancellation is allowed</li>
-                                                                <li>Airlines cancel reschedule should be reconfirmed before
-                                                                    requesting for a cancellation or amendment</li>
-                                                            </ul>
+                                                                            <td class="onwfnt-11">7KG</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td> <img
+                                                                                    src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[2]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[2]->flightInformation->flightOrtrainNumber }}</span>
+                                                                            </td>
+                                                                            <td class="onwfnt-11">{{ $FreeBag }}
+                                                                            </td>
+
+                                                                            <td class="onwfnt-11">7KG</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <span class="onwfnt-11 font-weight-bold">Terms &
+                                                                    Conditions</span>
+                                                                <ul class="onwfnt-11">
+                                                                    <li>Total Rescheduling Charges Airlines Rescheduling
+                                                                        fees
+                                                                        Fare
+                                                                        Difference if applicable + WT Fees.</li>
+                                                                    <li>The airline cancel reschedule fees is indicative and
+                                                                        can
+                                                                        be
+                                                                        changed without any prior notice by the airlines..
+                                                                    </li>
+                                                                    <li>WT does not guarantee the accuracy of cancel
+                                                                        reschedule
+                                                                        fees..</li>
+                                                                    <li>Partial cancellation is not allowed on the flight
+                                                                        tickets
+                                                                        which
+                                                                        are book under special round trip discounted fares..
+                                                                    </li>
+                                                                    <li>Airlines doesnt allow any additional baggage
+                                                                        allowance
+                                                                        for
+                                                                        any
+                                                                        infant added in the booking</li>
+                                                                    <li>In certain situations of restricted cases, no
+                                                                        amendments
+                                                                        and
+                                                                        cancellation is allowed</li>
+                                                                    <li>Airlines cancel reschedule should be reconfirmed
+                                                                        before
+                                                                        requesting for a cancellation or amendment</li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Cancellation{{ $rowkey }}">
+                                                                <table class="table table-bordered">
+                                                                    <tbody class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <td> <b>Time Frame to Reissue</b>
+                                                                                <div class="onwfnt-11">(Before scheduled
+                                                                                    departure time)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>Airline Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>WT Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Cancel Before 4 hours of
+                                                                                departure time.</td>
+                                                                            <td> As Per Airline Policy</td>
+                                                                            <td> <i class="fa fa-inr"></i> 500</td>
+                                                                        </tr>
+
+                                                                        <tr>
+                                                                            <td> <b>Time Frame to cancel</b>
+                                                                                <div class="onwfnt-11">(Before scheduled
+                                                                                    departure time)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>Airline Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>WT Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Cancel Before 4 hours of
+                                                                                departure time.</td>
+                                                                            <td> As Per Airline Policy</td>
+                                                                            <td> <i class="fa fa-inr"></i> 500</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <span class="onwfnt-11 font-weight-bold">Terms &
+                                                                    Conditions</span>
+                                                                <ul class="onwfnt-11">
+                                                                    <li>Total Rescheduling Charges Airlines Rescheduling
+                                                                        fees
+                                                                        Fare
+                                                                        Difference if applicable + WT Fees.</li>
+                                                                    <li>The airline cancel reschedule fees is indicative and
+                                                                        can
+                                                                        be
+                                                                        changed without any prior notice by the airlines..
+                                                                    </li>
+                                                                    <li>WT does not guarantee the accuracy of cancel
+                                                                        reschedule
+                                                                        fees..</li>
+                                                                    <li>Partial cancellation is not allowed on the flight
+                                                                        tickets
+                                                                        which
+                                                                        are book under special round trip discounted fares..
+                                                                    </li>
+                                                                    <li>Airlines doesnt allow any additional baggage
+                                                                        allowance
+                                                                        for
+                                                                        any
+                                                                        infant added in the booking</li>
+                                                                    <li>In certain situations of restricted cases, no
+                                                                        amendments
+                                                                        and
+                                                                        cancellation is allowed</li>
+                                                                    <li>Airlines cancel reschedule should be reconfirmed
+                                                                        before
+                                                                        requesting for a cancellation or amendment</li>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            {{-- </div> --}}
                                         </div>
-                                        {{-- </div> --}}
-                                    </div>
+                                    @elseif (is_array($flightResults->flightDetails) == true &&
+                                            isset($flightResults->flightDetails[1]) &&
+                                            !isset($flightResults->flightDetails[2]))
+                                        @php
+                                            if (
+                                                $flightResults->flightDetails[0]->flightInformation->companyId
+                                                    ->operatingCarrier == 'SG'
+                                            ) {
+                                                continue;
+                                            }
+                                        @endphp
+                                        <div class="cardlist take airline_hide stops_hide 1-Stop {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . ' ' . $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}"
+                                            data-price1="{{ $itineraries['PricingInfos']['PricingInfo'][0]['FareBreakDowns']['FareBreakDown'][0]['TotalFare'] }}">
+                                            {{-- <div class="grid-item" > --}}
+                                            <div class="boxunder grid-item takingoff">
+                                                <div class="row">
+                                                    <div class="col-6 col-md-6 col-sm-6">
+                                                        <div class="row ranjepp">
+                                                            <div class="col-3 col-md-3 col-sm-2">
+                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                    width="40px" height="40px" alt=""
+                                                                    class="imgonewayw">
+                                                            </div>
+                                                            <div class="col-8 col-md-8 col-sm-6">
+                                                                <div class="owstitle1">
+                                                                    {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier ?? $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}
+                                                                </div>
+                                                                <div class="owstitle">
+                                                                    {{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}
+                                                                    {{-- $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber --}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-md-6 col-sm-6">
+                                                        <div class="float-right ranjepp">
+                                                            <form action="{{ route('flight-review') }}" method="POST">
+
+                                                                @csrf
+
+                                                                @foreach ($onewaysRecommendation as $recommendation)
+                                                                    @php(is_array($recommendation->segmentFlightRef) == true) ? $newSegmentFlightRef =
+                                                                    $recommendation->segmentFlightRef : $newSegmentFlightRef
+                                                                    =
+                                                                    [$recommendation->segmentFlightRef];
+                                                                    @endphp
+                                                                    @foreach ($newSegmentFlightRef as $segmentFlightRef)
+                                                                        @if ($segmentFlightRef->referencingDetail[0]->refNumber == $flightResults->propFlightGrDetail->flightProposal[0]->ref)
+                                                                            @php
+                                                                                $baggRefArray = array_reverse(
+                                                                                    $segmentFlightRef->referencingDetail,
+                                                                                );
+                                                                                $baggRef = $baggRefArray[0]->refNumber;
+
+                                                                                is_array(
+                                                                                    $recommendation->paxFareProduct,
+                                                                                ) == true
+                                                                                    ? ($paxFareDetails =
+                                                                                        $recommendation
+                                                                                            ->paxFareProduct[0])
+                                                                                    : ($paxFareDetails =
+                                                                                        $recommendation->paxFareProduct);
+                                                                                is_array($paxFareDetails->fare)
+                                                                                    ? ($fareDetailsRule =
+                                                                                        $paxFareDetails->fare)
+                                                                                    : ($fareDetailsRule = [
+                                                                                        $paxFareDetails->fare,
+                                                                                    ]);
+
+                                                                                is_array(
+                                                                                    $fareDetailsRule[0]->pricingMessage
+                                                                                        ->description,
+                                                                                )
+                                                                                    ? ($farerule = 'NON-REFUNDABLE')
+                                                                                    : ($farerule =
+                                                                                        $fareDetailsRule[0]
+                                                                                            ->pricingMessage
+                                                                                            ->description);
+
+                                                                                $farerule == 'PENALTY APPLIES'
+                                                                                    ? ($farerule = 'REFUNDABLE')
+                                                                                    : ($farerule = 'NON-REFUNDABLE');
+                                                                            @endphp
+
+                                                                            <input type="hidden" name="bookingClass_1"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->cabinProduct[0]->rbd }}">
+
+                                                                            <input type="hidden" name="bookingClass_2"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->cabinProduct[0]->rbd }} ">
+
+                                                                            <input type="hidden" name="fareBasis_1"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[0]->productInformation->fareProductDetail->fareBasis }}">
+
+                                                                            <input type="hidden" name="fareBasis_2"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares[1]->productInformation->fareProductDetail->fareBasis }}">
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endforeach
+
+                                                                <input type="hidden" name="onewayOnestop">
+
+                                                                <input type="hidden" name="arrivalingTime"
+                                                                    value="{{ $flightResults->propFlightGrDetail->flightProposal[1]->ref }}">
+
+                                                                <input type="hidden" name="arrivalDate_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival }}">
+
+                                                                <input type="hidden" name="arrivalDate_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival }}">
+
+                                                                <input type="hidden" name="arrivalTime_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival }}">
+
+                                                                <input type="hidden" name="arrivalTime_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival }}">
+                                                                <input type="hidden" name="departure_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId }}">
+
+                                                                <input type="hidden" name="arrival_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}">
+
+                                                                <input type="hidden" name="departureDate_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture }}">
+
+                                                                <input type="hidden" name="departureTime_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture }}">
+
+                                                                <input type="hidden" name="marketingCompany_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->marketingCarrier }}">
+
+                                                                <input type="hidden" name="operatingCompany_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier }}">
+
+                                                                <input type="hidden" name="flightNumber_1"
+                                                                    value="{{ $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}">
+
+                                                                <input type="hidden" name="departure_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}">
+
+                                                                <input type="hidden" name="arrival_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}">
+
+                                                                <input type="hidden" name="departureDate_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture }}">
+
+                                                                <input type="hidden" name="departureTime_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture }}">
+
+                                                                <input type="hidden" name="noOfAdults"
+                                                                    value="{{ $travellers['noOfAdults'] }}">
+
+                                                                <input type="hidden" name="noOfChilds"
+                                                                    value="{{ $travellers['noOfChilds'] }}">
+
+                                                                <input type="hidden" name="noOfInfants"
+                                                                    value="{{ $travellers['noOfInfants'] }}">
+
+                                                                <input type="hidden" name="marketingCompany_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->marketingCarrier }}">
+
+                                                                <input type="hidden" name="operatingCompany_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier }}">
+
+                                                                <input type="hidden" name="flightNumber_2"
+                                                                    value="{{ $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}">
+
+                                                                <span class="fontsize-22"><i class="fa fa-rupee"></i>
+                                                                    @php
+                                                                        $totalFareAmount =
+                                                                            $paxFareDetails->paxFareDetail
+                                                                                ->totalFareAmount;
+                                                                        $totalTaxAmount =
+                                                                            $paxFareDetails->paxFareDetail
+                                                                                ->totalTaxAmount;
+                                                                        array_push($airlineArr, [
+                                                                            'code' =>
+                                                                                $flightResults->flightDetails[0]
+                                                                                    ->flightInformation->companyId
+                                                                                    ->operatingCarrier,
+                                                                            'name' =>
+                                                                                $flightResults->flightDetails[0]
+                                                                                    ->flightInformation->companyId
+                                                                                    ->operatingCarrier,
+                                                                            'stop' => '1-Stop',
+                                                                            'layover' =>
+                                                                                $flightResults->flightDetails[1]
+                                                                                    ->flightInformation->location[0]
+                                                                                    ->locationId,
+                                                                            'airFare' => $totalFareAmount,
+                                                                        ]);
+
+                                                                    @endphp
+                                                                    @if ($isAgent)
+                                                                        <span class="TotalFare product-card"
+                                                                            data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}">
+                                                                            {{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="TotalFare product-card"
+                                                                            data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount - $totalTaxAmount }}">
+                                                                            {{ $paxFareDetails->paxFareDetail->totalFareAmount - $totalTaxAmount }}
+                                                                        </span>
+                                                                    @endif
+                                                                </span>
+
+                                                                <a class="btn btn-primary btn-sm submit-btn">Book Now</a>
+
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="boxunder margin-20">
+                                                    <div class="row">
+                                                        <div class="col-4 col-md-4 col-sm-4 marginleft-20">
+                                                            <div class="searchtitle">
+                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
+                                                                <span
+                                                                    class=" takeoff">{{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}</span>
+                                                            </div>
+                                                            <div class="searchtitle colorgrey">
+                                                                {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-3 col-md-3 col-sm-3">
+                                                            <div class="searchtitle text-center">
+                                                                {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
+                                                                | 1 - Stop </div>
+                                                            <div class="borderbotum"></div>
+                                                            <div class="searchtitle colorgrey text-center">
+                                                                {{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4 col-md-4 col-sm-4">
+                                                            <div class="float-right">
+                                                                <div class="searchtitle">
+                                                                    <span
+                                                                        class=" landing">{{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}</span>
+                                                                    {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId . ')' }}
+                                                                </div>
+                                                                <div class="searchtitle colorgrey">
+                                                                    {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div style="border-bottom: 1px solid #ccc; padding-top:7px;"></div>
+                                                <div class="container pt-10 pb-10">
+                                                    {{-- <span class="onewflydetbtn {{ $farerule }}">{{ $farerule }}</span> --}}
+                                                    <span data-toggle="collapse"
+                                                        data-target="#details{{ $rowkey }}"
+                                                        class="onewflydetbtn float-right">Flight Details <i
+                                                            class="fa fa-regular fa-angle-down"></i></span>
+
+                                                    <!-- <span class="badge badge-info float-right">Flight Details</span> -->
+                                                </div>
+                                                <div id="details{{ $rowkey }}" class="collapse">
+                                                    <div class="container">
+                                                        <ul class="nav nav-tabs">
+                                                            <li class="nav-item">
+                                                                <a class="nav-link active" data-toggle="tab"
+                                                                    href="#Information{{ $rowkey }}"> Flight
+                                                                    Information </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Details{{ $rowkey }}"> Fare
+                                                                    Details </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Baggage{{ $rowkey }}">
+                                                                    Baggage Information </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Cancellation{{ $rowkey }}">
+                                                                    Cancellation Rules </a>
+                                                            </li>
+                                                        </ul>
+
+                                                        <!-- Tab panes -->
+                                                        <div class="tab-content">
+                                                            <div class="tab-pane container active"
+                                                                id="Information{{ $rowkey }}">
+                                                                <div class="row">
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10">
+                                                                            <span
+                                                                                class="searchtitle">{{ $flightResults->flightDetails[0]->flightInformation->location[0]->locationId }}
+                                                                                ->
+                                                                                {{ $flightResults->flightDetails[0]->flightInformation->location[1]->locationId }}
+                                                                            </span>
+                                                                            <span
+                                                                                class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}</span>
+                                                                            <div>
+                                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="fligt">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[0]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfDeparture) }}
+                                                                            </div>
+                                                                            {{-- <div class="owstitle">Terminal - </div> --}}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+
+                                                                        <div class="pt-10 float-right">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[0]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[0]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[0]->flightInformation->location[1]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[0]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                            </div>
+                                                                            {{-- <div class="owstitle">Terminal - </div> --}}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12 col-md-12 col-sm-12">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="owstitle">
+                                                                                {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
+                                                                            </div>
+                                                                            <div class="flh"></div>
+                                                                            {{-- <div class="owstitle">By: Air</div> --}}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10">
+                                                                            <span
+                                                                                class="searchtitle">{{ $flightResults->flightDetails[1]->flightInformation->location[0]->locationId }}
+                                                                                ->
+                                                                                {{ $flightResults->flightDetails[1]->flightInformation->location[1]->locationId }}
+                                                                            </span>
+                                                                            <span
+                                                                                class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}</span>
+                                                                            <div>
+                                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="fligt">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[0]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfDeparture) }}
+                                                                            </div>
+                                                                            {{-- <div class="owstitle">Terminal - </div> --}}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+
+                                                                        <div class="pt-10 float-right">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails[1]->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails[1]->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails[1]->flightInformation->location[1]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails[1]->flightInformation->productDateTime->dateOfArrival) }}
+                                                                            </div>
+                                                                            {{-- <div class="owstitle">Terminal - </div> --}}
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Details{{ $rowkey }}">
+
+                                                                <div class="onwfntrespons-11">
+                                                                    <span class="text-left"> Fare Rules :</span>
+                                                                    <span class="text-right {{ $farerule }}">
+                                                                        {{ $farerule }} </span>
+                                                                </div>
+                                                                <table class="table table-bordered">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">1 x Adult</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount - $totalTaxAmount }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total (Base Fare)</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount - $totalTaxAmount }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total Tax +</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalTaxAmount }}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total (Fee & Surcharge)
+                                                                            </td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount }}</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+
+
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Baggage{{ $rowkey }}">
+                                                                <table class="table table-bordered">
+                                                                    <thead class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <th>Airline</th>
+                                                                            <th>Check-in Baggage</th>
+                                                                            <th>Cabin Baggage</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @php(is_array($oneways->serviceFeesGrp->serviceCoverageInfoGrp) == true) ?
+                                                                        $onewaysServiceFeesCoverageInfoGrp =
+                                                                        $oneways->serviceFeesGrp->serviceCoverageInfoGrp :
+                                                                        $onewaysServiceFeesCoverageInfoGrp =
+                                                                        [$oneways->serviceFeesGrp->serviceCoverageInfoGrp];
+                                                                        @endphp
+                                                                        @foreach ($onewaysServiceFeesCoverageInfoGrp as $serviceCoverage)
+                                                                            @if ($baggRef == $serviceCoverage->itemNumberInfo->itemNumber->number)
+                                                                                @php(is_array($oneways->serviceFeesGrp->freeBagAllowanceGrp) == true) ?
+                                                                                $onewaysServiceBagAllowanceGrp =
+                                                                                $oneways->serviceFeesGrp->freeBagAllowanceGrp
+                                                                                :
+                                                                                $onewaysServiceBagAllowanceGrp =
+                                                                                [$oneways->serviceFeesGrp->freeBagAllowanceGrp];
+                                                                                @endphp
+                                                                                @foreach ($onewaysServiceBagAllowanceGrp as $freeBagAllowance)
+                                                                                    @if (
+                                                                                        $serviceCoverage->serviceCovInfoGrp->refInfo->referencingDetail->refNumber ??
+                                                                                            '' == $freeBagAllowance->itemNumberInfo->itemNumberDetails->number)
+                                                                                        @if ($freeBagAllowance->freeBagAllownceInfo->baggageDetails->quantityCode == 'N')
+                                                                                            @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'PC baggage'; @endphp
+                                                                                        @else
+                                                                                            @php $FreeBag = $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance . 'KG baggage'; @endphp
+                                                                                        @endif
+                                                                                    @endif
+                                                                                @endforeach
+                                                                            @endif
+                                                                        @endforeach
+                                                                        <tr>
+                                                                            <td> <img
+                                                                                    src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[0]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[0]->flightInformation->flightOrtrainNumber }}</span>
+                                                                            </td>
+
+                                                                            <td class="onwfnt-11">{{ $FreeBag }}
+                                                                            </td>
+
+                                                                            <td class="onwfnt-11">7KG</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td> <img
+                                                                                    src="{{ asset('assets/images/flight/' . $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails[1]->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails[1]->flightInformation->flightOrtrainNumber }}</span>
+                                                                            </td>
+                                                                            <td class="onwfnt-11">{{ $FreeBag }}
+                                                                            </td>
+                                                                            <td class="onwfnt-11">7KG</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <span class="onwfnt-11 font-weight-bold">Terms &
+                                                                    Conditions</span>
+                                                                <ul class="onwfnt-11">
+                                                                    <li>Total Rescheduling Charges Airlines Rescheduling
+                                                                        fees
+                                                                        Fare
+                                                                        Difference if applicable + WT Fees.</li>
+                                                                    <li>The airline cancel reschedule fees is indicative and
+                                                                        can
+                                                                        be
+                                                                        changed without any prior notice by the airlines..
+                                                                    </li>
+                                                                    <li>WT does not guarantee the accuracy of cancel
+                                                                        reschedule
+                                                                        fees..</li>
+                                                                    <li>Partial cancellation is not allowed on the flight
+                                                                        tickets
+                                                                        which
+                                                                        are book under special round trip discounted fares..
+                                                                    </li>
+                                                                    <li>Airlines doesnt allow any additional baggage
+                                                                        allowance
+                                                                        for
+                                                                        any
+                                                                        infant added in the booking</li>
+                                                                    <li>In certain situations of restricted cases, no
+                                                                        amendments
+                                                                        and
+                                                                        cancellation is allowed</li>
+                                                                    <li>Airlines cancel reschedule should be reconfirmed
+                                                                        before
+                                                                        requesting for a cancellation or amendment</li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Cancellation{{ $rowkey }}">
+                                                                <table class="table table-bordered">
+                                                                    <tbody class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <td> <b>Time Frame to Reissue</b>
+                                                                                <div class="onwfnt-11">(Before scheduled
+                                                                                    departure time)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>Airline Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>WT Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Cancel Before 4 hours of
+                                                                                departure time.</td>
+                                                                            <td> As Per Airline Policy</td>
+                                                                            <td> <i class="fa fa-inr"></i> 500</td>
+                                                                        </tr>
+
+                                                                        <tr>
+                                                                            <td> <b>Time Frame to cancel</b>
+                                                                                <div class="onwfnt-11">(Before scheduled
+                                                                                    departure time)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>Airline Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>WT Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Cancel Before 4 hours of
+                                                                                departure time.</td>
+                                                                            <td> As Per Airline Policy</td>
+                                                                            <td> <i class="fa fa-inr"></i> 500</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <span class="onwfnt-11 font-weight-bold">Terms &
+                                                                    Conditions</span>
+                                                                <ul class="onwfnt-11">
+                                                                    <li>Total Rescheduling Charges Airlines Rescheduling
+                                                                        fees
+                                                                        Fare
+                                                                        Difference if applicable + WT Fees.</li>
+                                                                    <li>The airline cancel reschedule fees is indicative and
+                                                                        can
+                                                                        be
+                                                                        changed without any prior notice by the airlines..
+                                                                    </li>
+                                                                    <li>WT does not guarantee the accuracy of cancel
+                                                                        reschedule
+                                                                        fees..</li>
+                                                                    <li>Partial cancellation is not allowed on the flight
+                                                                        tickets
+                                                                        which
+                                                                        are book under special round trip discounted fares..
+                                                                    </li>
+                                                                    <li>Airlines doesnt allow any additional baggage
+                                                                        allowance
+                                                                        for
+                                                                        any
+                                                                        infant added in the booking</li>
+                                                                    <li>In certain situations of restricted cases, no
+                                                                        amendments
+                                                                        and
+                                                                        cancellation is allowed</li>
+                                                                    <li>Airlines cancel reschedule should be reconfirmed
+                                                                        before
+                                                                        requesting for a cancellation or amendment</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- </div> --}}
+                                        </div>
+                                    @else
+                                        @php
+                                            if (
+                                                $flightResults->flightDetails->flightInformation->companyId
+                                                    ->operatingCarrier == 'SG'
+                                            ) {
+                                                continue;
+                                            }
+                                        @endphp
+                                        <div class="cardlist take airline_hide stops_hide Non-Stop {{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier }}"
+                                            data-price1="{{ $itineraries['PricingInfos']['PricingInfo'][0]['FareBreakDowns']['FareBreakDown'][0]['TotalFare'] }}">
+                                            {{-- <div class="grid-item" > --}}
+                                            <div class="boxunder grid-item takingoff">
+                                                <div class="row">
+                                                    <div class="col-6 col-md-6 col-sm-6">
+                                                        <div class="row ranjepp">
+                                                            <div class="col-3 col-md-3 col-sm-2">
+                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                    width="40px" height="40px" alt=""
+                                                                    class="imgonewayw">
+
+                                                            </div>
+                                                            <div class="col-8 col-md-8 col-sm-6">
+                                                                <div class="owstitle1">
+                                                                    {{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier ?? $flightResults->flightDetails->flightInformation->companyId->operatingCarrier }}
+                                                                </div>
+                                                                <div class="owstitle">
+                                                                    {{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-md-6 col-sm-6">
+                                                        <div class="float-right ranjepp">
+                                                            <form action="{{ route('flight-review') }}"
+                                                                method="POST">
+                                                                @csrf
+
+                                                                @foreach ($onewaysRecommendation as $recommendation)
+                                                                    @php(is_array($recommendation->segmentFlightRef) == true) ? $newSegmentFlightRef =
+                                                                    $recommendation->segmentFlightRef : $newSegmentFlightRef
+                                                                    =
+                                                                    [$recommendation->segmentFlightRef];
+                                                                    @endphp
+                                                                    @foreach ($newSegmentFlightRef as $segmentFlightRef)
+                                                                        @if ($segmentFlightRef->referencingDetail[0]->refNumber == $flightResults->propFlightGrDetail->flightProposal[0]->ref)
+                                                                            @php
+                                                                                $baggRefArray = array_reverse(
+                                                                                    $segmentFlightRef->referencingDetail,
+                                                                                );
+                                                                                $baggRef = $baggRefArray[0]->refNumber;
+
+                                                                                is_array(
+                                                                                    $recommendation->paxFareProduct,
+                                                                                ) == true
+                                                                                    ? ($paxFareDetails =
+                                                                                        $recommendation
+                                                                                            ->paxFareProduct[0])
+                                                                                    : ($paxFareDetails =
+                                                                                        $recommendation->paxFareProduct);
+                                                                                is_array($paxFareDetails->fare)
+                                                                                    ? ($fareDetailsRule =
+                                                                                        $paxFareDetails->fare)
+                                                                                    : ($fareDetailsRule = [
+                                                                                        $paxFareDetails->fare,
+                                                                                    ]);
+
+                                                                                is_array(
+                                                                                    $fareDetailsRule[0]->pricingMessage
+                                                                                        ->description,
+                                                                                )
+                                                                                    ? ($farerule = 'NON-REFUNDABLE')
+                                                                                    : ($farerule =
+                                                                                        $fareDetailsRule[0]
+                                                                                            ->pricingMessage
+                                                                                            ->description);
+
+                                                                                $farerule == 'PENALTY APPLIES'
+                                                                                    ? ($farerule = 'REFUNDABLE')
+                                                                                    : ($farerule = 'NON-REFUNDABLE');
+                                                                            @endphp
+
+                                                                            <input type="hidden" name="bookingClass"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares->productInformation->cabinProduct->rbd ?? $paxFareDetails->fareDetails->groupOfFares->productInformation->cabinProduct[0]->rbd }}">
+
+                                                                            <input type="hidden" name="fareBasis"
+                                                                                value="{{ $paxFareDetails->fareDetails->groupOfFares->productInformation->fareProductDetail->fareBasis }}">
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endforeach
+
+                                                                <input type="hidden" name="onewayNonstop">
+
+                                                                <input type="hidden" name="arrivalingTime"
+                                                                    value="{{ $flightResults->propFlightGrDetail->flightProposal[1]->ref }}">
+                                                                <input type="hidden" name="departure"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->location[0]->locationId }}">
+                                                                <input type="hidden" name="arrival"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->location[1]->locationId }}">
+                                                                <input type="hidden" name="departureDate"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture }}">
+                                                                <input type="hidden" name="arrivalDate"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->productDateTime->dateOfArrival }}">
+                                                                <input type="hidden" name="marketingCompany"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->companyId->marketingCarrier }}">
+                                                                <input type="hidden" name="operatingCompany"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier }}">
+
+                                                                <input type="hidden" name="noOfAdults"
+                                                                    value="{{ $travellers['noOfAdults'] }}">
+
+                                                                <input type="hidden" name="noOfChilds"
+                                                                    value="{{ $travellers['noOfChilds'] }}">
+
+                                                                <input type="hidden" name="noOfInfants"
+                                                                    value="{{ $travellers['noOfInfants'] }}">
+
+                                                                <input type="hidden" name="flightNumber"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}">
+
+                                                                <input type="hidden" name="departureTime"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->productDateTime->timeOfDeparture }}">
+                                                                <input type="hidden" name="arrivalTime"
+                                                                    value="{{ $flightResults->flightDetails->flightInformation->productDateTime->timeOfArrival }}">
+
+                                                                <span class="fontsize-22"><i class="fa fa-rupee"></i>
+                                                                    @if ($isAgent)
+                                                                        <span class="TotalFare product-card"
+                                                                            data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}">
+                                                                            {{ $paxFareDetails->paxFareDetail->totalFareAmount + $charge }}
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="TotalFare product-card"
+                                                                            data-price1="{{ $paxFareDetails->paxFareDetail->totalFareAmount - $paxFareDetails->paxFareDetail->totalTaxAmount }}">
+                                                                            {{ $paxFareDetails->paxFareDetail->totalFareAmount - $paxFareDetails->paxFareDetail->totalTaxAmount }}
+                                                                        </span>
+                                                                    @endif
+                                                                </span>
+
+                                                                <a class="btn btn-primary btn-sm submit-btn">Book Now</a>
+                                                                @php
+                                                                    $totalFareAmount =
+                                                                        $paxFareDetails->paxFareDetail->totalFareAmount;
+                                                                    $totalTaxAmount =
+                                                                        $paxFareDetails->paxFareDetail->totalTaxAmount;
+                                                                    array_push($airlineArr, [
+                                                                        'code' =>
+                                                                            $flightResults->flightDetails
+                                                                                ->flightInformation->companyId
+                                                                                ->operatingCarrier,
+                                                                        'name' =>
+                                                                            $flightResults->flightDetails
+                                                                                ->flightInformation->companyId
+                                                                                ->operatingCarrier,
+                                                                        'stop' => 'Non-Stop',
+                                                                        'layover' => 'Non-Stop',
+                                                                        'airFare' => $totalFareAmount,
+                                                                    ]);
+                                                                @endphp
+                                                                {{-- </td> --}}
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="boxunder">
+                                                    <div class="row">
+                                                        <div class="col-5 col-md-5 col-sm-5 text-center">
+                                                            <div class="searchtitle">
+                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[0]->locationId . ')' }}
+                                                                <span
+                                                                    class=" takeoff">{{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}</span>
+                                                            </div>
+                                                            <div class="searchtitle colorgrey">
+                                                                {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture) }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-2 col-md-2 col-sm-2 text-center">
+                                                            <div class="searchtitle text-center">
+                                                                {{ substr_replace(substr_replace($flightResults->propFlightGrDetail->flightProposal[1]->ref, 'h ', 2, 0), 'm', 6, 0) }}
+                                                            </div>
+                                                            <div class="borderbotum"></div>
+                                                            <div class="searchtitle colorgrey text-center">
+                                                                Non-Stop
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-5 col-md-5 col-sm-5">
+                                                            <div class="text-center">
+                                                                <div class="searchtitle">
+                                                                    <span
+                                                                        class=" landing">{{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}</span>
+                                                                    {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[1]->locationId . ')' }}
+                                                                </div>
+                                                                <div class="searchtitle colorgrey">
+                                                                    {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfArrival) }}
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="container pt-10 pb-10">
+                                                    {{-- <span class="onewflydetbtn {{ $farerule }}">{{ $farerule}}</span> --}}
+                                                    <span data-toggle="collapse"
+                                                        data-target="#details{{ $rowkey }}"
+                                                        class="onewflydetbtn float-right">Flight Details <i
+                                                            class="fa fa-regular fa-angle-down"></i></span>
+                                                    <!-- <span class="badge badge-info float-right">Flight Details</span> -->
+                                                </div>
+                                                <div id="details{{ $rowkey }}" class="collapse">
+                                                    <div class="container">
+                                                        <ul class="nav nav-tabs">
+                                                            <li class="nav-item">
+                                                                <a class="nav-link active" data-toggle="tab"
+                                                                    href="#Information{{ $rowkey }}"> Flight
+                                                                    Information </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Details{{ $rowkey }}"> Fare
+                                                                    Details </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Baggage{{ $rowkey }}">
+                                                                    Baggage Information </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#Cancellation{{ $rowkey }}">
+                                                                    Cancellation Rules </a>
+                                                            </li>
+                                                        </ul>
+
+                                                        <!-- Tab panes -->
+                                                        <div class="tab-content">
+                                                            <div class="tab-pane container active"
+                                                                id="Information{{ $rowkey }}">
+                                                                <div class="row">
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10">
+                                                                            <span
+                                                                                class="searchtitle">{{ $flightResults->flightDetails->flightInformation->location[0]->locationId }}
+                                                                                ->
+                                                                                {{ $flightResults->flightDetails->flightInformation->location[1]->locationId }}
+                                                                            </span>
+                                                                            <span
+                                                                                class="onwfnt-11">{{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture) }}</span>
+                                                                            <div>
+                                                                                <img src="{{ asset('assets/images/flight/' . $flightResults->flightDetails->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="fligt">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 text-center">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfDeparture, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[0]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[0]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfDeparture) }}
+                                                                            </div>
+                                                                            {{-- <div class="owstitle">Terminal - </div> --}}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-4 col-md-4 col-sm-4">
+                                                                        <div class="pt-10 float-right">
+                                                                            <div class="searchtitle">
+                                                                                {{ substr_replace($flightResults->flightDetails->flightInformation->productDateTime->timeOfArrival, ':', 2, 0) }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ AirportiatacodesController::getCity($flightResults->flightDetails->flightInformation->location[1]->locationId) . '(' . $flightResults->flightDetails->flightInformation->location[1]->locationId . ')' }}
+                                                                            </div>
+                                                                            <div class="owstitle">
+                                                                                {{ getDate_fn($flightResults->flightDetails->flightInformation->productDateTime->dateOfArrival) }}
+                                                                            </div>
+                                                                            {{-- <div class="owstitle">Terminal - </div> --}}
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="tab-pane container fade"
+                                                                id="Details{{ $rowkey }}">
+
+                                                                <div class="onwfntrespons-11">
+                                                                    <span class="text-left"> Fare Rules :</span>
+                                                                    <span class="text-right {{ $farerule }}">
+                                                                        {{ $farerule }} </span>
+
+                                                                </div>
+                                                                <table class="table table-bordered">
+                                                                    <tbody class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">1 x Adult</td>
+
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount - $totalTaxAmount }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total (Base Fare)</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount - $totalTaxAmount }}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total Tax +</td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalTaxAmount }}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Total (Fee & Surcharge)
+                                                                            </td>
+                                                                            <td class="text-right"> <i
+                                                                                    class="fa fa-inr"></i>
+                                                                                {{ $totalFareAmount }}</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Baggage{{ $rowkey }}">
+                                                                <table class="table table-bordered">
+                                                                    <thead class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <th>Airline</th>
+                                                                            <th>Check-in Baggage</th>
+                                                                            <th>Cabin Baggage</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td> <img
+                                                                                    src="{{ asset('assets/images/flight/' . $flightResults->flightDetails->flightInformation->companyId->operatingCarrier) }}.png"
+                                                                                    width="40px" height="40px"
+                                                                                    alt="">
+                                                                                <span
+                                                                                    class="onwfnt-11">{{ $flightResults->flightDetails->flightInformation->companyId->operatingCarrier . '-' . $flightResults->flightDetails->flightInformation->flightOrtrainNumber }}</span>
+                                                                            </td>
+                                                                            @php(is_array($oneways->serviceFeesGrp->serviceCoverageInfoGrp) == true) ?
+                                                                            $onewaysServiceFeesCoverageInfoGrp =
+                                                                            $oneways->serviceFeesGrp->serviceCoverageInfoGrp
+                                                                            :
+                                                                            $onewaysServiceFeesCoverageInfoGrp =
+                                                                            [$oneways->serviceFeesGrp->serviceCoverageInfoGrp];
+                                                                            @endphp
+
+                                                                            @foreach ($onewaysServiceFeesCoverageInfoGrp as $serviceCoverage)
+                                                                                @if ($baggRef == $serviceCoverage->itemNumberInfo->itemNumber->number)
+                                                                                    @php(is_array($oneways->serviceFeesGrp->freeBagAllowanceGrp) == true) ?
+                                                                                    $onewaysServiceBagAllowanceGrp =
+                                                                                    $oneways->serviceFeesGrp->freeBagAllowanceGrp
+                                                                                    :
+                                                                                    $onewaysServiceBagAllowanceGrp =
+                                                                                    [$oneways->serviceFeesGrp->freeBagAllowanceGrp];
+                                                                                    @endphp
+                                                                                    @foreach ($onewaysServiceBagAllowanceGrp as $freeBagAllowance)
+                                                                                        @if (
+                                                                                            $serviceCoverage->serviceCovInfoGrp->refInfo->referencingDetail->refNumber ??
+                                                                                                '' == $freeBagAllowance->itemNumberInfo->itemNumberDetails->number)
+                                                                                            @if ($freeBagAllowance->freeBagAllownceInfo->baggageDetails->quantityCode == 'N')
+                                                                                                <td class="onwfnt-11">
+                                                                                                    {{ $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance }}PC
+                                                                                                    baggage</td>
+                                                                                            @else
+                                                                                                <td class="onwfnt-11">
+                                                                                                    {{ $freeBagAllowance->freeBagAllownceInfo->baggageDetails->freeAllowance }}KG
+                                                                                                    baggage</td>
+                                                                                            @endif
+                                                                                        @endif
+                                                                                    @endforeach
+                                                                                @endif
+                                                                            @endforeach
+
+                                                                            {{-- <td class="onwfnt-11">7KG</td> --}}
+                                                                            <td class="onwfnt-11">7KG</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <span class="onwfnt-11 font-weight-bold">Terms &
+                                                                    Conditions</span>
+                                                                <ul class="onwfnt-11">
+                                                                    <li>Total Rescheduling Charges Airlines Rescheduling
+                                                                        fees
+                                                                        Fare
+                                                                        Difference if applicable + WT Fees.</li>
+                                                                    <li>The airline cancel reschedule fees is indicative and
+                                                                        can
+                                                                        be
+                                                                        changed without any prior notice by the airlines..
+                                                                    </li>
+                                                                    <li>WT does not guarantee the accuracy of cancel
+                                                                        reschedule
+                                                                        fees..</li>
+                                                                    <li>Partial cancellation is not allowed on the flight
+                                                                        tickets
+                                                                        which
+                                                                        are book under special round trip discounted fares..
+                                                                    </li>
+                                                                    <li>Airlines doesnt allow any additional baggage
+                                                                        allowance
+                                                                        for
+                                                                        any
+                                                                        infant added in the booking</li>
+                                                                    <li>In certain situations of restricted cases, no
+                                                                        amendments
+                                                                        and
+                                                                        cancellation is allowed</li>
+                                                                    <li>Airlines cancel reschedule should be reconfirmed
+                                                                        before
+                                                                        requesting for a cancellation or amendment</li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="tab-pane container fade"
+                                                                id="Cancellation{{ $rowkey }}">
+                                                                <table class="table table-bordered">
+                                                                    <tbody class="onwfntrespons-11">
+                                                                        <tr>
+                                                                            <td> <b>Time Frame to Reissue</b>
+                                                                                <div class="onwfnt-11">(Before scheduled
+                                                                                    departure time)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>Airline Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>WT Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Cancel Before 4 hours of
+                                                                                departure time.</td>
+                                                                            <td> As Per Airline Policy</td>
+                                                                            <td> <i class="fa fa-inr"></i> 500</td>
+                                                                        </tr>
+
+                                                                        <tr>
+                                                                            <td> <b>Time Frame to cancel</b>
+                                                                                <div class="onwfnt-11">(Before scheduled
+                                                                                    departure time)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>Airline Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                            <td> <b>WT Fees</b>
+                                                                                <div class="onwfnt-11"> (per passenger)
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="onwfnt-11">Cancel Before 4 hours of
+                                                                                departure time.</td>
+                                                                            <td> As Per Airline Policy</td>
+                                                                            <td> <i class="fa fa-inr"></i> 500</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <span class="onwfnt-11 font-weight-bold">Terms &
+                                                                    Conditions</span>
+                                                                <ul class="onwfnt-11">
+                                                                    <li>Total Rescheduling Charges Airlines Rescheduling
+                                                                        fees
+                                                                        Fare
+                                                                        Difference if applicable + WT Fees.</li>
+                                                                    <li>The airline cancel reschedule fees is indicative and
+                                                                        can
+                                                                        be
+                                                                        changed without any prior notice by the airlines..
+                                                                    </li>
+                                                                    <li>WT does not guarantee the accuracy of cancel
+                                                                        reschedule
+                                                                        fees..</li>
+                                                                    <li>Partial cancellation is not allowed on the flight
+                                                                        tickets
+                                                                        which
+                                                                        are book under special round trip discounted fares..
+                                                                    </li>
+                                                                    <li>Airlines doesnt allow any additional baggage
+                                                                        allowance
+                                                                        for
+                                                                        any
+                                                                        infant added in the booking</li>
+                                                                    <li>In certain situations of restricted cases, no
+                                                                        amendments
+                                                                        and
+                                                                        cancellation is allowed</li>
+                                                                    <li>Airlines cancel reschedule should be reconfirmed
+                                                                        before
+                                                                        requesting for a cancellation or amendment</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- </div> --}}
+                                        </div>
                                 @endif
                             @endforeach
                         @endif

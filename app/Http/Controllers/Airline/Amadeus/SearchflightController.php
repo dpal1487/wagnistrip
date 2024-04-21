@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Airline\Amadeus;
 
 use Amadeus\Amadeus;
 use App\Http\Controllers\Airline\AirportiatacodesController;
+use App\Http\Controllers\Airline\Galileo\AuthenticateController;
 use App\Http\Controllers\Controller;
 use App\Models\Airline\Airportiatacode;
 use App\Services\AmadeusService;
@@ -25,7 +26,6 @@ class SearchflightController extends Controller
 
     public function OnewayFlight($request)
     {
-
         $departure = Airportiatacode::where("iata", $request['departure'])->first();
         $departureDate = $request->get('departDate');
         $origin = $request->get('departure');
@@ -57,74 +57,10 @@ class SearchflightController extends Controller
         }
     }
 
-    public function getAvailability($request)
-    {
-        $origin = $request->get('departure');
-        $destination = $request->get('arrival');
-        $departureDate = $request->get('departDate'); // Assuming format matches Amadeus API requirements
-
-        // try {
-            $amadeus = $this->amadeus->getClient();
-            $availability = $amadeus->getShopping()
-                ->getAvailability()
-                ->getFlightAvailabilities()
-                ->post(json_encode([
-                    'originDestinations' => [
-                        [
-                            // 'id' => 1, // Replace with actual ID if required by your library
-                            'originLocationCode' => $origin,
-                            'destinationLocationCode' => $destination,
-                            'departureDateTime' => $departureDate,
-                        ],
-                    ],
-                    'travelers' => [
-                        [
-                            'id' => 1,
-                            'travelType' => 'ADULT',
-                        ],
-                    ],
-                    'sources' => [
-                        'INR', // Assuming GDS is required for your library (check documentation)
-                    ],
-                ]));
-
-            // **Debugging:** Print the raw Amadeus API response for inspection
-            echo "<pre>";
-            print_r($availability);
-            echo "</pre>";
-            die(); // Comment out die() after debugging
-
-            $amadeusResponse = json_decode($availability, true);
-
-            // **Debugging:** Check if the price field exists
-            if (isset($amadeusResponse['price'])) {
-                $priceInEUR = $amadeusResponse['price']['total'];
-                $conversionRate = 1.10; // EUR to USD conversion rate (replace with actual logic)
-                $priceInUSD = $priceInEUR * $conversionRate;
-                $formattedPriceUSD = number_format($priceInUSD, 2, '.', ',');
-                return response()->json([
-                    'availability' => $availability, // Original Amadeus response
-                    'priceInUSD' => $formattedPriceUSD, // Converted price in USD
-                ]);
-            } else {
-                // Handle the case where price information is missing
-                return response()->json([
-                    'message' => 'Price information not found in Amadeus response.',
-                ]);
-            }
-        // } catch (\Amadeus\Exceptions\ResponseException $e) {
-        //     $errorDetails = json_decode($e->getMessage(), true);
-        //     return response()->json([
-        //         'error' => $errorDetails['errors'][0]['title'] . ': ' . $errorDetails['errors'][0]['detail'],
-        //         'error_code' => $errorDetails['errors'][0]['code'],
-        //     ], $e->getCode());
-        // }
-    }
-
     public function Fare_MasterPricerTravelBoardSearch(Request $request)
     {
-
         $AirPortCodeController = new AirportiatacodesController;
+        $AuthenticateController = new AuthenticateController;
         $travellers = ['noOfAdults' => $request['noOfAdults'], 'noOfChilds' => $request['noOfChilds'], 'noOfInfants' => $request['noOfInfants']];
         $departure = Airportiatacode::where("iata", $request['departure'])->first();
         $arrival = Airportiatacode::where("iata", $request['arrival'])->first();
@@ -147,10 +83,13 @@ class SearchflightController extends Controller
             // dd( $tripType);
             $oneways = $this->OnewayFlight($request);
 
-            $availability = [];
+            // dd($oneways);
 
             // return $oneways;
-            // $availability = $this->getAvailability($request);
+
+            $availability = [];
+
+            $availability = $AuthenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']));
 
             // return $availability;
 
