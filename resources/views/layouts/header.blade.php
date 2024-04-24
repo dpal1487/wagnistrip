@@ -12,31 +12,31 @@
             <ul class="navMenu commonFlex alignItems">
 
                 <li class="nav-item">
-                    <a class="nav-link activeLink" href="https://www.flights.wagnistrip.com/"> <i
+                    <a class="nav-link activeLink" href="/"> <i
                             class="fa fa-plane"></i> Flights</a>
                 </li>
                 <li class="nav-item ">
-                    <a class="nav-link" href="http://127.0.0.1:8000/hotels"> <i class="fa fa-building-o"></i> Hotels
+                    <a class="nav-link" href="/hotels"> <i class="fa fa-building-o"></i> Hotels
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://www.wagnistrip.com/holidays"> <i class="fa fa-yelp"></i>
+                    <a class="nav-link" href="/holidays"> <i class="fa fa-yelp"></i>
                         Holidays</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://www.wagnistrip.com/events"> <i class="fa fa-calendar-o"></i>
+                    <a class="nav-link" href="/events"> <i class="fa fa-calendar-o"></i>
                         Events</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://www.wagnistrip.com/visa"> <i class="fa fa-book"></i> Visa</a>
+                    <a class="nav-link" href="/visa"> <i class="fa fa-book"></i> Visa</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link dropdown-toggle effects" id="moreBTN" data-toggle="dropdown"
                         aria-expanded="false">More</a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item effects" href="https://www.wagnistrip.com/customer-support">Customer
+                        <a class="dropdown-item effects" href="/customer-support">Customer
                             Care</a>
-                        <a class="dropdown-item effects" href="https://www.wagnistrip.com/travel-insurance">Travel
+                        <a class="dropdown-item effects" href="/travel-insurance">Travel
                             Insurance</a>
                     </div>
                 </li>
@@ -54,22 +54,22 @@
                                 $mail = $Agent->email;
                                 $Agent = Agent::where('email', '=', $mail)->first();
                             @endphp
-                            <a class="dropdown-item" href="https://www.flights.wagnistrip.com/Agent/Dashboard"> <i
+                            <a class="dropdown-item" href="/Agent/Dashboard"> <i
                                     class="fa fa-tachometer"></i>Patner Dashboard</a>
                             <a class="dropdown-item" href="javascript:void(0)"> <i class="fa fa-tachometer"></i>
                                 Fund {{ $Agent->state }} </a>
-                            <a class="dropdown-item" href="https://www.flights.wagnistrip.com/Agent/LogOut"> <i
+                            <a class="dropdown-item" href="/Agent/LogOut"> <i
                                     class="fa fa-sign-out"> </i> Logout </a>
                         @else
                             <div id="flightLoginBtncc"></div>
                             <div id="afterLoginContentcc"></div>
-                            <a class="dropdown-item" href="https://www.flights.wagnistrip.com/Agent/login"> <i
+                            <a class="dropdown-item" href="/Agent/login"> <i
                                     class="fa fa-sign-out"></i> Patner Login or singup </a>
                         @endif
                     </div>
                 </div>
             </div>
-           
+
             <div class="menuIcon">
                 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
                     xmlns:svgjs="http://svgjs.com/svgjs" width="45" height="45" x="0" y="0" viewBox="0 0 16 16"
@@ -131,7 +131,7 @@
 
 <script>
     // forEach(link => {
-    //     if (!link.href.includes(`${activePage}`)) {        
+    //     if (!link.href.includes(`${activePage}`)) {
     //         link.classList.remove("act");
     //     }
     //     else {

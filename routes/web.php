@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\ImageController;
+use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Agent\AgentLogin;
 use App\Http\Controllers\Airline\AirlineCodeController;
 use App\Http\Controllers\Airline\Amadeus\Air_SellFromRecommendationController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Auth\User\UserLoginController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\cashfreeprocess;
 use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\GdsUser\Login;
 use App\Http\Controllers\GdsUser\Optins;
 use App\Http\Controllers\GroupFare;
@@ -69,9 +71,8 @@ Route::post('/Group_fare/add/amount', [GroupFare::class, 'Group_fare_remove_amou
 //  --------------- PAGES START ------------------
 
 Route::view('/hotels/ticket', 'hotel-pages.ticket');
-Route::get('/oneway-flight-search', [SearchflightController::class, 'Fare_MasterPricerTravelBoardSearch'])->name('search-flight-results');
-Route::post('/flight-review', [Air_SellFromRecommendationController::class, 'Air_SellFromRecommendation'])->name('flight-review');
-Route::get('/payment-page-of-mtt', [PNR_AddMultiElementsController::class, 'PNR_AddMultiElements'])->name('booking.flight-booking');
+Route::get('/oneway-flight-search', [SearchflightController::class, 'Fare_MasterPricerTravelBoardSearch'])->name('oneway.search-flight-results');
+Route::get('/payment-page-of-mtt', [PNR_AddMultiElementsController::class, 'PNR_AddMultiElements'])->name('payment.booking.flight-booking');
 // Route::get('/booking-roundtrip-domestic', [DomesticPnrAddMultiElementsController::class, 'DomPnrAddMultiElements'])->name('booking.flight-booking-dom');
 
 //  --------------- PAYMENT CONTROLLER PAGES END ------------------
@@ -129,7 +130,7 @@ Route::group(['prefix' => 'Galileo'], function () {
 
     Route::get('/Pricing', [PricingController::class, 'Pricing'])->name('galileo-pricing');
 
-    Route::post('/Pricing', [PricingController::class, 'Pricing'])->name('galileo-pricing');
+    Route::post('/Pricing', [PricingController::class, 'Pricing'])->name('store.galileo-pricing');
     Route::post('/booking', [TicketingController::class, 'Ticketing'])->name('galileo-ticketing');
     Route::post('/bookings-round-trip', [TicketingController::class, 'DomGalBooking'])->name('gal-roundtrip-booking');
 
@@ -323,7 +324,6 @@ Route::view('/cruise', 'pages/cruise')->name('cruise');
 Route::view('/cruise-package', 'pages/cruise-package')->name('cruise-package');
 Route::view('/cruise-package-details', 'pages/cruise-package-details')->name('cruise-package-details');
 Route::view('/festivle_offer', 'pages/festivle_offer')->name('festivle_offer');
-Route::view('/hotel-details', 'pages/hotel-details')->name('hotel-details');
 Route::view('/hotel-room-details', 'pages/hotel-room-details')->name('hotel-room-details');
 Route::view('/hotel-booking', 'pages/hotel-booking')->name('hotel-booking');
 Route::view('/tour-packages', 'pages/tour-packages')->name('tour-packages');
@@ -410,6 +410,20 @@ Route::view('/quiz-competition', 'events/quiz-competition')->name('quiz-competit
 Route::view('/booking-form', 'pages/booking-form')->name('booking-form');
 Route::view('/travel-insurance', 'pages/travel-insurance')->name('travel-insurance');
 
+//  --------------- Event ------------------
+Route::controller(EventController::class)->group(function () {
+    // Route::get('events', 'index')->name('events.index');
+    Route::prefix('event')->group(function () {
+        Route::get('create', 'create')->name('event.create');
+        Route::post('store',  'store')->name('event.store');
+        Route::get('{id}/edit',  'edit')->name('event.edit');
+        Route::get('{id}/show',  'show')->name('event.show');
+        Route::put('{id}/update',  'update')->name('event.update');
+        Route::delete('{id}/delete',  'destroy')->name('event.delete');
+    });
+});
+
+
 // vikas checkin
 Route::view('/web-check-in', 'flight-pages/webcheck')->name('web-check-in');
 
@@ -452,7 +466,7 @@ Route::group(['prefix' => 'GdsUser'], function () {
 });
 Route::group(['prefix' => '/GDS'], function () {
     Route::get('/Dashboard', [Login::class, 'Dashboard'])->name('GDS.Dashboard');
-    Route::post('/ShowPnrs', [Optins::class, 'ShowPnrs'])->name('Gds.Pnr.Show');
+    Route::post('/ShowPnrs', [Optins::class, 'ShowPnrs'])->name('store.Gds.Pnr.Show');
     Route::get('/ShowPnrs', [Optins::class, 'ShowPnrs'])->name('Gds.Pnr.Show');
     Route::get('/EditPnr/{ID}', [Optins::class, 'EditPnr'])->name('Gds.EditPnr.');
     Route::post('/EditPnr/{ID}', [Optins::class, 'EditPnr'])->name('Gds.EditPnr.');
@@ -480,12 +494,12 @@ Route::group(['prefix' => 'Agent'], function () {
     Route::get('/Dashboard', [AgentLogin::class, 'Dashboard'])->name('Agent.Dashboard');
     Route::get('/LogOut', [AgentLogin::class, 'Logout'])->name('Agent.LogoutShow');
     Route::get('/add/amount', [AgentLogin::class, 'AddFond'])->name('agent.add.amount');
-    Route::post('/add/amount', [AgentLogin::class, 'AddAmount'])->name('agent.add.amount');
+    Route::post('/add/amount', [AgentLogin::class, 'AddAmount'])->name('store.agent.add.amount');
     Route::get('/LogOut', [AgentLogin::class, 'SingOut'])->name('Agent.Logout');
     Route::get('/Pnrs', [AgentLogin::class, 'Pnrs'])->name('Agent.Pnrs');
-    Route::get('/Pnrs/{ID}', [AgentLogin::class, 'Pnrs'])->name('Agent.Pnrs');
-    Route::get('/Pnrs/{ID}/Edit', [AgentLogin::class, 'Pnrs'])->name('Agent.Pnrs');
-    Route::get('/Pnrs/{ID}/Delete', [AgentLogin::class, 'Pnrs'])->name('Agent.Pnrs');
+    Route::get('/Pnrs/{ID}', [AgentLogin::class, 'Pnrs'])->name('show.Agent.Pnrs');
+    Route::get('/Pnrs/{ID}/Edit', [AgentLogin::class, 'Pnrs'])->name('edit.Agent.Pnrs');
+    Route::get('/Pnrs/{ID}/Delete', [AgentLogin::class, 'Pnrs'])->name('delete.Agent.Pnrs');
 });
 
 //  --------------- IMAGE ------------------
@@ -496,6 +510,19 @@ Route::controller(ImageController::class)->group(function () {
 
 //  --------------- BLOG ------------------
 Route::controller(BlogController::class)->group(function () {
+    Route::get('blogs', 'index')->name('blog.index');
+    Route::prefix('blog')->group(function () {
+        Route::get('create', 'create')->name('blog.create');
+        Route::post('store',  'store')->name('blog.store');
+        Route::get('{id}/edit',  'edit')->name('blog.edit');
+        Route::get('{id}/show',  'show')->name('blog.show');
+        Route::put('{id}/update',  'update')->name('blog.update');
+        Route::delete('{id}/delete',  'destroy')->name('blog.delete');
+    });
+});
+
+//  --------------- OFFER ------------------
+Route::controller(OfferController::class)->group(function () {
     Route::get('blogs', 'index')->name('blog.index');
     Route::prefix('blog')->group(function () {
         Route::get('create', 'create')->name('blog.create');

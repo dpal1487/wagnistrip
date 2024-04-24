@@ -35,18 +35,18 @@ Route::get('/Hotel-city', [AirportiatacodesController::class, 'HotelCity'])->nam
 
 
 Route::controller(ImageController::class)->group(function () {
-    Route::post('/image/{entity}', 'store')->name('image.store');
+    Route::post('/image/{entity}', 'store')->name('api.image.store');
 });
 
 //  --------------- BLOG ------------------
 Route::controller(BlogController::class)->group(function () {
-    Route::get('blogs', 'index')->name('blog.index');
+    Route::get('blogs', 'index')->name('api.blog.index');
     Route::prefix('blog')->group(function () {
-        Route::get('create', 'create')->name('blog.create');
-        Route::post('store',  'store')->name('blog.store');
-        Route::get('{id}/edit',  'edit')->name('blog.edit');
-        Route::get('{id}',  'show')->name('blog.show');
-        Route::put('{id}/update',  'update')->name('blog.update');
-        Route::delete('{id}',  'destroy')->name('blog.delete');
+        Route::get('create', 'create')->name('api.blog.create');
+        Route::post('store',  'store')->name('api.blog.store');
+        Route::get('{id}/edit',  'edit')->name('api.blog.edit');
+        Route::get('{id}',  'show')->name('api.blog.show');
+        Route::put('{id}/update',  'update')->name('api.blog.update');
+        Route::delete('{id}',  'destroy')->name('api.blog.delete');
     });
 });

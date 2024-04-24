@@ -42,7 +42,6 @@ class AgentLogin extends Controller
              if($agent->status == '1'){
                 if(password_verify($request->password, $agent->password)){
                     $request->session()->put('Agent', $agent);
-                    
                     return redirect()->route('Agent.Dashboard');
                 }else{
                      session()->flash('Agenterror', 'Incorrect Email And Password');
@@ -55,7 +54,7 @@ class AgentLogin extends Controller
                 return redirect()->route('Agent.login');
             }
         }
-        
+
         return redirect()->route('Agent.login');
     }
     public function LogOut(){
@@ -91,12 +90,12 @@ class AgentLogin extends Controller
         // return redirect()->route('Agent.login');
     }
 
-    // Agent servece 
+    // Agent servece
     public function Dashboard(){
         $Agent = Session()->get("Agent");
         $booking = AgentBooking::where('B', '=', "$Agent->email")->paginate(10);
         if($Agent===null){
-            return redirect()->route('Agent.login'); 
+            return redirect()->route('Agent.login');
         }
         $mail = $Agent->email;
         $Agent = Agent::where('email', '=', $mail)->first();
@@ -105,37 +104,37 @@ class AgentLogin extends Controller
     public function AddFond(){
         $Agent = Session()->get("Agent");
         if($Agent === null){
-            return redirect()->route('Agent.login'); 
+            return redirect()->route('Agent.login');
         }
-        
+
         $bankData = DB::table('buzzbankcode')->where('Payment Mode','=', 'NB')->get();
         $mail = $Agent->email;
         $Agent = Agent::where('email', '=', $mail)->first();
         return view('Agent.AddFund' , compact('Agent' , 'bankData'));
     }
     public function AddAmount(Request $request){
-        
-        
-        
-        
+
+
+
+
         $Agent = Session()->get("Agent");
         $amount = (int)$request['amount'];
         if($Agent===null){
-            return redirect()->route('Agent.login'); 
+            return redirect()->route('Agent.login');
         }
-        
+
         $mail = $Agent->email;
         $Agent = Agent::where('email', '=', $mail)->first();
-        
-       
+
+
         $saveData = new AgentFund;
         $saveData->name = $Agent['name'];
         $saveData->email = $Agent['email'] ?? "developer@wagnistrip.com";
         $saveData->userid = $Agent['id'] ;
         $saveData->save();
-        
+
         $txnid = $saveData['id'];
-        
+
         $postData = array(
             "key" => 'FW09Z922O6',
             "txnid" => $txnid,
@@ -167,7 +166,7 @@ class AgentLogin extends Controller
         $furl = url('Agent/save/amount');
         // $amount = number_format((float)$input['amount'], 1, '.', '');
         // $amount = session('total_fare') ?? $input['amount'];
-        
+
         $hash_sequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10";
 
         // make an array or split into array base on pipe sign.
@@ -186,17 +185,17 @@ class AgentLogin extends Controller
         $cURL = curl_init();
 
         // Set multiple options for a cURL transfer.
-        curl_setopt_array( 
-            $cURL, 
-            array ( 
-                CURLOPT_URL => 'https://pay.easebuzz.in/payment/initiateLink', 
+        curl_setopt_array(
+            $cURL,
+            array (
+                CURLOPT_URL => 'https://pay.easebuzz.in/payment/initiateLink',
                 CURLOPT_POSTFIELDS =>  'key=FW09Z922O6&txnid=' . $postData["txnid"] . '&amount='.$postData["amount"].'&productinfo='.$postData["productinfo"].'&firstname='.$postData["firstname"].'&email='.$postData["email"].'&udf1=&udf2=&udf3=&udf4=&udf5=&udf6=&udf7=&udf8=&udf9=&udf10=&hash=' . $signatureBuzzHash . '&phone='.$phone.'&surl='.$surl.'&furl='.$furl.'&request_flow=SEAMLESS',
-                CURLOPT_POST => true, 
-                CURLOPT_RETURNTRANSFER => true, 
-                CURLOPT_USERAGENT => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36', 
-                CURLOPT_SSL_VERIFYHOST => 0, 
-                CURLOPT_SSL_VERIFYPEER => 0 
-            ) 
+                CURLOPT_POST => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36',
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0
+            )
         );
 
         // Perform a cURL session
@@ -207,9 +206,9 @@ class AgentLogin extends Controller
             $cURL_error = curl_error($cURL);
             if( empty($cURL_error) )
                 $cURL_error = 'Server Error';
-            
+
             return array(
-                'status' => 0, 
+                'status' => 0,
                 'data' => $cURL_error
             );
         }
@@ -306,7 +305,7 @@ class AgentLogin extends Controller
             </body>
         </html>
         ";
-    
+
     }
     public function SaveAmount(Request $request){
         $input= $request->all();
@@ -317,7 +316,7 @@ class AgentLogin extends Controller
         $save->easepay_id = $input['easepayid'];
         $save->amount = $input['amount'];
         $save->save();
-        
+
         $Agent = Agent::where('email', '=', $input['email'])->first();
         if($save->status == 'success'){
             $Agent->state += $input['amount'];
@@ -326,11 +325,11 @@ class AgentLogin extends Controller
         $request->session()->put('Agent', $Agent);
         return redirect('/Agent/Dashboard');
     }
-    
+
     public function uploadDetails(){
        return view('Agent.UploadDetail');
     }
-    
+
     public function uploadFileDetails(Request $request){
        // Sample array
          $im = [];
@@ -347,7 +346,7 @@ class AgentLogin extends Controller
                return redirect()->back()->withErrors(['require'=>'Only Allow jpeg, jpg, png, pdf', 'id'=>$agent_id]);
             }
          }
-       
+
      $date = date('Y-m-d_H:i:s');
      for($i = 0; $i<$count; $i++){
          $image = $request->file[$i];
@@ -363,7 +362,7 @@ class AgentLogin extends Controller
      return redirect()->back()->withErrors(['msg' => 'submitDoc']);
     //  return redirect()->route('Agent.login');
     }
-    
+
     public function Document_skip(){
       return redirect()->back()->withErrors(['msg' => 'skip']);
     }

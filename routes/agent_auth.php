@@ -11,49 +11,49 @@ use App\Http\Controllers\Auth\Agent\RegisteredAgentController;
 use App\Http\Controllers\Auth\Agent\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest:agent')->prefix('agent')->name('agent.*')->group(function () {
+Route::middleware('guest:agent')->prefix('agent')->group(function () {
     Route::get('register', [RegisteredAgentController::class, 'create'])
-                ->name('register');
+                ->name('agent.register');
 
     Route::post('register', [RegisteredAgentController::class, 'store']);
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
-                ->name('login');
+                ->name('agent.login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-                ->name('password.request');
+                ->name('agent.password.request');
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-                ->name('password.email');
+                ->name('agent.password.email');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-                ->name('password.reset');
+                ->name('agent.password.reset');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
-                ->name('password.store');
+                ->name('agent.password.store');
 });
 
-Route::middleware('auth:agent')->prefix('agent')->name('agent.*')->group(function () {
+Route::middleware('auth:agent')->prefix('agent')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
-                ->name('verification.notice');
+                ->name('agent.verification.notice');
 
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
                 ->middleware(['signed', 'throttle:6,1'])
-                ->name('verification.verify');
+                ->name('agent.verification.verify');
 
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
                 ->middleware('throttle:6,1')
-                ->name('verification.send');
+                ->name('agent.verification.send');
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-                ->name('password.confirm');
+                ->name('agent.password.confirm');
 
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    Route::put('password', [PasswordController::class, 'update'])->name('agent.password.update');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-                ->name('logout');
+                ->name('agent.logout');
 });

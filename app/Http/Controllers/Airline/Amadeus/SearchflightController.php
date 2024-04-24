@@ -41,8 +41,8 @@ class SearchflightController extends Controller
                 "destinationLocationCode" => $destination,
                 "departureDate" => $departureDate,
                 "adults" => $adults,
-                "children" => $children,
-                "infants" => $infants,
+                // "children" => $children,
+                // "infants" => $infants,
                 // "travelClass" => $cabinClass, // Amadeus uses travelClass instead of cabinClass
                 // "type" => "oneway",  // Ensure lowercase "oneway" for one-way trip
                 // Optional: Comment out if unsure about fare type
@@ -85,13 +85,13 @@ class SearchflightController extends Controller
 
             // dd($oneways);
 
-            // return $oneways;
+            return $oneways;
 
             $availability = [];
 
             $availability = $AuthenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']));
 
-            // return $availability;
+            return $availability;
 
             // dd($availability);
             return view('flight-pages.oneway-flight-pages.flight-search', compact('oneways', 'travellers', 'availability'));

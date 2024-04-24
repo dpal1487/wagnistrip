@@ -3,165 +3,142 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Offer;
+use App\Http\Requests\StoreOfferRequest;
+use App\Http\Requests\UpdateOfferRequest;
+use App\Http\Resources\OfferResource;
+use App\Models\Image;
 use Illuminate\Http\Request;
-use App\Models\HotelOffer;
-use App\Models\AirlinePackage;
-use Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class OfferController extends Controller
 {
-    
-    public function __construct()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        $this->middleware('auth:admin');
+        $offers = new Offer();
+        if (!empty($request->q)) {
+            $offers = $offers
+                ->where('title', 'like', "%$request->q%")
+                ->orWhere('content', 'like', "%$request->q%");
+        }
+        if ($request->status !== null && $request->status !== 'all') {
+            $offers = $offers->where('is_published', '=', (int)$request->status);
+        }
+        // return Inertia::render('Offer/Index', [
+        //     'offers' => OfferListResource::collection($offers->paginate(10)->appends($request->all())),
+        // ]);
     }
 
-    public function hotelOffer(){
-        $data = HotelOffer::orderBy('id','DESC')->get();
-        return view('admin.hoteltable', compact('data'));
+    public function statusUpdate(Request  $request)
+    {
+        if (Offer::where(['id' => $request->id])->update(['is_published' => $request->status ? 1 : 0])) {
+            $status = $request->status == 0  ? "Unpublished" : "Published";
+            return response()->json(['message' => "Your Offer has been " . $status, 'success' => true]);
+        }
+        return response()->json(['message' => 'Opps! something went wrong.', 'success' => false]);
     }
 
-    public function postHotelOffer(Request $request){
-       
-    $files = $request->file('image'); 
-    foreach($files as $img)
-        {
-            $name = rand().'.'.$img->getClientOriginalExtension();
-            $img->move(public_path('/offerUpload/'), $name);  
-            $sliderImages[] = $name;  
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreOfferRequest $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|unique:offers,title',
+            'status' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors(['message' => $validator->errors()->first(), 'success' => false]);
+        }
+        $offer = Offer::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'is_published' => $request->status,
+        ]);
+        if ($offer) {
+            Image::where(['id' => $request->image['id']])->update(['entity_id' => $offer->id, 'entity_type' => 'offer']);
+
+            return redirect('offers')->with('flash', createMessage('offer'));
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Request $request , $id)
+    {
+        $offer = Offer::find($id);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'data' => new OfferResource($offer),
+            ]);
         }
 
-        $hotelOffer = new HotelOffer;
-        $hotelOffer->name = $request['name'];
-        $hotelOffer->rating = $request['rate'];
-        $hotelOffer->location = $request['location'];
-        $hotelOffer->price = $request['price'];
-        $hotelOffer->room_type = $request['room_type'];
-        $hotelOffer->images = json_encode($sliderImages);
-        $hotelOffer->save();
-        Session::flash('msg','Offer hotel inserted');
-        return redirect()->back();
-
+        return response()->json(['data' => new OfferResource($offer), 'success' => true]);
+    }
+    public function edit($id)
+    {
+        $offer = offer::find($id);
+        $image = Image::where(['entity_id' => $id, 'entity_type' => 'offer'])->first();
+        // return Inertia::render('offer/Form', [
+        //     'offer' => new offerResource($offer),
+        //     'image' => $image ?  new ImageResource($image) : null,
+        // ]);
     }
 
-    public function editHotelData(Request $request){
-        $datas = hotelOffer::find($request->id);
-        return view('admin.edithotel', compact('datas'));
-    }
-
-    public function deleteHotelOffer(Request $request){
-        $data = HotelOffer::where('id', $request['id'])->first();
-        foreach(json_decode($data['images']) as $datas){
-            unlink(public_path('/offerUpload/'.$datas));
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateOfferRequest $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'status' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors(['message' => $validator->errors()->first(), 'success' => false]);
         }
-        $data->delete();
-        Session::flash('danger','Hotel offer Deleted successfully');
-        return redirect()->back();
-    }
-
-    public function updatePostHotelOffer(Request $request){
-        $GetId = HotelOffer::where('id', $request['hid'])->first();
-        $files = $request->file('image');
-        if ($request->file('image')) {
-            foreach(json_decode($GetId['images']) as $datas){
-                unlink(public_path('/offerUpload/'.$datas));
+        $offer = Offer::find($id);
+        if ($offer) {
+            $update = Offer::where(['id' => $offer->id])->update([
+                'title' => $request->title,
+                'slug' => Str::slug($request->title),
+                'content' => $request->content,
+                'is_published' => $request->status,
+            ]);
+            if ($update) {
+                Image::where('id', $request->image['id'])->update(['entity_id' => $offer->id, 'entity_type' => 'offer']);
+                return redirect('offers')->with('flash', updateMessage('offer'));
             }
-            foreach($files as $img)
-            {
-                $name = rand().'.'.$img->getClientOriginalExtension();
-                $img->move(public_path('/offerUpload/'), $name);  
-                $sliderImages[] = $name;  
-            }
-            $GetId->name = $request['name'];
-            $GetId->rating = $request['rate'];
-            $GetId->location = $request['location'];
-            $GetId->price = $request['price'];
-            $GetId->room_type = $request['room_type'];
-            $GetId->images = json_encode($sliderImages);
-            $GetId->save();
-            Session::flash('msg','Offer hotel Updated');
-            return redirect('/admin/hotel-offer');
-        }else{
-            $GetId->name = $request['name'];
-            $GetId->rating = $request['rate'];
-            $GetId->location = $request['location'];
-            $GetId->price = $request['price'];
-            $GetId->room_type = $request['room_type'];
-            $GetId->save();
-            Session::flash('msg','Offer hotel Updated');
-            return redirect('/admin/hotel-offer');
-        } 
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'offer not updated',
+        ], 400);
     }
 
-    public function airlineOffer(){
-        $datas = AirlinePackage::orderBy('id','DESC')->get();
-        return view('admin.flightoffer', compact('datas'));
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $offer = Offer::find($id);
+        if ($offer->delete()) {
+            return response()->json(deleteMessage('Offer'));
+        }
+        return response()->json(errorMessage());
     }
-
-    public function postAirlineOffer(Request $request){
-        $datas = new AirlinePackage;
-        $datas->ttype = $request['ttype'];
-        $datas->ticktype = $request['ticktype'];
-        $datas->airline = $request['airline'];
-        $datas->flight = $request['flight'];
-        $datas->connection = $request['connection'];
-        $datas->departure = $request['departure'];
-        $datas->arrival = $request['arrival'];
-        $datas->dates = $request['dates']; 
-        $datas->times = $request['times']; 
-        $datas->duration = $request['duration']; 
-        $datas->roundairline = $request['roundairline']; 
-        $datas->roundflight = $request['roundflight']; 
-        $datas->roundconnection = $request['roundconnection']; 
-        $datas->rounddeparture = $request['rounddeparture']; 
-        $datas->roundarrival = $request['roundarrival']; 
-        $datas->rounddates = $request['rounddates']; 
-        $datas->roundtimes = $request['roundtimes']; 
-        $datas->roundduration = $request['roundduration']; 
-        $datas->save();
-        Session::flash('msg','Airline package inserted');
-        return redirect()->back();
-    }
-
-    public function airlineOfferDelete($id){
-        AirlinePackage::find($id)->delete();
-        Session::flash('danger','Airline package Deleted');
-        return redirect()->back();
-    }
-
-    public function airlineOfferEdit($id){
-        $data = AirlinePackage::find($id);    
-        return view('admin.flightedit', compact('data'));
-    }
-
-    public function postAirlineofferUpdate(Request $request){
-        $getData = AirlinePackage::find($request->hid);
-
-        $getData->ttype = $request['ttype'];
-        $getData->ticktype = $request['ticktype'];
-        $getData->airline = $request['airline'];
-        $getData->flight = $request['flight'];
-        $getData->connection = $request['connection'];
-        $getData->departure = $request['departure'];
-        $getData->arrival = $request['arrival'];
-        $getData->dates = $request['dates']; 
-        $getData->times = $request['times']; 
-        $getData->duration = $request['duration']; 
-        $getData->roundairline = $request['roundairline']; 
-        $getData->roundflight = $request['roundflight']; 
-        $getData->roundconnection = $request['roundconnection']; 
-        $getData->rounddeparture = $request['rounddeparture']; 
-        $getData->roundarrival = $request['roundarrival']; 
-        $getData->rounddates = $request['rounddates']; 
-        $getData->roundtimes = $request['roundtimes']; 
-        $getData->roundduration = $request['roundduration']; 
-        $getData->save();
-        Session::flash('msg','Airline package Updated');
-        return redirect('admin/airline-offer');
-
-    }
-
-
-
-
 }
