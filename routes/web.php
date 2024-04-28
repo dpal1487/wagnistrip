@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\HotelOfferController;
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Agent\AgentLogin;
@@ -534,6 +535,19 @@ Route::controller(OfferController::class)->group(function () {
     });
 });
 
+
+//  ---------------HOTEL OFFER ------------------
+Route::controller(HotelOfferController::class)->group(function () {
+    Route::get('hotel-offers', 'index')->name('hotel-offer.index');
+    Route::prefix('hotel-offer')->group(function () {
+        Route::get('create', 'create')->name('hotel-offer.create');
+        Route::post('store',  'store')->name('hotel-offer.store');
+        Route::get('{id}/edit',  'edit')->name('hotel-offer.edit');
+        Route::get('{id}/show',  'show')->name('hotel-offer.show');
+        Route::put('{id}/update',  'update')->name('hotel-offer.update');
+        Route::delete('{id}/delete',  'destroy')->name('hotel-offer.delete');
+    });
+});
 require __DIR__ . '/auth.php';
 require __DIR__ . '/agent_auth.php';
 

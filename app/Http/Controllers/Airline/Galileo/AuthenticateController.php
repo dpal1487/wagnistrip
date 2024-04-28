@@ -154,10 +154,12 @@ class AuthenticateController extends Controller
         }
 
         $SessionID = $this->Authenticate();
-        $date = \DateTime::createFromFormat("d M Y", "$date");
+
+
+        $date = \DateTime::createFromFormat("Y-m-d", $date);
         $date = $date->format("d/m/Y");
 
-        $returnDate = \DateTime::createFromFormat("d M Y", "$returnDate");
+        $returnDate = \DateTime::createFromFormat("Y-m-d", "$returnDate");
         $returnDate = $returnDate->format("d/m/Y");
 
         $body = [
