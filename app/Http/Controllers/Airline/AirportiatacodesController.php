@@ -8,18 +8,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\Hotel_City;
 
-class AirportiatacodesController extends Controller
+class AirPortIATACodesController extends Controller
 {
-    
+
     public function searchAirIataCode(Request $request)
     {
         $search = $request['search'];
-
         if ($search == '') {
-            $employees = Airportiatacode::orderby('iata', 'ASC')->select('id' , 'iata'  , 'city', 'country' ,'airport'  , 'CityCode', 'CountryCode'    )->limit(10)->get();
-           
+            $employees = Airportiatacode::orderby('iata', 'ASC')->select('id' , 'iata'  , 'city', 'country' ,'airport'  , 'CityCode', 'CountryCode')->limit(10)->get();
         } else {
-            
             $employees = Airportiatacode::orderby('iata', 'ASC')->where('CountryCode', 'like', $search )
                  ->orWhere('city', 'like', $search.'%')
                  ->orWhere('country', 'like',$search.'%')
@@ -28,19 +25,18 @@ class AirportiatacodesController extends Controller
                  ->orWhere('iata', 'like', $search.'%')
                  ->limit(20)->get();
         }
-    
         $response = array();
         foreach ($employees as $employee) {
             $response[] = array(
                 "id" => $employee['iata'],
                 "text" => $employee['iata']."\n".$employee['country']."\n".$employee['airport']. "\n".$employee['city'],
                 "head" => $employee['city'] .  "",
-            );            
+            );
         }
         echo json_encode($response);
         exit;
     }
-    
+
     public function searchCountryCode(Request $request)
     {
         $search = $request['search'];
@@ -64,7 +60,7 @@ class AirportiatacodesController extends Controller
         echo json_encode($response);
         exit;
     }
-    
+
     public function searchCountryIso(Request $request)
     {
         $search = $request['search'];
@@ -84,7 +80,7 @@ class AirportiatacodesController extends Controller
         }
         echo json_encode($response);
         exit;
-    }   
+    }
     public static function getCity($d)
     {
         $res = '';
@@ -94,7 +90,7 @@ class AirportiatacodesController extends Controller
         }
         if ($res != '') {
             return $res;
-        }        
+        }
         return $d;
     }
 
@@ -118,16 +114,16 @@ class AirportiatacodesController extends Controller
         }
         if ($res != '') {
             return $res;
-        }        
+        }
         return $d;
    }
-   
+
     public static function HotelCity(Request $request)
     {
         $search = $request['search'];
         // dd($request->all());
         if ($search == '') {
-            $employees = Hotel_City::orderby('city', 'ASC')->select('id' , 'city', 'state' ,'country')->limit(10)->get();           
+            $employees = Hotel_City::orderby('city', 'ASC')->select('id' , 'city', 'state' ,'country')->limit(10)->get();
         } else {
             $employees = Hotel_City::orderby('city', 'ASC')->where('city', 'like', $search )
                 //  ->orWhere('city', 'like', $search.'%')
@@ -136,16 +132,16 @@ class AirportiatacodesController extends Controller
                 //  ->orWhere('CityCode', 'like', $search.'%')
                  ->orWhere('city', 'like', $search.'%')
                  ->limit(20)->get();
-        }    
+        }
         $response = array();
         foreach ($employees as $employee) {
             $response[] = array(
                 "id" => $employee['city'],
                 "text" => $employee['city'] . "\n (" . $employee['city'] . ") " . $employee['country']."\n",
-                "head" => $employee['city'] . "\n " . $employee['country'] . "",              
-            );            
+                "head" => $employee['city'] . "\n " . $employee['country'] . "",
+            );
         }
         echo json_encode($response);
         exit;
-   }   
+   }
 }

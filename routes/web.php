@@ -535,7 +535,6 @@ Route::controller(OfferController::class)->group(function () {
     });
 });
 
-
 //  ---------------HOTEL OFFER ------------------
 Route::controller(HotelOfferController::class)->group(function () {
     Route::get('hotel-offers', 'index')->name('hotel-offer.index');

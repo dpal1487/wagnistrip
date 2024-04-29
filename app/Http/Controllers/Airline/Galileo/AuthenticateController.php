@@ -37,7 +37,6 @@ class AuthenticateController extends Controller
             $flightLogs->session_id = $response['SessionID'];
             $flightLogs->authenticate = json_encode($response, true);
             $flightLogs->availability = json_encode($response, true);
-
             // something go's there
             $flightLogs->save();
         } else {
@@ -53,7 +52,6 @@ class AuthenticateController extends Controller
             $flightLogs = GalileoFlightLog::where('session_id', '=', $body['SessionID'])->first();
             $flightLogs->$action = json_encode(['Request_Of_' . $action => $body, 'Response_Of_' . $action => $response], true);
             $flightLogs->save();
-
         }
         return $response;
     }
@@ -101,17 +99,10 @@ class AuthenticateController extends Controller
             $tripType = 3;
         }
         $SessionID = $this->Authenticate();
-        // $dateTimeObject = \DateTime::createFromFormat("Y-m-d", $date);
-        // // dd($dateTimeObject);
-
-        // $formattedDate = $dateTimeObject->format("d/m/Y");
-
-        // dd($formattedDate);
         $date = \DateTime::createFromFormat("Y-m-d", $date);
         $date = $date->format("d/m/Y");
-
         $body = [
-            "ClientCode" => "MakeTrueTrip",
+            "ClientCode" => env('GALILEO_USER_NAME'),
             "Trip" => $trip,
             "TripType" => $tripType,
             "Adult" => $adult,
@@ -139,22 +130,9 @@ class AuthenticateController extends Controller
         return $response;
     }
 
-    public function AvailabilityRound($trip, $tripType, $date, $returnDate, $adult, $child, $infant, $origin, $destination, $class)
+    public function AvailabilityRound($trip, $tripType, $date, $returnDate, $adult, $child, $infant, $origin, $destination, $class , $faretype)
     {
-        // dd([$trip, $tripType, $date, $adult, $child, $infant, $origin, $destination]);
-
-        $config = Config::get('configuration.Galileo');
-
-        if ($tripType == 'roundtrip') {
-            $tripType = 2;
-        } elseif ($tripType == 'oneway') {
-            $tripType = 1;
-        } elseif ($tripType == 'multicity') {
-            $tripType = 3;
-        }
-
         $SessionID = $this->Authenticate();
-
 
         $date = \DateTime::createFromFormat("Y-m-d", $date);
         $date = $date->format("d/m/Y");
@@ -162,39 +140,43 @@ class AuthenticateController extends Controller
         $returnDate = \DateTime::createFromFormat("Y-m-d", "$returnDate");
         $returnDate = $returnDate->format("d/m/Y");
 
-        $body = [
-            "ClientCode" => "MakeTrueTrip",
-            "Trip" => $trip,
-            "TripType" => $tripType,
-            "Adult" => $adult,
-            "Child" => $child,
-            "Infant" => $infant,
-            "NonStop" => false,
-            "ExcludeAirlines" => "",
-            "ExcludeAirline" => [],
-            "PreferredClass" => $class,
-            "PreferredCarrier" => "",
-            "RTF" => true,
-            "SessionID" => $SessionID,
-            "TravelerType" => 'ADT',
-            "Segments" => [
-                [
-                    "Origin" => $origin,
-                    "Destination" => $destination,
-                    "DepartDate" => $date,
-                    "PreferredClass" => $class,
+        try{
+            $body = [
+                "ClientCode" => env('GALILEO_USER_NAME'),
+                "Trip" => $trip,
+                "TripType" => 2,
+                "Adult" => $adult,
+                "Child" => $child,
+                "Infant" => $infant,
+                "NonStop" => false,
+                "ExcludeAirlines" => "",
+                "ExcludeAirline" => [],
+                "PreferredClass" => $class,
+                "PreferredCarrier" => "",
+                "RTF" => true,
+                "SessionID" => $SessionID,
+                "TravelerType" => 'ADT',
+                "Segments" => [
+                    [
+                        "Origin" => $origin,
+                        "Destination" => $destination,
+                        "DepartDate" => $date,
+                        "PreferredClass" => $class,
+                    ],
+                    [
+                        "Origin" => $destination,
+                        "Destination" => $origin,
+                        "DepartDate" => $returnDate,
+                        "PreferredClass" => $class,
+                    ],
                 ],
-                [
-                    "Origin" => $destination,
-                    "Destination" => $origin,
-                    "DepartDate" => $returnDate,
-                    "PreferredClass" => $class,
-                ],
-            ],
-        ];
-        $response = $this->callApiWithHeadersGal("Availability", $body);
-        // dd($response);
-        return $response;
+            ];
+            $response = $this->callApiWithHeadersGal("Availability", $body);
+            // dd($response);
+            return $response;
+        }
+        catch(\Exception $e){
+            return response($e->getMessage());
+        }
     }
-
 }

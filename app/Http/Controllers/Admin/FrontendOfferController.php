@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\HotelOffer;
 use App\Models\AirlinePackage;
-use Session;
+use Illuminate\Support\Facades\Session;
 
-class OfferController extends Controller
+class FrontendOfferController extends Controller
 {
-    
+
     public function __construct()
     {
         $this->middleware('auth:admin');
@@ -22,13 +22,13 @@ class OfferController extends Controller
     }
 
     public function postHotelOffer(Request $request){
-       
-    $files = $request->file('image'); 
+
+    $files = $request->file('image');
     foreach($files as $img)
         {
             $name = rand().'.'.$img->getClientOriginalExtension();
-            $img->move(public_path('/offerUpload/'), $name);  
-            $sliderImages[] = $name;  
+            $img->move(public_path('/offerUpload/'), $name);
+            $sliderImages[] = $name;
         }
 
         $hotelOffer = new HotelOffer;
@@ -69,8 +69,8 @@ class OfferController extends Controller
             foreach($files as $img)
             {
                 $name = rand().'.'.$img->getClientOriginalExtension();
-                $img->move(public_path('/offerUpload/'), $name);  
-                $sliderImages[] = $name;  
+                $img->move(public_path('/offerUpload/'), $name);
+                $sliderImages[] = $name;
             }
             $GetId->name = $request['name'];
             $GetId->rating = $request['rate'];
@@ -90,7 +90,7 @@ class OfferController extends Controller
             $GetId->save();
             Session::flash('msg','Offer hotel Updated');
             return redirect('/admin/hotel-offer');
-        } 
+        }
     }
 
     public function airlineOffer(){
@@ -107,17 +107,17 @@ class OfferController extends Controller
         $datas->connection = $request['connection'];
         $datas->departure = $request['departure'];
         $datas->arrival = $request['arrival'];
-        $datas->dates = $request['dates']; 
-        $datas->times = $request['times']; 
-        $datas->duration = $request['duration']; 
-        $datas->roundairline = $request['roundairline']; 
-        $datas->roundflight = $request['roundflight']; 
-        $datas->roundconnection = $request['roundconnection']; 
-        $datas->rounddeparture = $request['rounddeparture']; 
-        $datas->roundarrival = $request['roundarrival']; 
-        $datas->rounddates = $request['rounddates']; 
-        $datas->roundtimes = $request['roundtimes']; 
-        $datas->roundduration = $request['roundduration']; 
+        $datas->dates = $request['dates'];
+        $datas->times = $request['times'];
+        $datas->duration = $request['duration'];
+        $datas->roundairline = $request['roundairline'];
+        $datas->roundflight = $request['roundflight'];
+        $datas->roundconnection = $request['roundconnection'];
+        $datas->rounddeparture = $request['rounddeparture'];
+        $datas->roundarrival = $request['roundarrival'];
+        $datas->rounddates = $request['rounddates'];
+        $datas->roundtimes = $request['roundtimes'];
+        $datas->roundduration = $request['roundduration'];
         $datas->save();
         Session::flash('msg','Airline package inserted');
         return redirect()->back();
@@ -130,7 +130,7 @@ class OfferController extends Controller
     }
 
     public function airlineOfferEdit($id){
-        $data = AirlinePackage::find($id);    
+        $data = AirlinePackage::find($id);
         return view('admin.flightedit', compact('data'));
     }
 
@@ -144,17 +144,17 @@ class OfferController extends Controller
         $getData->connection = $request['connection'];
         $getData->departure = $request['departure'];
         $getData->arrival = $request['arrival'];
-        $getData->dates = $request['dates']; 
-        $getData->times = $request['times']; 
-        $getData->duration = $request['duration']; 
-        $getData->roundairline = $request['roundairline']; 
-        $getData->roundflight = $request['roundflight']; 
-        $getData->roundconnection = $request['roundconnection']; 
-        $getData->rounddeparture = $request['rounddeparture']; 
-        $getData->roundarrival = $request['roundarrival']; 
-        $getData->rounddates = $request['rounddates']; 
-        $getData->roundtimes = $request['roundtimes']; 
-        $getData->roundduration = $request['roundduration']; 
+        $getData->dates = $request['dates'];
+        $getData->times = $request['times'];
+        $getData->duration = $request['duration'];
+        $getData->roundairline = $request['roundairline'];
+        $getData->roundflight = $request['roundflight'];
+        $getData->roundconnection = $request['roundconnection'];
+        $getData->rounddeparture = $request['rounddeparture'];
+        $getData->roundarrival = $request['roundarrival'];
+        $getData->rounddates = $request['rounddates'];
+        $getData->roundtimes = $request['roundtimes'];
+        $getData->roundduration = $request['roundduration'];
         $getData->save();
         Session::flash('msg','Airline package Updated');
         return redirect('admin/airline-offer');
