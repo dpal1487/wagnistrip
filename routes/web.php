@@ -1,35 +1,17 @@
 <?php
-
-use App\Http\Controllers\Admin\BlogController;
-use App\Http\Controllers\Admin\HotelOfferController;
-use App\Http\Controllers\Admin\ImageController;
-use App\Http\Controllers\Admin\OfferController;
-use App\Http\Controllers\Agent\AgentLogin;
-use App\Http\Controllers\Airline\AirlineCodeController;
-use App\Http\Controllers\Airline\Amadeus\Air_SellFromRecommendationController;
-use App\Http\Controllers\Airline\Amadeus\DomesticPnrAddMultiElementsController;
-use App\Http\Controllers\Airline\Amadeus\PNR_AddMultiElementsController;
-use App\Http\Controllers\Airline\Amadeus\SearchflightController;
-use App\Http\Controllers\Airline\Both\BookingController;
-use App\Http\Controllers\Airline\Galileo\AuthenticateController;
-use App\Http\Controllers\Airline\Galileo\PricingController;
-use App\Http\Controllers\Airline\Galileo\TicketingController;
-use App\Http\Controllers\Auth\User\UserLoginController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\cashfreeprocess;
-use App\Http\Controllers\Customer\CustomerController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\GdsUser\Login;
-use App\Http\Controllers\GdsUser\Optins;
-use App\Http\Controllers\GroupFare;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Hotel\Amadeus\HeaderController;
-use App\Http\Controllers\Hotel\Amadeus\HotelBookingController;
-use App\Http\Controllers\Hotel\Amadeus\HotelSearchController;
-use App\Http\Controllers\OfferDetailsController;
-use App\Http\Controllers\pagecontroller;
-use App\Http\Controllers\RazorpayPaymentController;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\Agent\AgentLogin;
+use App\Http\Controllers\GdsUser\{Login , Optins};
+use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\Airline\AirlineCodeController;
+use App\Http\Controllers\Auth\User\UserLoginController;
+use App\Http\Controllers\Airline\Both\BookingController;
+use App\Http\Controllers\Hotel\Amadeus\{HeaderController, HotelBookingController, HotelSearchController};
+use App\Http\Controllers\Airline\Galileo\{AuthenticateController , TicketingController , PricingController};
+use App\Http\Controllers\Admin\{BlogController, TestimonialController, HotelOfferController, ImageController, OfferController};
+use App\Http\Controllers\{CartController, cashfreeprocess, EventController, GroupFare, HomeController, OfferDetailsController, pagecontroller, RazorpayPaymentController};
+use App\Http\Controllers\Airline\Amadeus\{Air_SellFromRecommendationController ,DomesticPnrAddMultiElementsController ,PNR_AddMultiElementsController ,SearchflightController};
 
 /*
 |--------------------------------------------------------------------------
@@ -310,7 +292,7 @@ Route::view('/contact-us', 'pages/contact-us')->name('contact-us');
 Route::view('/careers', 'pages/careers')->name('careers');
 Route::view('/activities-tours', 'pages/activities-tours')->name('activities-tours');
 Route::view('/trip-ideas', 'pages/trip-ideas')->name('trip-ideas');
-Route::view('/testimonial', 'pages/testimonial')->name('testimonial');
+
 Route::view('/my-biz', 'pages/my-biz')->name('my-biz');
 Route::view('/deals', 'pages/deals')->name('deals');
 Route::view('/blog', 'pages/blog')->name('blog');
@@ -534,6 +516,10 @@ Route::controller(OfferController::class)->group(function () {
         Route::delete('{id}/delete',  'destroy')->name('blog.delete');
     });
 });
+
+//  --------------- Testimonial ------------------
+
+Route::resource('testimonial',TestimonialController::class);
 
 //  ---------------HOTEL OFFER ------------------
 Route::controller(HotelOfferController::class)->group(function () {

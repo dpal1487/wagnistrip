@@ -90,7 +90,6 @@ class AuthenticateController extends Controller
     {
         // dd([$trip, $tripType, $date, $adult, $child, $infant, $origin, $destination]);
 
-        $config = Config::get('configuration.Galileo');
         if ($tripType == 'roundtrip') {
             $tripType = 2;
         } elseif ($tripType == 'oneway') {
@@ -99,6 +98,7 @@ class AuthenticateController extends Controller
             $tripType = 3;
         }
         $SessionID = $this->Authenticate();
+
         $date = \DateTime::createFromFormat("Y-m-d", $date);
         $date = $date->format("d/m/Y");
         $body = [

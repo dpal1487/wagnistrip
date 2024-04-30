@@ -355,6 +355,9 @@ class Air_SellFromRecommendationController extends Controller
 
     public function Air_SellFromRecommendation(Request $request)
     {
+
+        return $request;
+
         $HeaderController = new AmadeusHeaderController;
         $AirPortCodeController = new AirportiatacodesController;
         $params = $HeaderController->State(true);

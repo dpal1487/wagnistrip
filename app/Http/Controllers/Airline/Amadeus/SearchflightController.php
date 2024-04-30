@@ -57,7 +57,7 @@ class SearchflightController extends Controller
                 "infants" => $infants,
                 "travelClass" => $travelClass, // Amadeus uses travelClass instead of cabinClass  ECONOMY , BUSINESS ,  FIRST_CLASS
                 // Optional: Comment out if unsure about fare type
-                // "includeFares" => $fareType,
+                // "includeFares" => $passengerType,
             ]);
             // $pricing = $amadeus->getShopping()->getFlightOffers()->getPricing()->postWithFlightOffers($flightOffers);
             // return $pricing->toArray();
@@ -93,11 +93,14 @@ class SearchflightController extends Controller
             case 'Y':
                 $travelClass = 'ECONOMY';
                 break;
+            case 'W':
+                $travelClass = 'PREMIUM_ECONOMY';
+                break;
             case 'C':
                 $travelClass = 'BUSINESS';
                 break;
-            case 'P':
-                $travelClass = 'FIRST_CLASS';
+            case 'F':
+                $travelClass = 'FIRST';
                 break;
             default:
                 return response()->json(['error' => 'Invalid cabin class provided. Please choose ECONOMY, BUSINESS, or FIRST_CLASS.'], 400);
@@ -107,16 +110,17 @@ class SearchflightController extends Controller
         // trip == Domestic = 1, InterNational = 2, none = 0,
 
         $authenticateController = new AuthenticateController;
+
         $travellers = ['noOfAdults' => $adults, 'noOfChilds' => $children, 'noOfInfants' => $infants];
         $availability = [];
         if ($request['trip-type'] === "oneway") {
-            $oneways = $this->onewayFlight($departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
-            $availability = $authenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass'], $request['fare']));
+            // $oneways = $this->onewayFlight($departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
+            $availability = $authenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
         } else if ($request['trip-type'] === "roundtrip") {
             $oneways = $this->roundTripFlight($departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
-            $availability = $authenticateController->AvailabilityRound($tripType, $request['trip-type'], $request['departDate'], $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']) , $request['fare']);
+            // $availability = $authenticateController->AvailabilityRound($tripType, $request['trip-type'], $request['departDate'], $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
         }
-        // return $oneways;
+        return $oneways;
         // return $availability;
         // return response()->json(['galileo' => $availability , 'amadeus' => $oneways]);
         // return view('flight-pages.oneway-flight-pages.flight-search', compact('oneways', 'travellers', 'availability'));
