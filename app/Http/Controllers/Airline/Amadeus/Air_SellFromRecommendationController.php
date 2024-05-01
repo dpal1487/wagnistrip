@@ -18,9 +18,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use  Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
+use App\Services\AmadeusService;
 
 class Air_SellFromRecommendationController extends Controller
 {
+    private $amadeus;
+    public function __construct(AmadeusService $amadeus) // Or your custom service class
+    {
+        $this->amadeus = $amadeus;
+    }
 
     public function passenger($ADT, $CHD, $INF)
     {
@@ -355,6 +361,63 @@ class Air_SellFromRecommendationController extends Controller
 
     public function Air_SellFromRecommendation(Request $request)
     {
+
+
+        $departureDate = $request->get('departDate');
+        $returnDate = $request->get('returnDate');
+        $origin = $request->get('departure');
+        $destination = $request->get('arrival');
+        $adults = $request->get('noOfAdults', 1);
+        $children = $request->get('noOfChilds', 0);
+        $infants = $request->get('noOfInfants', 0);
+        $travelClass = request()->input('cabinClass');
+        $passengerType = $request->get('fare'); // Get user selected passenger type
+
+        try {
+            $amadeus = $this->amadeus->getClient();
+            $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
+                "originLocationCode" => $origin,
+                "destinationLocationCode" => $destination,
+                "departureDate" => $departureDate,
+                "adults" => $adults,
+                'returnDate' => $returnDate,
+                "max" => 10,
+                "children" => $children,
+                "infants" => $infants,
+                "travelClass" => $travelClass, // Amadeus uses travelClass instead of cabinClass  ECONOMY , BUSINESS ,  FIRST_CLASS
+                // Optional: Comment out if unsure about fare type
+                // "includeFares" => $passengerType,
+            ]);
+
+            // $body = '{
+            //     "originDestinations": [
+            //       {
+            //         "id": "1",
+            //         "originLocationCode": "PAR",
+            //         "destinationLocationCode": "MAD",
+            //         "departureDateTimeRange": {
+            //           "date": "2024-05-02"
+            //         }
+            //       }
+            //     ],
+            //     "travelers": [
+            //       {
+            //         "id": "1",
+            //         "travelerType": "ADULT"
+            //       }
+            //     ],
+            //     "sources": [
+            //       "GDS"
+            //     ]
+            //   }';
+            // $flightOffers = $amadeus->getShopping()->getFlightOffers()->post($body);
+            // $pricing = $amadeus->getShopping()->getFlightOffers()->getPricing()->postWithFlightOffers($flightOffers);
+            // return $pricing->toArray();
+            return $flightOffers[0]->getResponse()->getBodyAsJsonObject();
+        } catch (\Amadeus\Exceptions\ResponseException $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
 
         return $request;
 

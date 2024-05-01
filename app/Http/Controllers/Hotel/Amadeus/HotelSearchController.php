@@ -16,13 +16,10 @@ class HotelSearchController extends Controller
 
     public function hotelSearch()
     {
-
+        // dd("sdsd");
         $amadeus = $this->amadeus->getClient();
-
-        $hotel = $amadeus->getReferenceData()->getLocations(["subType"=>"CITY,AIRPORT", "keyword"=>"MUC"]);
-
-        return $hotel;
-
+        // $hotel = $amadeus->getReferenceData()->getLocations(["subType"=>"CITY,AIRPORT", "keyword"=>"MUC"]);
+        // return $hotel;
 
         $searchParams = [
             'cityCode' => 'DEL', // Replace with desired city code
@@ -32,19 +29,14 @@ class HotelSearchController extends Controller
         ];
 
         try {
-
-
             // $hotel = $amadeus->getBooking()->getHotelBookings()->post(json_encode($searchParams));
 
+            return $amadeus->getShopping()->getHotelOffers()->get(["hotelId" => "MCLONGHM","adults" => 1]);
             // return $hotel;
-
-
-
             // $hotels = $amadeus->getHotelOffers()->search($searchParams);
-
-            // Process hotel results (e.g., display in a view or return as JSON)
         } catch (\Exception $e) {
             // Handle API errors (e.g., log the error or return a user-friendly message)
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

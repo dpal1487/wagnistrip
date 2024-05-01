@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Hotel\Amadeus;
 
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
 use App\Models\HotelLog;
 use App\Models\Hotel\Hotelcode;
 use Illuminate\Support\Facades\Config;
@@ -67,7 +67,7 @@ class HeaderController extends Controller
         $xml .= '</AMA_SecurityHostedUser>';
         $xml .= '</soapenv:Header>';
         return $xml;
-        
+
     }
 
     public function headerStateFull($action)
@@ -201,14 +201,14 @@ class HeaderController extends Controller
 
         $data = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $data);
         $x = new \SimpleXMLElement($data);
-        
+
         // dd($x);
         $header = $x->xpath('//soapenvHeader')[0];
         // $header = $x->xpath('//soapHeader')[0];
 
         $body = $x->xpath('//soapenvBody')[0];
         // $body = $x->xpath('//soapBody')[0];
-        
+
         $headerData = json_decode(json_encode((array) $header, true), true);
         $headerDataSessionId = $headerData['awsseSession']['awsseSessionId'];
         if($actionCh == "PNRADD_17_1_1A_0") {
@@ -257,7 +257,7 @@ class HeaderController extends Controller
         $child = $request['child'];
 
         $room = $request['room'];
-        
+
         $count_A_C = $adult + $child;
 
         $start = date('Y-m-d', strtotime($request['departDate']));
@@ -267,7 +267,7 @@ class HeaderController extends Controller
         $end1 = date('Y-m-d', strtotime($request['returnDate']));
         $date1=date_create($start1);
         $date2=date_create($end1);
-        /////////////////////////////// uddeshya 
+        /////////////////////////////// uddeshya
 
         $end = date('Y-m-d', strtotime($request['returnDate']));
 
@@ -312,7 +312,7 @@ class HeaderController extends Controller
                 $errorMsg= "This is a worning ". $worning;
 
             }elseif(isset($hotels['OTA_HotelAvailRS']['Errors'])){
-                
+
                 $ErrorCode = $hotels['OTA_HotelAvailRS']['Errors']['Error']['@attributes']['Code'];
 
                 if($ErrorCode== '404'){
@@ -330,12 +330,12 @@ class HeaderController extends Controller
                 }else {
                     $errorMsg ='Unknwon error code.'.$ErrorCode;
                 }
-                      
+
                 // dd($hotels['OTA_HotelAvailRS']['Errors']);
             }
 
             $diff=date_diff($date1,$date2);
-            
+
             if($diff->format("%R%a days") =='+0 days'){
                 $errorMsg.= $diff->format("%R%a days");;
             }elseif($diff->format("%R%a days") =='+1 days'){
@@ -383,15 +383,15 @@ class HeaderController extends Controller
         $hotels = $this->xmlCallWithHeader($xml, $action);
         return $hotels['OTA_HotelDescriptiveInfoRS']['HotelDescriptiveContents']['HotelDescriptiveContent'];
     }
-    // code by uddeshya 
+    // code by uddeshya
     public function errors(Request $request){
         $ErrorCode = $request['code'];
         $ErrorType = $request['type'];
         $errorMsg ='This is error code '. $ErrorCode . ' This is error type '.$ErrorType;
         return redirect()->route('error')->with('msg', $errorMsg);
-        
+
     }
-    // code end  by uddeshya 
+    // code end  by uddeshya
 
     public function HotelDetails(Request $request)
     {

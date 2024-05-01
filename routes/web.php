@@ -103,9 +103,9 @@ Route::group(['prefix' => 'Hotels'], function () {
     Route::get('review-hotel', [HotelBookingController::class, 'HotelReview'])->name('review-hotel');
     Route::get('hotel-pay', [HotelBookingController::class, 'HotelPay'])->name('hotel-pay');
     Route::get('hotel-fare', [HotelBookingController::class, 'HotelAddPax'])->name('hotel-fare');
+    Route::get('hotel-search', [HotelSearchController::class, 'hotelSearch'])->name('hotel-search');
 });
 
-Route::get('hotel-search', [HotelSearchController::class, 'hotelSearch'])->name('hotel-search');
 
 Route::group(['prefix' => 'Galileo'], function () {
     Route::get('/galileo', [AuthenticateController::class, 'Authenticate']);
