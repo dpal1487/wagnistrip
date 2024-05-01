@@ -5,11 +5,8 @@ namespace App\Http\Controllers\Airline\Amadeus;
 use App\Http\Controllers\Airline\AirPortIATACodesController;
 use App\Http\Controllers\Airline\Galileo\AuthenticateController;
 use App\Http\Controllers\Controller;
-use App\Models\CurrencyConverter;
-use App\Models\VisitorGeolocation;
 use App\Services\AmadeusService;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -21,7 +18,7 @@ class SearchflightController extends Controller
     {
         $this->amadeus = $amadeus;
     }
-    public function onewayFlight($request ,$departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
+    public function onewayFlight($request, $departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
     {
 
         try {
@@ -48,8 +45,9 @@ class SearchflightController extends Controller
         }
     }
 
-    public function roundTripFlight($request ,$departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
+    public function roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
     {
+
 
         try {
             $amadeus = $this->amadeus->getClient();
@@ -152,7 +150,7 @@ class SearchflightController extends Controller
             // $oneways = $this->onewayFlight($request ,$departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
             $availability = $authenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
         } else if ($request['trip-type'] === "roundtrip") {
-            $oneways = $this->roundTripFlight($request ,$departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
+            $oneways = $this->roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
             // $availability = $authenticateController->AvailabilityRound($tripType, $request['trip-type'], $request['departDate'], $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
         }
         return $oneways;
