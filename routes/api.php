@@ -20,13 +20,12 @@ use App\Http\Controllers\helper\AirlineCodeController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/review' , [Air_SellFromRecommendationController::class, 'Air_SellFromRecommendation']);
 
+Route::post('/review' , [Air_SellFromRecommendationController::class, 'Air_SellFromRecommendation']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
 
 Route::get('/airlinecode', [AirlineCodeController::class, 'AirlineCode'])->name('ailine_code');
 Route::get('/phonecode', [HelperController::class, 'phonecode'])->name('phone.code');
@@ -34,8 +33,6 @@ Route::get('/airlinecodes', [AirportiatacodesController::class, 'searchAirIataCo
 Route::get('/country-code', [AirportiatacodesController::class, 'searchCountryCode'])->name('country-code-search');
 Route::get('/country-iso', [AirportiatacodesController::class, 'searchCountryIso'])->name('country-iso-search');
 Route::get('/Hotel-city', [AirportiatacodesController::class, 'HotelCity'])->name('HotelCity');
-
-
 
 Route::controller(ImageController::class)->group(function () {
     Route::post('/image/{entity}', 'store')->name('api.image.store');
