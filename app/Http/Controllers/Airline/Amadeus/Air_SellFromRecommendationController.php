@@ -362,32 +362,13 @@ class Air_SellFromRecommendationController extends Controller
     public function Air_SellFromRecommendation(Request $request)
     {
 
+        // $body = $request;
+        $jsonData = $request->json()->all();
 
-        $departureDate = $request->get('departDate');
-        $returnDate = $request->get('returnDate');
-        $origin = $request->get('departure');
-        $destination = $request->get('arrival');
-        $adults = $request->get('noOfAdults', 1);
-        $children = $request->get('noOfChilds', 0);
-        $infants = $request->get('noOfInfants', 0);
-        $travelClass = request()->input('cabinClass');
-        $passengerType = $request->get('fare'); // Get user selected passenger type
+        $body = json_encode($jsonData);
 
         try {
             $amadeus = $this->amadeus->getClient();
-            $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
-                "originLocationCode" => $origin,
-                "destinationLocationCode" => $destination,
-                "departureDate" => $departureDate,
-                "adults" => $adults,
-                'returnDate' => $returnDate,
-                "max" => 10,
-                "children" => $children,
-                "infants" => $infants,
-                "travelClass" => $travelClass, // Amadeus uses travelClass instead of cabinClass  ECONOMY , BUSINESS ,  FIRST_CLASS
-                // Optional: Comment out if unsure about fare type
-                // "includeFares" => $passengerType,
-            ]);
 
             // $body = '{
             //     "originDestinations": [
@@ -410,7 +391,7 @@ class Air_SellFromRecommendationController extends Controller
             //       "GDS"
             //     ]
             //   }';
-            // $flightOffers = $amadeus->getShopping()->getFlightOffers()->post($body);
+            $flightOffers = $amadeus->getShopping()->getFlightOffers()->post($body);
             // $pricing = $amadeus->getShopping()->getFlightOffers()->getPricing()->postWithFlightOffers($flightOffers);
             // return $pricing->toArray();
             return $flightOffers[0]->getResponse()->getBodyAsJsonObject();

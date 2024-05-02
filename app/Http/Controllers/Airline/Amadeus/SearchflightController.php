@@ -18,6 +18,7 @@ class SearchflightController extends Controller
     {
         $this->amadeus = $amadeus;
     }
+
     public function onewayFlight($request, $departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
     {
 
@@ -47,8 +48,6 @@ class SearchflightController extends Controller
 
     public function roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
     {
-
-
         try {
             $amadeus = $this->amadeus->getClient();
             $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
@@ -67,9 +66,8 @@ class SearchflightController extends Controller
             ]);
             // $pricing = $amadeus->getShopping()->getFlightOffers()->getPricing()->postWithFlightOffers($flightOffers);
             $flightOffers = $flightOffers[0]->getResponse()->getBodyAsJsonObject();
-            // return $flightOffers;
+            // return $flightOffers->data;
             $isFormerMilitary = true;
-
             // if($isFormerMilitary)
             // {
             //     foreach ($flightOffers->data as &$flightOffer) {
@@ -82,7 +80,6 @@ class SearchflightController extends Controller
             //     }
             // }
             return response()->json($flightOffers);
-
         } catch (\Amadeus\Exceptions\ResponseException $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -99,9 +96,9 @@ class SearchflightController extends Controller
         return in_array($airlineCode, $defenseAirlines);
 
     }
+
     public function Fare_MasterPricerTravelBoardSearch(Request $request)
     {
-
         $departureDate = $request->get('departDate');
         $returnDate = $request->get('returnDate');
         $origin = $request->get('departure');
@@ -112,10 +109,8 @@ class SearchflightController extends Controller
         $travelClass = request()->input('cabinClass');
         $passengerType = $request->get('fare'); // Get user selected passenger type
         $airPortCodeController = new AirPortIATACodesController;
-
         $dep = strip_tags(trim($airPortCodeController->getCountry($request['departure'])));
         $ari = strip_tags(trim($airPortCodeController->getCountry($request['arrival'])));
-
         if ($dep == "India" && $ari == "India") {
             $tripType = 1;
         } else {
@@ -137,12 +132,9 @@ class SearchflightController extends Controller
             default:
                 return response()->json(['error' => 'Invalid cabin class provided. Please choose ECONOMY, BUSINESS, or FIRST_CLASS.'], 400);
         }
-
         // trip type  None = 0,  OneWay= 1, RoundTrip = 2, MultiCity = 3, SpecialReturn = 4,
         // trip == Domestic = 1, InterNational = 2, none = 0,
-
         $authenticateController = new AuthenticateController;
-
         $travellers = ['noOfAdults' => $adults, 'noOfChilds' => $children, 'noOfInfants' => $infants];
         $currency_conversion = $this->getvisitorcountrycurrency();
         $availability = [];
@@ -200,4 +192,5 @@ class SearchflightController extends Controller
             return $currency;
         }
     }
+    
 }

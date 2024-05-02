@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Airline\AirportiatacodesController;
+use App\Http\Controllers\Airline\Amadeus\Air_SellFromRecommendationController;
 use App\Http\Controllers\helper\HelperController;
 use App\Http\Controllers\helper\AirlineCodeController;
 
@@ -19,6 +20,8 @@ use App\Http\Controllers\helper\AirlineCodeController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('/review' , [Air_SellFromRecommendationController::class, 'Air_SellFromRecommendation']);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

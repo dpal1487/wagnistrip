@@ -67,6 +67,8 @@ Route::group(['prefix' => 'flight'], function () {
     Route::post('/booking-roundtrip-domestic', [DomesticPnrAddMultiElementsController::class, 'DomPnrAddMultiElements'])->name('booking.flight-booking-dom');
 });
 
+
+
 //  --------------- TEST PAGES & ERROR PAGES START ------------------
 
 // Route::get('/', function() {
