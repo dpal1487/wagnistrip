@@ -19,54 +19,40 @@ use Amadeus\Client\RequestOptions\TicketCreateTstFromPricingOptions;
 use Amadeus\Client\RequestOptions\Ticket\Pricing;
 use Amadeus\Client\Result;
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Http\Controllers\Airline\AirportiatacodesController;
-use App\Http\Controllers\Airline\Amadeus\AmadeusHeaderController;
 use App\Models\Booking\Bookingpnr;
 use App\Models\Cart;
 use App\Models\User;
 use Exception;
-use PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Razorpay\Api\Api;
-use Illuminate\Support\Facades\Session;
+use Session;
 
 class DomesticPnrAddMultiElementsController extends Controller
 {
 
+    // {"otherInfoOutbound":{"marketingCompany":"UK","operatingCompany":"UK","arrivalingTime":"0210","arrivalDate":"201021"},"otherInfoInbound":{"marketingCompany_1":"UK","marketingCompany_2":"UK","operatingCompany_1":"UK","operatingCompany_2":"UK","arrivalingTime":"0630","arrivalDate_1":null,"arrivalDate_2":null}}
+
     public function DomPnrAddMultiElements(Request $request)
     {
         $input = $request->all();
-        
-        if($input['mode']== "DC"){
-            $input['amount'] = $input['amount'] - (($input['amount']*0.99)/100)  ;
-        }elseif($input['mode']== "CC"){
-            $input['amount'] = $input['amount'] - (($input['amount']*1.96)/100)  ;
+
+        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+
+        $payment = $api->payment->fetch($input['razorpay_payment_id']);
+
+        if (count($input) && !empty($input['razorpay_payment_id'])) {
+            try {
+                $response = $api->payment->fetch($input['razorpay_payment_id'])->capture(array('amount' => $payment['amount']));
+
+            } catch (Exception $e) {
+                return $e->getMessage();
+                Session::put('error', $e->getMessage());
+                return redirect()->back();
+            }
         }
-        // dd($input);
 
-        // $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
-
-        // $payment = $api->payment->fetch($input['razorpay_payment_id']);
-
-        // if (count($input) && !empty($input['razorpay_payment_id'])) {
-        //     try {
-        //         $response = $api->payment->fetch($input['razorpay_payment_id'])->capture(array('amount' => $payment['amount']));
-
-        //     } catch (Exception $e) {
-        //         return $e->getMessage();
-        //         Session::put('error', $e->getMessage());
-        //         return redirect()->back();
-        //     }
-        // }
-
-        
-         if ('success' != $_POST["status"]) {
-              return redirect()->route('error')->with('message', 'Payment unsuccessful please click here to search again. Kindly contact on this toll free number 08069145571 for further concern.');
-            //   dd('Somthing went wrong');
-        }
-        $bookingData = Cart::where('uniqueid', $request['txnid'])->first();
+        $bookingData = Cart::where('uniqueid', $request['uniqueID'])->first();
 
         $otherInformation = json_decode($bookingData['otherInformation'], true);
         $OutboundMarketingCompany = $otherInformation['otherInfoOutbound']['marketingCompany'] ?? $otherInformation['otherInfoOutbound']['marketingCompany_1'];
@@ -319,18 +305,18 @@ class DomesticPnrAddMultiElementsController extends Controller
 
             $opt->elements[] = new Contact([
                 'type' => Contact::TYPE_PHONE_MOBILE,
-                'value' => $phonenumber ?? '+919875489875',
+                'value' => '9875489875',
             ]);
             $opt->elements[] = new Contact([
                 'type' => Contact::TYPE_EMAIL,
                 'value' => $email,
             ]);
-            
             $opt->elements[] = new FormOfPayment([
                 'type' => FormOfPayment::TYPE_CASH,
             ]);
 
             $createdPnr = $client->pnrCreatePnr($opt);
+
             if ($createdPnr->status === Result::STATUS_OK) {
                 $getsession = $client->getSessionData();
                 $client->setSessionData($getsession);
@@ -338,8 +324,9 @@ class DomesticPnrAddMultiElementsController extends Controller
                 $pricingResponse = $client->farePricePnrWithBookingClass(
                     new FarePricePnrWithBookingClassOptions([
                         'validatingCarrier' => $marketingCompany,
-                    ]),
+                    ])
                 );
+
                 if ($pricingResponse->status === Result::STATUS_OK) {
                     $getsession = $client->getSessionData();
                     $client->setSessionData($getsession);
@@ -364,112 +351,37 @@ class DomesticPnrAddMultiElementsController extends Controller
                             $createdPnrForRetriever1 = $pnrReply->response->pnrHeader->reservationInfo->reservation->controlNumber;
 
                             $pnrRetrieve = $client->pnrRetrieve(new PnrRetrieveOptions(['recordLocator' => $createdPnrForRetriever1]));
-                            
-                            
-                            /////////////////////////////////////////////////////////////
+
                             if ($pnrRetrieve->status === Result::STATUS_OK) {
-                            //     $getsession = $client->getSessionData();
-                            //     $client->setSessionData($getsession);
+                                $getsession = $client->getSessionData();
+                                $client->setSessionData($getsession);
 
-                            //     $issueTicketResponse = $client->docIssuanceIssueTicket(
-                            //         new DocIssuanceIssueTicketOptions([
-                            //             'options' => [
-                            //                 DocIssuanceIssueTicketOptions::OPTION_ETICKET,
-                            //             ],
-                            //         ])
-                            //     );
+                                $issueTicketResponse = $client->docIssuanceIssueTicket(
+                                    new DocIssuanceIssueTicketOptions([
+                                        'options' => [
+                                            DocIssuanceIssueTicketOptions::OPTION_ETICKET,
+                                        ],
+                                    ])
+                                );
 
-                            //     if ($issueTicketResponse->status === Result::STATUS_OK) {
-                            //         $getsession = $client->getSessionData();
-                            //         $client->setSessionData($getsession);
+                                if ($issueTicketResponse->status === Result::STATUS_OK) {
+                                    $getsession = $client->getSessionData();
+                                    $client->setSessionData($getsession);
 
-                            //         $createdPnrForRetriever2 = $pnrRetrieve->response->pnrHeader->reservationInfo->reservation->controlNumber;
-                            //         $pnrRetrieveAndDisplay = $client->pnrRetrieve(
-                            //             new PnrRetrieveOptions(['recordLocator' => $createdPnrForRetriever2])
-                            //         );
+                                    $createdPnrForRetriever2 = $pnrRetrieve->response->pnrHeader->reservationInfo->reservation->controlNumber;
+                                    $pnrRetrieveAndDisplay = $client->pnrRetrieve(
+                                        new PnrRetrieveOptions(['recordLocator' => $createdPnrForRetriever2])
+                                    );
 
-                            //         if ($pnrRetrieveAndDisplay->status === Result::STATUS_OK) {
-                            //             $booking = $pnrRetrieveAndDisplay->response;
-                            //             $getsession = $client->getSessionData();
-                            //             $client->setSessionData($getsession);
-                            /////////////////////////////////////////////////////////////////////////////////////////////////
-                                    $FareInformation[] = [
-                                        "PaxType" => $pnrRetrieve->response->tstData->fareData->monetaryInfo[1]->amount ?? '',
-                                        "PaxBaseFare" => $pnrRetrieve->response->tstData->fareData->monetaryInfo[1]->amount ?? '',
-                                        "PaxFuelSurcharge" => 0,
-                                        "PaxOtherTax" => 0,
-                                        "PaxTotalFare" =>  $input['amount'] ?? $pnrRetrieve->response->tstData->fareData->monetaryInfo[0]->amount ?? '',
-                                        "PaxDiscount" => 0,
-                                        "PaxCashBack" => 0,
-                                        "PaxTDS" => 0,
-                                        "PaxServiceTax" => 0,
-                                        "PaxTransactionFee" => 0,
-                                        "TravelFee" => 0,
-                                        "Discount" => 0,
-                                        "K3" => 265,
-                                        "CGST" => 0,
-                                        "SGST" => 0,
-                                        "IGST" => 0,
-                                        "UTGST" => 0,
-                                    ];
-                            
-                                       
-                                    $booking = $pnrRetrieve->response;
-                                    $longFreetext = $str = (isset($booking->dataElementsMaster->dataElementsIndiv[3]->otherDataFreetext->longFreetext) ? ($booking->dataElementsMaster->dataElementsIndiv[3]->otherDataFreetext->longFreetext) : '');
-                                    $longFreetext = substr($str, (strpos($str, "-")) + 1, 10);
-                                        
-                                    $FlightDetails = [];
+                                    if ($pnrRetrieveAndDisplay->status === Result::STATUS_OK) {
+                                        $booking = $pnrRetrieveAndDisplay->response;
+                                        $getsession = $client->getSessionData();
+                                        $client->setSessionData($getsession);
 
-                                    foreach ($pnrRetrieve->response->originDestinationDetails->itineraryInfo as $segkey => $segment) {
-                                        if ($segkey > 0) {
-                                            $segdata = [
-                                               "Leg" => 1,
-                                                "FlightCount" => 1,
-                                                "DepartAirportCode" => $segment->travelProduct->boardpointDetail->cityCode ?? '',
-                                                "DepartAirportName" => $segment->travelProduct->boardpointDetail->cityCode ?? '',
-                                                "DepartCityName" => $segment->travelProduct->boardpointDetail->cityCode ?? '',
-                                                "DepartTerminal" => $segment->flightDetail->departureInformation->departTerminal ?? '',
-                                                "DepartDateTime" => $segment->travelProduct->product->depTime ??''.$segment->travelProduct->product->depDate ??'',
-                                                "DepartDate" => $segment->travelProduct->product->depDate ??'',
-                                                "ArrivalAirportCode" => $segment->travelProduct->offpointDetail->cityCode ?? '',
-                                                "ArrivalAirportName" => $segment->travelProduct->offpointDetail->cityCode ?? '',
-                                                "ArrivalCityName" => $segment->travelProduct->offpointDetail->cityCode ?? '',
-                                                "ArrivalTerminal" => $segment->flightDetail->arrivalStationInfo->terminal ?? '',
-                                                "ArrivalDateTime" => $segment->travelProduct->product->arrTime??''.$segment->travelProduct->product->arrDate??'' ,
-                                                "ArrivalDate" => $segment->travelProduct->product->arrDate??'' ,
-                                                "FlightNumber" => $segment->travelProduct->productDetails->identification ?? '',
-                                                "AirLineCode" => $segment->travelProduct->companyDetail->identification ?? '',
-                                                "AirLineName" => $segment->travelProduct->companyDetail->identification ?? '',
-                                                "Duration" => $segment->flightDetail->productDetails->duration,
-                                                "AvailableSeats" => $segment->flightDetail->productDetails->duration,
-                                                "EquipmentType" =>  $segment->flightDetail->productDetails->equipment,
-                                                "MarketingCarrier" => $segment->travelProduct->companyDetail->identification,
-                                                "OperatingCarrier" => $segment->travelProduct->companyDetail->identification,
-                                                "OperatingCarrierName" => $segment->travelProduct->companyDetail->identification,
-                                                "OperatingFlightNumber" => $segment->travelProduct->companyDetail->identification,
-                                                "AirLinePNR" => $segment->itineraryReservationInfo->reservation->controlNumber?? '',
-                                                "TravelClass" => $segment->travelProduct->productDetails->classOfService ?? '',
-                                                "TrackID" =>$segment->itineraryReservationInfo->reservation->controlNumber?? '',
-                                                "BookingCode" => null,
-                                                "BaggageDetails" => $pnrRetrieve->response->tstData->fareBasisInfo->fareElement->baggageAllowance ?? "",
-                                                "NumberOfStops" => $segment->flightDetail->productDetails->numOfStops,
-                                                "ViaSector" => null,
-                                                "TicketNumber" => $longFreetext,
-                                            ];
-
-                                            array_push($FlightDetails, $segdata);
-                                        }
-                                    }
-
-                                    is_array($booking->travellerInfo) ? $travellerInfo = $booking->travellerInfo : $travellerInfo = [$booking->travellerInfo];
-                                    $PassengerDetails = [];
-                                    
-                                    
-                                        $book = new Booking;
-                                        
-                                        $book->gds_pnr = $pnrRetrieve->response->pnrHeader->reservationInfo->reservation->controlNumber ?? '';
+                                        $book = new Bookingpnr;
+                                        $book->pnr = $booking->originDestinationDetails->itineraryInfo[1]->itineraryReservationInfo->reservation->controlNumber ?? '';
                                         $seg = [];
-                                        foreach ($pnrRetrieve->response->originDestinationDetails->itineraryInfo as $segkey => $segment) {
+                                        foreach ($booking->originDestinationDetails->itineraryInfo as $segkey => $segment) {
                                             if ($segkey > 0) {
                                                 $segdata = [
                                                     'operatingcompany' => $segment->travelProduct->companyDetail->identification ?? '',
@@ -492,69 +404,41 @@ class DomesticPnrAddMultiElementsController extends Controller
                                                 array_push($seg, $segdata);
                                             }
                                         }
-                                        $book->itinerary =  json_encode($FlightDetails, true);
+                                        $book->segment = json_encode($seg, true);
                                         is_array($booking->travellerInfo) ? $travellerInfo = $booking->travellerInfo : $travellerInfo = [$booking->travellerInfo];
-                                        $PassengerDetails = [];
+                                        $trvl = [];
                                         foreach ($travellerInfo as $travellers) {
                                             $ticketNo = $travellers->elementManagementPassenger->reference->number;
-    
-                                            // dd($ticketNo);
-    
                                             is_array($travellers->passengerData) ? $travellerData = $travellers->passengerData : $travellerData = [$travellers->passengerData];
-    
                                             foreach ($travellerData as $person) {
-    
-                                                $Passenger = [
-                                                    "ReferenceNo" => "",
-                                                    "TrackID" => "",
-                                                    "Title" => "MR",
-                                                    "FirstName" => $person->travellerInformation->passenger->firstName ?? '',
-                                                    "MiddleName" => null,
-                                                    "LastName" => $person->travellerInformation->traveller->surname ?? '',
-                                                    "PaxTypeCode" => $person->travellerInformation->passenger->type ?? '',
-                                                    "Gender" => "",
-                                                    "DOB" => null,
-                                                    "TicketID" => $ticketNo ?? '',
-                                                    "TicketNumber" => $longFreetext ?? '',
-                                                    "IssueDate" => "",
-                                                    "Status" => "Ticketed",
-                                                    "ModifyStatus" => "",
-                                                    "ValidatingAirline" => " ",
-                                                    "FareBasis" => null,
-                                                    "Baggage" => null,
-                                                    "BaggageAllowance" => $pnrRetrieve->response->tstData->fareBasisInfo->fareElement->baggageAllowance?? '',
-                                                    "ChangePenalty" => null,
+                                                $data = [
+                                                    'ticket' => $ticketNo ?? '',
+                                                    'type' => $person->travellerInformation->passenger->type ?? '',
+                                                    'first' => $person->travellerInformation->passenger->firstName ?? '',
+                                                    'last' => $person->travellerInformation->traveller->surname ?? '',
                                                 ];
-                                                array_push($PassengerDetails, $Passenger);
+                                                array_push($trvl, $data);
                                             }
                                         }
-                                        $book->passenger = json_encode($PassengerDetails, true);
-                                        $book->email = $pnrRetrieve->response->dataElementsMaster->dataElementsIndiv[0]->otherDataFreetext->longFreetext ?? '';
-                                        $book->mobile = $pnrRetrieve->response->dataElementsMaster->dataElementsIndiv[1]->otherDataFreetext->longFreetext ?? '';
-                                        $CabIn  =  $booking->tstData->fareBasisInfo->fareElement->baggageAllowance ?? '15 kg .';
-                                        $book->baggage = json_encode([[
-                                            'CabIn' => $CabIn, 
-                                            'CheckIn' => '7KG'
-                                        ]], true);
-                                        $book->booking_from = "AMADEUS";
-                                        $book->trip =  "Domestic";
-                                        
-                                        $book->trip_type =  "Dow Roun One";
-                                        $book->trip_stop = "No stop";
-                                        $book->airline_pnr =  $pnrRetrieve->response->pnrHeader->reservationInfo->reservation->controlNumber ?? '';
-                                        
-                                        $book->booking_id = "WT0000" .$pnrRetrieve->response->pnrHeader->reservationInfo->reservation->controlNumber ?? '' ;
-                                        $book->fare = json_encode($FareInformation, true);
-                                        $book->logs_id = $pnrRetrieveAndDisplay->responseXml ?? "";
-                                        $book->status = "Ticketed";
-                                        
+                                        $book->travellers = json_encode($trvl, true);
+                                        $book->email = $booking->dataElementsMaster->dataElementsIndiv[0]->otherDataFreetext->longFreetext ?? '';
+                                        $book->mobile = $booking->dataElementsMaster->dataElementsIndiv[1]->otherDataFreetext->longFreetext ?? '';
+                                        $book->carrayon = "7k";
+                                        $book->checkin = "15k";
+                                        $book->basefare = $booking->tstData->fareData->monetaryInfo[0]->amount ?? '';
+                                        $book->totalfare = $booking->tstData->fareData->monetaryInfo[1]->amount ?? '';
+                                        $book->airlinetaxes = 0;
+                                        $book->ancillarycharges = 0;
+                                        $book->donationamount = 0;
+                                        $book->conveniencefee = 0;
+                                        $book->xmllogs_id = $pnrRetrieveAndDisplay->responseXml ?? "";
                                         $usermobile = User::where('phone', $phonenumber)->pluck('id') ?? '';
                                         $useremail = User::where('email', $email)->pluck('id') ?? '';
                                         if (isset($usermobile[0])) {
                                             $book->user_id = $usermobile[0] ?? '';
                                         } elseif (isset($useremail[0])) {
                                             $book->user_id = $useremail[0] ?? '';
-                                        
+
                                         } else {
                                             $user = new User;
                                             $user->name = $activeTravellers['adults']['fistName'][0] . " " . $activeTravellers['adults']['lastName'][0] ?? '';
@@ -567,122 +451,40 @@ class DomesticPnrAddMultiElementsController extends Controller
                                         }
 
                                         $book->save();
-                                        
-                                        $client->securitySignOut();
-                                            
-                                        if ($r == 1) {
-                                             $FristpnrRetrieve = $book;
-                                        }
-                                        if ($r == 2) {
-                                            
-                                            ///////////////////////////////////////////////////////////////////////////////////
-                                            //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                            ///////////////////////////////////////////////////////////////////////////////////
-                                            $date  = $time = '';
-                                            foreach (json_decode($book->itinerary) as $key => $itinerary){
-                                                if($key == 0){
-                                                    $date =  NOgetDate_fn($itinerary->DepartDate) ;
-                                                    $date2 =  getDate_fn($itinerary->DepartDate) ?? date('d-m-Y', strtotime($itinerary->DepartDate)) ;
-                                                    $time =  date('H:i', strtotime($itinerary->DepartDateTime)) ;
-                                                }
-                                            }
-                                           
-                                            $from = json_decode($book->itinerary)[0]->DepartCityName ?? json_decode($book->itinerary)->DepartCityName ?? '';
-                                            $to = json_decode($book->itinerary)[count(json_decode($book->itinerary))-1]->ArrivalCityName ?? json_decode($book->itinerary)->ArrivalCityName ?? '';
-                                            foreach (json_decode($book->passenger) as $passenger){}
-                                            $name = $passenger->FirstName ?? "customer";
-                                            $name =  preg_replace('/\s+/', '%20', $name);
-                                            $PhoneTo = $book->mobile;
-                                            $PhoneTo =  preg_replace('/\s+/', '%20', $PhoneTo);
-                                            $from = AirportiatacodesController::getCity($from);
-                                            $from =  preg_replace('/\s+/', '%20', $from);
-                                            $to = AirportiatacodesController::getCity($to);
-                                            $to =  preg_replace('/\s+/', '%20', $to);
-                                            $pnr = $book->gds_pnr;
-                                            $pnr =  preg_replace('/\s+/', '%20', $pnr);
-                                            $date = preg_replace('/\s+/', '%20', $date);;
-                                            $Time = preg_replace('/\s+/', '%20', $time);;
-                                            
-                                            $curl = curl_init();
-                                            curl_setopt_array($curl, array(
-                                                CURLOPT_URL => 'https://app-vcapi.smscloud.in/fe/api/v1/send?username=wagnistrip.api&apiKey=eRXjt4GR3ekxHwYHTSRRC1uCgvjU2gbV&unicode=false&from=WAGNIS&to='.$PhoneTo.'&text=Dear%20'.$name.',%20We%27re%20Happy%20to%20Confirm%20your%20Booking.%20PNR-'.$pnr.'%20from%20'.$from.'%20to%20'.$to.'%20at%20'.$date.'%20'.$Time.'.%20For%20any%20query%20click%20https://wagnistrip.com',
-                                                CURLOPT_RETURNTRANSFER => true,
-                                                CURLOPT_ENCODING => '',
-                                                CURLOPT_MAXREDIRS => 10,
-                                                CURLOPT_TIMEOUT => 0,
-                                                CURLOPT_FOLLOWLOCATION => true,
-                                                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                                CURLOPT_CUSTOMREQUEST => 'GET',
-                                            ));
-                                            $response = curl_exec($curl);
-                                            curl_close($curl);
-                                            
-                                            
-                                            
-                                            $both['both'] = [
-                                                'FristpnrRetrieve'=>$FristpnrRetrieve , 
-                                                'book'=>$book ,
-                                            ];
-                                            
-                                            $both['bookings'] =  $FristpnrRetrieve;
-                                            $both['email'] =  $email??$useremail[0]?? 'customercare@wagnistrip.com';
-                                            $both['title'] =   "Flight Ticket ".$activeTravellers['adults']['fistName'][0]??'';
-                                            
-                                            $files = PDF::loadView('flight-pages/booking-confirm/edit-roundtrip-amd-flight-booking-confirm-pdf', $both);
-      
-                                            \Mail::send('flight-pages.booking-confirm.amd-email_content', $both, function($message)use($both ,$files) {
-                                                $message->to($both['email'])
-                                                        ->subject( $both['title'])
-                                                        ->attachData($files->output(), $both['title'].".pdf");
-                                              
-                                            });
-                                            \Mail::send('flight-pages.booking-confirm.amd-email_content', $both, function($message)use( $both ,$files) {
-                                                $message->to("customercare@wagnistrip.com")
-                                                        ->subject( $both['title'])
-                                                        ->attachData($files->output(), $both['title'].".pdf");
-                                                     
-                                            });
-                                                                               
-                                            ///////////////////////////////////////////////////////////////////////////////////
-                                            ///////////////////////////////////////////////////////////////////////////////////
-                                            $both = [
-                                                'FristpnrRetrieve'=>$FristpnrRetrieve , 
-                                                'book'=>$book ,
-                                            ];
-                                            return view('flight-pages/booking-confirm/edit-roundtrip-amd-flight-booking-confirm', compact('both'));
-                            
-                                            
-                                        }
-                                        
-                            //         }
-                            //     } else {
-                            //         dd($issueTicketResponse);
-                            //         return redirect()->route('error')->with('message', 'issueTicketResponse  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
 
-                            //     }
+                                        $client->securitySignOut();
+
+                                        if ($r == 2) {
+                                            return redirect()->route('user-booking')->with('message', 'State saved correctly!'); 
+                                        }
+                                    }
+                                } else {
+
+                                    return redirect()->route('error')->with('message', 'issueTicketResponse  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
+
+                                }
 
                             } else {
-                                // dd($pnrRetrieve);
-                                return redirect()->route('error')->with('message', 'pnrRetrieve  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank, Kindly contact on this toll free number 08069145571 for further concern.');
+                                return redirect()->route('error')->with('message', 'pnrRetrieve  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
 
                             }
                         } else {
-                            return redirect()->route('error')->with('message', 'pnrReply  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank,  Kindly contact on this toll free number 08069145571 for further concern.');
+                            return redirect()->route('error')->with('message', 'pnrReply  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
 
                         }
 
                     } else {
-                        return redirect()->route('error')->with('message', 'createTstResponse  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank,  Kindly contact on this toll free number 08069145571 for further concern.');
+                        return redirect()->route('error')->with('message', 'createTstResponse  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
 
                     }
 
                 } else {
-                    return redirect()->route('error')->with('message', 'pricingResponse -----  Your booking could not be completed as we did not receive successful authorisation of the payment from your bank,  Kindly contact on this toll free number 08069145571 for further concern.');
+                    return redirect()->route('error')->with('message', 'pricingResponse -----  Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
 
                 }
 
             } else {
-                return redirect()->route('error')->with('message', 'createdPnr   -----   Your booking could not be completed as we did not receive successful authorisation of the payment from your bank, Kindly contact on this toll free number 08069145571 for further concern.');
+                return redirect()->route('error')->with('message', 'createdPnr   -----   Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
 
             }
 

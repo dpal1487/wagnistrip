@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class AgentBooking extends Model
 {
     use HasFactory;
+    
+ protected $connection = 'mysql2';
 }

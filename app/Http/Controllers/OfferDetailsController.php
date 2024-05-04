@@ -5,7 +5,6 @@ use App\Models\PackageOffer;
 use App\Models\HotelOffer;
 use App\Models\AirlinePackage;
 
-
 class OfferDetailsController extends Controller
 {
     public function index(){
@@ -25,7 +24,7 @@ class OfferDetailsController extends Controller
             ];
         }
         // dd($offerArray);
-    return view('welcome', compact('offerArray'));
+        return view('welcome', compact('offerArray'));
     }
     
     public function offerDetailss(){
@@ -34,9 +33,8 @@ class OfferDetailsController extends Controller
 
     public function festiveOffers(Request $request){
         $getData = PackageOffer::where('id', $request['id'])->get();
-       $offerDetailArray = [];
+        $offerDetailArray = [];
         foreach($getData as $datas){
-          // $offerDetailArray = PackageOffer::find($datas->package_id);
             $hotelPack = HotelOffer::find($datas->hotel_id);
             $airlinePack = AirlinePackage::find($datas->flight_id);
             $offerDetailArray[] = [
@@ -67,10 +65,10 @@ class OfferDetailsController extends Controller
                 'packageimages' =>  json_decode($datas['images']),
             ];
         }
-        //dd($offerDetailArray);
+        // dd($offerDetailArray);
         return view('pages.festivle_offer', compact('offerDetailArray'));
-    
     }
 
-}
 
+
+}

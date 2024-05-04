@@ -1,4 +1,5 @@
 <?php
+  
 namespace App\Http\Controllers;
   
 use Illuminate\Http\Request;
@@ -13,12 +14,12 @@ class RazorpayPaymentController extends Controller
      *
      * @return response()
      */
-    public function payment(Request $request)
-    {       
-        $allData = $request->all(); 
-        
-        return view('payment', compact('allData'));
-    }
+    // public function payment(Request $request)
+    // {       
+    //     $allData = $request->all(); 
+    //     // dd($allData);
+    //     return view('payment', compact('allData'));
+    // }
    
     /**
      * Write code on Method
@@ -48,6 +49,6 @@ class RazorpayPaymentController extends Controller
           
         Session::put('success', 'Payment successful');
         return $request->all();
-        return redirect()->route('')->with();
+        // return redirect()->route('')->with();
     }
 }

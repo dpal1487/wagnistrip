@@ -23,16 +23,14 @@ class AdminLoginController extends Controller
     public function loginPost(Request $request)
     {
       // // Validate the form data
-      // $this->validate($request, [
-      //   'email'   => 'required|email',
-      //   'password' => 'required|min:8'
-      // ]);
+       $this->validate($request, [
+         'email'   => 'required|email',
+         'password' => 'required|min:8'
+       ]);
       // Attempt to log the user in
       if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
         // if successful, then redirect to their intended location
-            
         return redirect()->intended(route('admin.dashboard.admin'));
-       
       } 
       // if unsuccessful, then redirect back to the login with the form data
       return redirect()->back()->with('error','Email OR Password is incorrect');
@@ -43,4 +41,6 @@ class AdminLoginController extends Controller
         Auth::guard('admin')->logout();
         return redirect('/admin/login');
     }
+
+
 }

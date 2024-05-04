@@ -18,134 +18,47 @@ use Amadeus\Client\RequestOptions\Pnr\Traveller;
 use Amadeus\Client\RequestOptions\TicketCreateTstFromPricingOptions;
 use Amadeus\Client\RequestOptions\Ticket\Pricing;
 use Amadeus\Client\Result;
-use App\Http\Controllers\Airline\AirportiatacodesController;
-use Amadeus\Client\RequestOptions\Pnr\Reference;
-// use Amadeus\Client\RequestOptions\Air\RetrieveSeatMap\FrequentFlyer;
-use Amadeus\Client\RequestOptions\Pnr\Element\FrequentFlyer;
 use App\Http\Controllers\Airline\Amadeus\AmadeusHeaderController;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\amadeus_flight_log;
 use App\Models\Cart;
-use App\Models\PaymentHotels;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Mail;
-use PDF;
-use Illuminate\Support\Facades\Session;
+use Razorpay\Api\Api;
+use Session;
 use Exception;
 
 class PNR_AddMultiElementsController extends Controller
 {
-        
-    public function amd_email_view(Request $request){
-         $bookings  = Booking::where('id', $request['id'])->first();
-         
-        // dd($bookingData);
-        $bookingData2 = Booking::where('id', $request['id2'])->first();
-        $both = [
-            'FristpnrRetrieve'=>$bookings , 
-            'book'=>$bookingData2 ,
-        ];
-        // $bookings['both'] = $both;                                  
-        // $bookings['bookings'] = $bookingData1;                                  
-        // $bookings['email'] =  'developer@wagnistrip.com';
-        // $bookings['title'] =   "Flight Ticket ";
-        
-        //  $files = PDF::loadView('booking-pdf.flight.oneway-amd-flight-booking-confirm', $bookings);
-        //  flight-pages/booking-confirm/edit-roundtrip-amd-flight-booking-confirm
-        
-        
-        // $files = PDF::loadView('flight-pages/booking-confirm/Mix-Dom-Round-pdf', $bookings);
-        // \Mail::send('booking-pdf.flight.Mix_eamil_content', $bookings, function($message)use($bookings ,$files) {
-        //     $message->to($bookings['email'])
-        //             ->subject( $bookings['title'])
-        //             ->attachData($files->output(), $bookings['title'].".pdf");
-        // });
-        // flight-pages/booking-confirm/edit-roundtrip-amd-flight-booking-confirm flight-pages.booking-confirm.amd-email_content
-        
-        
-        if(isset($bookings['id'])){
-            // return view('flight-pages/booking-confirm/edit-roundtrip-amd-flight-booking-confirm-pdf', compact('both'));
-            // return view('flight-pages/booking-confirm/oneway-amd-flight-booking-confirm', compact('bookings'));
-            // return view('flight-pages/booking-confirm/Mix-Dom-Round-pdf', compact('both'));
-            // return view('booking-pdf.flight.Mix_eamil_content', compact('bookings' , 'both'));
-            // dd($bookingData2);
-            return view('flight-pages.booking-confirm.amd-email_content')->with('bookings', $bookingData2);
-        }
-        
-    }
-    public function GAL_email_view(Request $request){
-        
-        $bookingData = Booking::where('id', $request['id'])->first();
-        $bookingData2 = Booking::where('id', $request['id2'])->first();
-         
-        $bookings['bookings'] = $bookingData;
-        
-        $bookings['email'] =  'developer@wagnistrip.com';
-        $bookings['title'] =   "Flight Ticket";
-        
-         $both = [
-            'FristpnrRetrieve'=>$bookingData , 
-            'book'=>$bookingData2 ,
-        ];
-        // $files = PDF::loadView('booking-pdf.flight.Gal-Tic-Mail', $bookings);
-        
-        
-        //      $files = PDF::loadView('flight-pages.booking-confirm.oneway-gal-flight-booking-confirm-pdf', $bookings);
-        //     \Mail::send('booking-pdf.flight.Gal-Tic-Mail', $bookings, function($message)use($bookings ,$files) {
-        //             $message->to($bookings['email'])
-        //                     ->subject( $bookings['title'])
-        //                     ->attachData($files->output(), $bookings['title'].".pdf");
-        //         });
-        
-        if(isset($bookingData['id'])){
-        //  dd($bookingData);
-            // return view('booking-pdf.flight.Gal-Tic-Mail')->with('bookings', $bookingData);
-            // return view('flight-pages.booking-confirm.roundtrip-gal-flight-booking-confirm')->with('bookings', $bookingData);
-            // return view('flight-pages.booking-confirm.Round-Gal-Dom')->with('bookings', $both);
-            // return view('flight-pages.booking-confirm.email_content');
-            // return view('flight-pages.booking-confirm.oneway-gal-flight-booking-confirm-pdf')->with('bookings', $bookingData);
-            return view('flight-pages.booking-confirm.oneway-gal-flight-booking-confirm')->with('bookings', $bookingData);
-        }
-    }
-    
+
     public function PNR_AddMultiElements(Request $request)
     {
-        // adding case free payment getway
-        $signature = $request['txnid'];
-        $input = $request->all(); 
-        if($request['mode']== "DC"){
-            $request['amount'] = $request['amount'] - (($request['amount']*0.99)/100)  ;
-        }elseif($request['mode']== "CC"){
-            $request['amount'] = $request['amount'] - (($request['amount']*1.96)/100)  ;
-        }
-        // dd($input , $request['amount'] , $request['mode']);
-                
-        $bookingData = Booking::where('logs_id', $request['txnid'])->first();
-        if(isset($bookingData['id'])){
-            return view('flight-pages.booking-confirm.oneway-amd-flight-booking-confirm')->with('bookings', $bookingData);
-        }
-        
-        
-        if ('success' != $_POST["status"]) {
-              return redirect()->route('error')->with('message', 'Payment unsuccessful please click here to search agen. Kindly contact on this toll free number 08069145571 for further concern.');
-        }
-        if ($signature != $_POST["txnid"]) {
-              return redirect()->route('error')->with('message', 'Payment unsuccessful please click here to search agen. Kindly contact on this toll free number 08069145571 for further concern.');
-            //  die("Something is wrong");
-        }
-        $bookingData = Cart::where('uniqueid', $request['txnid'])->first();
-        // dd($bookingData , $request['amount']);
-        $otherInformation = json_decode($bookingData['otherInformation'], true);
+        $input = $request->all();
 
+        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+  
+        $payment = $api->payment->fetch($input['razorpay_payment_id']);
+        if(count($input)  && !empty($input['razorpay_payment_id'])) {
+            try {
+                $response = $api->payment->fetch($input['razorpay_payment_id'])->capture(array('amount'=>$payment['amount'])); 
+  
+            } catch (Exception $e) {
+                return  $e->getMessage();
+                Session::put('error',$e->getMessage());
+                return redirect()->back();
+            }
+        }
+
+        $bookingData = Cart::where('uniqueid', $request['uniqueID'])->first();
+
+        $otherInformation = json_decode($bookingData['otherInformation'], true);
         $marketingCompany = $otherInformation['marketingCompany'] ?? $otherInformation['marketingCompany_1'] ?? $otherInformation['outbound_marketingCompany'] ?? $otherInformation['outbound_marketingCompany_1'];
         $activeTravellers = json_decode($bookingData['travllername'], true);
-
         $phonenumber = $bookingData['phonenumber'];
         $email = $bookingData['email'];
         $uniqueid = $bookingData['uniqueid'];
+
         $HeaderController = new AmadeusHeaderController;
         $params = $HeaderController->State(true);
         $client = new Client($params);
@@ -155,9 +68,6 @@ class PNR_AddMultiElementsController extends Controller
         $travellers = [];
         $pricing = [];
 
-        // dd($request->all(),$bookingData);
-        
-        $travellerData =  [];
         if ((int) $passengers['noOfChilds'] === 0 && (int) $passengers['noOfInfants'] === 0) {
             for ($i = 0; $i < $passengers['noOfAdults']; $i++) {
 
@@ -168,14 +78,6 @@ class PNR_AddMultiElementsController extends Controller
                     'type' => 'ADT',
                 ]);
                 array_push($travellers, $trvlrs);
-                
-                $TraData=[
-                    'title' => $activeTravellers['adults']['title'][$i],
-                    'firstName' => $activeTravellers['adults']['fistName'][$i],
-                    'lastName' => $activeTravellers['adults']['lastName'][$i],
-                    'type' => 'ADT',
-                ];
-                array_push($travellerData, $TraData);
             }
 
             $pricing = new TicketCreateTstFromPricingOptions([
@@ -200,12 +102,6 @@ class PNR_AddMultiElementsController extends Controller
                                 'dateOfBirth' => \DateTime::createFromFormat('Y-m-d', $activeTravellers['infants']['infantDOB'][$i], new \DateTimeZone('UTC')),
                             ]),
                         ]);
-                        $TraData=[
-                            'title' => $activeTravellers['adults']['title'][$i],
-                            'firstName' => $activeTravellers['adults']['fistName'][$i],
-                            'lastName' => $activeTravellers['adults']['lastName'][$i]?? '',
-                            'type' => 'ADT',
-                        ];
 
                     } elseif ($activeTravellers['adults']['fistName'][$i] == $activeTravellers['infants']['fistName'][$i] && $activeTravellers['adults']['lastName'][$i] != $activeTravellers['infants']['lastName'][$i]) {
                         $trvlrs = new Traveller([
@@ -217,12 +113,6 @@ class PNR_AddMultiElementsController extends Controller
                                 'dateOfBirth' => \DateTime::createFromFormat('Y-m-d', $activeTravellers['infants']['infantDOB'][$i], new \DateTimeZone('UTC')),
                             ]),
                         ]);
-                        $TraData=[
-                            'title' => $activeTravellers['adults']['title'][$i],
-                            'firstName' => $activeTravellers['adults']['fistName'][$i],
-                            'lastName' => $activeTravellers['adults']['lastName'][$i],
-                            'type' => 'ADT',
-                        ];
 
                     } else {
                         $trvlrs = new Traveller([
@@ -235,12 +125,6 @@ class PNR_AddMultiElementsController extends Controller
                                 'dateOfBirth' => \DateTime::createFromFormat('Y-m-d', $activeTravellers['infants']['infantDOB'][$i], new \DateTimeZone('UTC')),
                             ]),
                         ]);
-                        $TraData=[
-                            'title' => $activeTravellers['adults']['title'][$i],
-                            'firstName' => $activeTravellers['adults']['fistName'][$i],
-                            'lastName' => $activeTravellers['adults']['lastName'][$i],
-                            'type' => 'ADT',
-                        ];
 
                     }
                 } else {
@@ -250,17 +134,9 @@ class PNR_AddMultiElementsController extends Controller
                         'lastName' => $activeTravellers['adults']['lastName'][$i],
                         'type' => 'ADT',
                     ]);
-                    $TraData=[
-                        'title' => $activeTravellers['adults']['title'][$i],
-                        'firstName' => $activeTravellers['adults']['fistName'][$i],
-                        'lastName' => $activeTravellers['adults']['lastName'][$i],
-                        'type' => 'ADT',
-                    ];
 
                 }
-                array_push($travellers, $trvlrs); 
-                
-                array_push($travellerData, $TraData);
+                array_push($travellers, $trvlrs);
 
             }
 
@@ -285,14 +161,6 @@ class PNR_AddMultiElementsController extends Controller
                     'type' => 'ADT',
                 ]);
                 array_push($travellers, $trvlrs1);
-                
-                $TraData9=[
-                        'title' => $activeTravellers['adults']['title'][$i],
-                        'firstName' => $activeTravellers['adults']['fistName'][$i],
-                        'lastName' => $activeTravellers['adults']['lastName'][$i],
-                        'type' => 'ADT',
-                ];
-                array_push($travellerData, $TraData9);
             }
             for ($i = 0; $i < $passengers['noOfChilds']; $i++) {
 
@@ -304,13 +172,6 @@ class PNR_AddMultiElementsController extends Controller
                 ]);
 
                 array_push($travellers, $trvlrs2);
-                 $TraData=[
-                        'title' => $activeTravellers['childs']['title'][$i],
-                        'firstName' => $activeTravellers['childs']['fistName'][$i],
-                        'lastName' => $activeTravellers['childs']['lastName'][$i],
-                        'type' => 'ADT',
-                ];
-                 array_push($travellerData, $TraData);
 
             }
             $pricing = new TicketCreateTstFromPricingOptions([
@@ -337,12 +198,6 @@ class PNR_AddMultiElementsController extends Controller
                                 'dateOfBirth' => \DateTime::createFromFormat('Y-m-d', $activeTravellers['infants']['infantDOB'][$i], new \DateTimeZone('UTC')),
                             ]),
                         ]);
-                         $TraData=[
-                            'title' => $activeTravellers['adults']['title'][$i],
-                            'firstName' => $activeTravellers['adults']['fistName'][$i],
-                            'lastName' => $activeTravellers['adults']['lastName'][$i],
-                            'type' => 'ADT',
-                        ];
 
                     } elseif ($activeTravellers['adults']['fistName'][$i] == $activeTravellers['infants']['fistName'][$i] && $activeTravellers['adults']['lastName'][$i] != $activeTravellers['infants']['lastName'][$i]) {
                         $trvlrs1 = new Traveller([
@@ -354,12 +209,6 @@ class PNR_AddMultiElementsController extends Controller
                                 'dateOfBirth' => \DateTime::createFromFormat('Y-m-d', $activeTravellers['infants']['infantDOB'][$i], new \DateTimeZone('UTC')),
                             ]),
                         ]);
-                         $TraData=[
-                            'title' => $activeTravellers['adults']['title'][$i]?? '',
-                            'firstName' => $activeTravellers['adults']['fistName'][$i],
-                            'lastName' => $activeTravellers['adults']['lastName'][$i],
-                            'type' => 'ADT',
-                        ];
 
                     } else {
                         $trvlrs1 = new Traveller([
@@ -372,17 +221,9 @@ class PNR_AddMultiElementsController extends Controller
                                 'dateOfBirth' => \DateTime::createFromFormat('Y-m-d', $activeTravellers['infants']['infantDOB'][$i], new \DateTimeZone('UTC')),
                             ]),
                         ]);
-                         $TraData=[
-                            'title' => $activeTravellers['adults']['title'][$i]??'',
-                            'firstName' => $activeTravellers['adults']['fistName'][$i],
-                            'lastName' => $activeTravellers['adults']['lastName'][$i],
-                            'type' => 'ADT',
-                        ];
 
                     }
                     array_push($travellers, $trvlrs1);
-                    
-                    array_push($travellerData, $TraData);
                 } else {
                     $trvlrs2 = new Traveller([
                         'number' => $i,
@@ -390,14 +231,7 @@ class PNR_AddMultiElementsController extends Controller
                         'lastName' => $activeTravellers['adults']['lastName'][$i],
                         'type' => 'ADT',
                     ]);
-                    $TraData5=[
-                            'title' => $activeTravellers['adults']['title'][$i],
-                            'firstName' => $activeTravellers['adults']['fistName'][$i],
-                            'lastName' => $activeTravellers['adults']['lastName'][$i],
-                            'type' => 'ADT',
-                    ];
                     array_push($travellers, $trvlrs2);
-                    array_push($travellerData, $TraData5);
                 }
             }
 
@@ -409,15 +243,8 @@ class PNR_AddMultiElementsController extends Controller
                     'lastName' => $activeTravellers['childs']['lastName'][$i],
                     'travellerType' => Traveller::TRAV_TYPE_CHILD,
                 ]);
-                    $TraData4=[
-                            'title' => $activeTravellers['childs']['title'][$i],
-                            'firstName' => $activeTravellers['childs']['fistName'][$i],
-                            'lastName' => $activeTravellers['childs']['lastName'][$i],
-                            'type' => 'CHD',
-                    ];
 
                 array_push($travellers, $trvlrs3);
-                    array_push($travellerData, $TraData4);
 
             }
             $pricing = new TicketCreateTstFromPricingOptions([
@@ -435,7 +262,7 @@ class PNR_AddMultiElementsController extends Controller
                 ],
             ]);
         }
-        // dd($activeTravellers);
+
         $opt = new PnrCreatePnrOptions();
         $opt->actionCode = PnrCreatePnrOptions::ACTION_NO_PROCESSING; //0 Do not yet save the PNR and keep in context.
         $opt->travellers = $travellers;
@@ -449,52 +276,40 @@ class PNR_AddMultiElementsController extends Controller
                     'company' => '1A',
                     'date' => \DateTime::createFromFormat('Ymd', date('Ymd'), new \DateTimeZone('UTC')),
                     'cityCode' => 'DEL',
-                    'freeText' => 'WAGNISTRIP (OPC) PRIVATE LIMITED',
+                    'freeText' => 'WAGNISTRIP (OPC ) PRIVATE LIMITED.',
                     'quantity' => array_sum([$passengers['noOfAdults'], $passengers['noOfChilds']]),
                 ]),
             ],
         ]);
+
         $opt->elements[] = new Contact([
             'type' => Contact::TYPE_PHONE_MOBILE,
-            'value' => $phonenumber ?? '7669988012',
-
+            'value' => '9875489875',
         ]);
         $opt->elements[] = new Contact([
             'type' => Contact::TYPE_EMAIL,
-            'value' => $email ?? "customercare@wagnistrip.com",
+            'value' => $email,
         ]);
-        
         $opt->elements[] = new FormOfPayment([
             'type' => FormOfPayment::TYPE_CASH,
         ]);
-        
-        // https://github.com/amabnl/amadeus-ws-client/blob/master/docs/samples/pnr-create-modify.rst#form-of-payment-fp use this link for deatiles
-        // $opt->elements[] = new FormOfPayment([
-        //     'type' => FormOfPayment::TYPE_CREDITCARD,
-        //     'creditCardType' => 'VI',
-        //     'creditCardNumber' => '5598670000002763',
-        //     'creditCardExpiry' => '0323',
-        //     'creditCardCvcCode' => '',
-        //     'creditCardHolder' => 'MAKE TRUE TRIP'
-        // ]);
-        
+
         $createdPnr = $client->pnrCreatePnr($opt);
 
-        // dd($opt , $createdPnr);
         if ($createdPnr->status === Result::STATUS_OK) {
             $getsession = $client->getSessionData();
             $client->setSessionData($getsession);
-
-
 
             $pricingResponse = $client->farePricePnrWithBookingClass(
                 new FarePricePnrWithBookingClassOptions([
                     'validatingCarrier' => $marketingCompany,
                 ])
             );
+
             if ($pricingResponse->status === Result::STATUS_OK) {
                 $getsession = $client->getSessionData();
                 $client->setSessionData($getsession);
+
                 $createTstResponse = $client->ticketCreateTSTFromPricing(
                     $pricing
                 );
@@ -507,21 +322,19 @@ class PNR_AddMultiElementsController extends Controller
                             'actionCode' => PnrAddMultiElementsOptions::ACTION_END_TRANSACT, //ET: END AND RETRIEVE
                         ])
                     );
+
                     if ($pnrReply->status === Result::STATUS_OK) {
-                        
                         $getsession = $client->getSessionData();
                         $client->setSessionData($getsession);
                         sleep(10);
                         $createdPnrForRetriever1 = $pnrReply->response->pnrHeader->reservationInfo->reservation->controlNumber;
-                        
+
                         $pnrRetrieve = $client->pnrRetrieve(new PnrRetrieveOptions(['recordLocator' => $createdPnrForRetriever1]));
-                        
-                        // dd($pnrRetrieve);
-                        
+
                         if ($pnrRetrieve->status === Result::STATUS_OK) {
                             $getsession = $client->getSessionData();
                             $client->setSessionData($getsession);
-                            
+
                             $issueTicketResponse = $client->docIssuanceIssueTicket(
                                 new DocIssuanceIssueTicketOptions([
                                     'options' => [
@@ -529,209 +342,103 @@ class PNR_AddMultiElementsController extends Controller
                                     ],
                                 ])
                             );
-                            
-                            // if ($issueTicketResponse->status === Result::STATUS_OK) {
+     
+                            if ($issueTicketResponse->status === Result::STATUS_OK) {
                                 $getsession = $client->getSessionData();
                                 $client->setSessionData($getsession);
-                                
+
                                 $createdPnrForRetriever2 = $pnrRetrieve->response->pnrHeader->reservationInfo->reservation->controlNumber;
                                 $pnrRetrieveAndDisplay = $client->pnrRetrieve(
                                     new PnrRetrieveOptions(['recordLocator' => $createdPnrForRetriever2])
                                 );
-                                // dd($issueTicketResponse);
                                 
-                                // if ($pnrRetrieveAndDisplay->status === Result::STATUS_OK) {
+                                if ($pnrRetrieveAndDisplay->status === Result::STATUS_OK) {
                                     $booking = $pnrRetrieveAndDisplay->response;
-                                    $longFreetext = $str = (isset($booking->dataElementsMaster->dataElementsIndiv[3]->otherDataFreetext->longFreetext) ? ($booking->dataElementsMaster->dataElementsIndiv[3]->otherDataFreetext->longFreetext) : '');
-                                    $longFreetext = substr($str, (strpos($str, "-")) + 1, 10);
-                                    
-                                    // echo $longtextnumber;die;
-                                    // print "<pre>";print_r($booking);die();
-                                    // dd($booking);
-                                    
+
+                                   // dd($booking);
+
                                     $getsession = $client->getSessionData();
                                     $client->setSessionData($getsession);
 
                                     // -------------------- Start Save Data From Pnr Informition For Amadeus --------------------
 
                                     $FlightDetails = [];
-                                    // dd($booking);
-
                                     foreach ($booking->originDestinationDetails->itineraryInfo as $segkey => $segment) {
                                         if ($segkey > 0) {
                                             $segdata = [
                                                 "Leg" => 1,
-                                                "FlightCount" => $segkey,
+                                                "FlightCount" => 1,
                                                 "DepartAirportCode" => $segment->travelProduct->boardpointDetail->cityCode ?? '',
-                                                "DepartAirportName" => $segment->travelProduct->boardpointDetail->cityCode ?? '',
+                                                "DepartAirportName" => "",
                                                 "DepartCityName" => $segment->travelProduct->boardpointDetail->cityCode ?? '',
                                                 "DepartTerminal" => $segment->flightDetail->departureInformation->departTerminal ?? '',
-                                                "DepartDateTime" => $segment->travelProduct->product->depTime ??''.$segment->travelProduct->product->depDate ??'',
-                                                "DepartDate" => $segment->travelProduct->product->depDate ??'',
+                                                "DepartDateTime" => $segment->travelProduct->product->depDate ?? '' . $segment->travelProduct->product->depTime ?? '',
                                                 "ArrivalAirportCode" => $segment->travelProduct->offpointDetail->cityCode ?? '',
-                                                "ArrivalAirportName" => $segment->travelProduct->offpointDetail->cityCode ?? '',
+                                                "ArrivalAirportName" => "",
                                                 "ArrivalCityName" => $segment->travelProduct->offpointDetail->cityCode ?? '',
                                                 "ArrivalTerminal" => $segment->flightDetail->arrivalStationInfo->terminal ?? '',
-                                                "ArrivalDateTime" => $segment->travelProduct->product->arrTime??''.$segment->travelProduct->product->arrDate??'' ,
-                                                "ArrivalDate" => $segment->travelProduct->product->arrDate??'' ,
+                                                "ArrivalDateTime" => $segment->travelProduct->product->arrDate ?? '' . $segment->travelProduct->product->arrTime ?? '',
                                                 "FlightNumber" => $segment->travelProduct->productDetails->identification ?? '',
                                                 "AirLineCode" => $segment->travelProduct->companyDetail->identification ?? '',
                                                 "AirLineName" => $segment->travelProduct->companyDetail->identification ?? '',
                                                 "Duration" => $segment->flightDetail->productDetails->duration,
-                                                "AvailableSeats" => $segment->flightDetail->productDetails->duration,
+                                                "AvailableSeats" => "",
                                                 "EquipmentType" =>  $segment->flightDetail->productDetails->equipment,
                                                 "MarketingCarrier" => $segment->travelProduct->companyDetail->identification,
                                                 "OperatingCarrier" => $segment->travelProduct->companyDetail->identification,
                                                 "OperatingCarrierName" => $segment->travelProduct->companyDetail->identification,
                                                 "OperatingFlightNumber" => $segment->travelProduct->companyDetail->identification,
-                                                "AirLinePNR" => $segment->itineraryReservationInfo->reservation->controlNumber?? '',
+                                                "AirLinePNR" => "ZDSW6",
                                                 "TravelClass" => $segment->travelProduct->productDetails->classOfService ?? '',
-                                                "TrackID" =>$segment->itineraryReservationInfo->reservation->controlNumber?? '',
+                                                "TrackID" => "TBF143286",
                                                 "BookingCode" => null,
                                                 "BaggageDetails" => null,
                                                 "NumberOfStops" => $segment->flightDetail->productDetails->numOfStops,
                                                 "ViaSector" => null,
-                                                "TicketNumber" => $longFreetext,
                                             ];
-
+                            
                                             array_push($FlightDetails, $segdata);
                                         }
                                     }
-                                    
-                                    // is_array($booking->travellerInfo) ? $travellerInfo = $booking->travellerInfo : $travellerInfo = [$booking->travellerInfo];
+                            
+                                    is_array($booking->travellerInfo) ? $travellerInfo = $booking->travellerInfo : $travellerInfo = [$booking->travellerInfo];
                                     $PassengerDetails = [];
-                                    
-                                    // foreach ($travellerInfo as $travellers) {
-                                    //     $ticketNo = $travellers->elementManagementPassenger->reference->number;
-
-
-                                    //     is_array($travellers->passengerData) ? $travellerDataByApi = $travellers->passengerData : $travellerDataByApi = [$travellers->passengerData];
-
-                                    //     foreach ($travellerDataByApi as $person) {
-                                            
-                                    //     $Title = '';
-                                    // $activeTravellers
-                                    if(isset($activeTravellers['adults']['title'])){
-                                        foreach($activeTravellers['adults']['title'] as $key => $value){
-                                           $Passenger = [
+                                    foreach ($travellerInfo as $travellers) {
+                                        $ticketNo = $travellers->elementManagementPassenger->reference->number;
+                                        is_array($travellers->passengerData) ? $travellerData = $travellers->passengerData : $travellerData = [$travellers->passengerData];
+                                        foreach ($travellerData as $person) {
+                            
+                                            $Passenger = [
                                                 "ReferenceNo" => "",
                                                 "TrackID" => "",
-                                                "Title" => $value ?? "MR",
-                                                "FirstName" => $activeTravellers['adults']['fistName'][$key] ?? '',
+                                                "Title" => "MR",
+                                                "FirstName" => $person->travellerInformation->passenger->firstName ?? '',
                                                 "MiddleName" => null,
-                                                "LastName" => $activeTravellers['adults']['lastName'][$key] ?? '',
-                                                "PaxTypeCode" =>  'ADT',
+                                                "LastName" => $person->travellerInformation->traveller->surname ?? '',
+                                                "PaxTypeCode" => $person->travellerInformation->passenger->type ?? '',
                                                 "Gender" => "",
                                                 "DOB" => null,
                                                 "TicketID" => $ticketNo ?? '',
-                                                "TicketNumber" => $longFreetext ?? '',
+                                                "TicketNumber" => "0984725714897",
                                                 "IssueDate" => "",
                                                 "Status" => "Ticketed",
                                                 "ModifyStatus" => "",
-                                                "ValidatingAirline" => " ",
+                                                "ValidatingAirline" => "  ",
                                                 "FareBasis" => null,
                                                 "Baggage" => null,
                                                 "BaggageAllowance" => null,
                                                 "ChangePenalty" => null,
                                             ];
-                                            array_push($PassengerDetails, $Passenger); 
+                                            array_push($PassengerDetails, $Passenger);
                                         }
                                     }
-                                    if(isset($activeTravellers['childs']['title'])){
-                                        foreach($activeTravellers['childs']['title'] as $key => $value){
-                                           $Passenger = [
-                                                "ReferenceNo" => "",
-                                                "TrackID" => "",
-                                                "Title" => $value ?? "MR",
-                                                "FirstName" => $activeTravellers['childs']['fistName'][$key] ?? '',
-                                                "MiddleName" => null,
-                                                "LastName" => $activeTravellers['childs']['lastName'][$key] ?? '',
-                                                "PaxTypeCode" =>  'CHD',
-                                                "Gender" => "",
-                                                "DOB" => null,
-                                                "TicketID" => $ticketNo ?? '',
-                                                "TicketNumber" => $longFreetext ?? '',
-                                                "IssueDate" => "",
-                                                "Status" => "Ticketed",
-                                                "ModifyStatus" => "",
-                                                "ValidatingAirline" => " ",
-                                                "FareBasis" => null,
-                                                "Baggage" => null,
-                                                "BaggageAllowance" => null,
-                                                "ChangePenalty" => null,
-                                            ];
-                                            array_push($PassengerDetails, $Passenger); 
-                                        }
-                                    }
-                                    if(isset($activeTravellers['infants']['title'])){
-                                        foreach($activeTravellers['infants']['title'] as $key => $value){
-                                           $Passenger = [
-                                                "ReferenceNo" => "",
-                                                "TrackID" => "",
-                                                "Title" => $value ?? "MISS",
-                                                "FirstName" => $activeTravellers['infants']['fistName'][$key] ?? '',
-                                                "MiddleName" => null,
-                                                "LastName" => $activeTravellers['infants']['lastName'][$key] ?? '',
-                                                "PaxTypeCode" =>  'INF',
-                                                "Gender" => "",
-                                                "DOB" => null,
-                                                "TicketID" => $ticketNo ?? '',
-                                                "TicketNumber" => $longFreetext ?? '',
-                                                "IssueDate" => "",
-                                                "Status" => "Ticketed",
-                                                "ModifyStatus" => "",
-                                                "ValidatingAirline" => " ",
-                                                "FareBasis" => null,
-                                                "Baggage" => null,
-                                                "BaggageAllowance" => null,
-                                                "ChangePenalty" => null,
-                                            ];
-                                            array_push($PassengerDetails, $Passenger); 
-                                        }
-                                    }
-                                        // foreach($travellerData as $traveller){
-                                            
-                                        //     if( strtoupper($traveller['firstName']) == ($person->travellerInformation->passenger->firstName??'')) {
-                                        //         $Title = $traveller['title']; 
-                                        //     }
-                                        // }
-                                            // dd( $booking ,$traveller, $Title , strtoupper($traveller['firstName']),$person->travellerInformation->passenger->firstName ?? ''  );
-                                            
-                                            
-                                            
-                                            // $Passenger = [
-                                            //     "ReferenceNo" => "",
-                                            //     "TrackID" => "",
-                                            //     "Title" => $Title ?? "MR",
-                                            //     "FirstName" => $person->travellerInformation->passenger->firstName ?? '',
-                                            //     "MiddleName" => null,
-                                            //     "LastName" => $person->travellerInformation->traveller->surname ?? '',
-                                            //     "PaxTypeCode" => $person->travellerInformation->passenger->type ?? '',
-                                            //     "Gender" => "",
-                                            //     "DOB" => null,
-                                            //     "TicketID" => $ticketNo ?? '',
-                                            //     "TicketNumber" => $longFreetext ?? '',
-                                            //     "IssueDate" => "",
-                                            //     "Status" => "Ticketed",
-                                            //     "ModifyStatus" => "",
-                                            //     "ValidatingAirline" => " ",
-                                            //     "FareBasis" => null,
-                                            //     "Baggage" => null,
-                                            //     "BaggageAllowance" => null,
-                                            //     "ChangePenalty" => null,
-                                            // ];
-                                            // array_push($PassengerDetails, $Passenger);
-                                            
-                                            
-                                    //     }
-                                    // }
-                                    
+                            
                                     $FareInformation[] = [
-                                        "PaxType" => $booking->tstData->fareData->monetaryInfo[1]->amount ??$booking->tstData[0]->fareData->monetaryInfo[1]->amount?? '',
-                                        "PaxBaseFare" => $request['amount']??$booking->tstData->fareData->monetaryInfo[1]->amount ??$booking->tstData[0]->fareData->monetaryInfo[1]->amount ?? '',
+                                        "PaxType" => "",
+                                        "PaxBaseFare" => $booking->tstData->fareData->monetaryInfo[0]->amount ?? '',
                                         "PaxFuelSurcharge" => 0,
                                         "PaxOtherTax" => 0,
-                                        "PaxTotalFare" => $booking->tstData->fareData->monetaryInfo[0]->amount ??  $booking->tstData[0]->fareData->monetaryInfo[0]->amount ?? '',
+                                        "PaxTotalFare" => $booking->tstData->fareData->monetaryInfo[1]->amount ?? '',
                                         "PaxDiscount" => 0,
                                         "PaxCashBack" => 0,
                                         "PaxTDS" => 0,
@@ -745,140 +452,97 @@ class PNR_AddMultiElementsController extends Controller
                                         "IGST" => 0,
                                         "UTGST" => 0,
                                     ];
-
+                            
                                     $usermobile = User::where('phone', $phonenumber)->pluck('id') ?? '';
                                     $useremail = User::where('email', $email)->pluck('id') ?? '';
-                                    $saveBooking = new Booking;
+
                                     // dd([$usermobile,$useremail]);
-                                    if (isset($usermobile[0])) {
-                                        $saveBooking->user_id = $usermobile[0];
-                                    } elseif (isset($useremail[0]) ) {
-                                        $saveBooking->user_id = $useremail[0];
-
-                                    } else {
-                                        $user = new User;
-                                        $user->name = $activeTravellers['adults']['fistName'][0] . " " . $activeTravellers['adults']['lastName'][0] ?? '';
-                                        $user->email = strtolower($email);
-                                        $user->phone = $phonenumber;
-                                        $user->password = Hash::make("WTUser@1234");
-                                        $user->save();
-                                        $saveBooking->user_id = $user->id;
-                                    };
+                                    // if ($usermobile[0] != '') {
+                                    //     $book->user_id = $usermobile[0];
+                                    // } elseif ($useremail[0] != '') {
+                                    //     $book->user_id = $useremail[0];
+                            
+                                    // } else {
+                                    //     $user = new User;
+                                    //     $user->name = $activeTravellers['adults']['fistName'][0] . " " . $activeTravellers['adults']['lastName'][0] ?? '';
+                                    //     $user->email = strtolower($email);
+                                    //     $user->phone = $phonenumber;
+                                    //     $user->password = Hash::make("New@1234");
+                                    //     $user->save();
+                            
+                                    //     $book->user_id = $user->id;
+                                    // }
+                            
+                                    $saveBooking = new Booking;
+                            
                                     $saveBooking->booking_from = "AMADEUS";
-                                    $saveBooking->booking_id = "WT0000" . $booking->pnrHeader->reservationInfo->reservation->controlNumber ?? '';
+                            
+                                    $saveBooking->booking_id = "MTT0000" . $booking->originDestinationDetails->itineraryInfo[1]->itineraryReservationInfo->reservation->controlNumber;
+                            
                                     $saveBooking->trip = $Ticket['AirBookingResponse'][0]['Trip'] ?? "Domestic";
+                            
                                     $saveBooking->trip_type = $Ticket['AirBookingResponse'][0]['TripType'] ?? "Oneway";
-                                    $saveBooking->trip_stop = $segment->flightDetail->productDetails->numOfStops;
-                                    $saveBooking->gds_pnr = $booking->pnrHeader->reservationInfo->reservation->controlNumber ?? '';
+                            
+                                    $saveBooking->trip_stop = "0-Stop";
+                            
+                                    $saveBooking->gds_pnr = $booking->originDestinationDetails->itineraryInfo[1]->itineraryReservationInfo->reservation->controlNumber ?? '';
+                            
                                     $saveBooking->airline_pnr = $booking->originDestinationDetails->itineraryInfo[1]->itineraryReservationInfo->reservation->controlNumber ?? '';
+                            
                                     $saveBooking->email = $email;
+                            
                                     $saveBooking->mobile = $phonenumber;
+                            
                                     $saveBooking->itinerary = json_encode($FlightDetails, true);
-                                    
-                                    is_array($booking->tstData) ? $tstData = $booking->tstData : $tstData = [$booking->tstData];
-                                    is_array($tstData[0]->fareBasisInfo->fareElement) ? $fareElement = $tstData[0]->fareBasisInfo->fareElement : $fareElement = [$tstData[0]->fareBasisInfo->fareElement];
-
-                                    $CabIn  = $fareElement[0]->baggageAllowance ?? '';
-                                    $saveBooking->baggage = json_encode([[
-                                        'CabIn' =>  $CabIn ,
-                                        'CheckIn' => '7KG'
-                                    ]], true);
+                            
+                                    $saveBooking->baggage = json_encode([['CabIn' => '15KG', 'CheckIn' => '7KG']], true);
+                            
                                     $saveBooking->passenger = json_encode($PassengerDetails, true);
+                            
                                     $saveBooking->fare = json_encode($FareInformation, true);
+                            
                                     $saveBooking->status = "Ticketed";
-                                    $saveBooking->logs_id = $request['txnid'];
+                            
+                                    $saveBooking->logs_id = 1;
+                            
+                                    $saveBooking->user_id = 1;
+                            
                                     $saveBooking->save();
-
+                            
                                     $client->securitySignOut();
-                                    // dd($saveBooking,  $tstData , $booking);
-                                    // return redirect()->route('error')->with('message', 'State Not correctly!');
+                                     
+                                    return redirect()->route('user-booking')->with('message', 'State saved correctly!');
+                                }
+                            } else {
 
-                                    ///////////////////////////////////////////////////////////////////////////////////
-                                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                    ///////////////////////////////////////////////////////////////////////////////////
-                                    $date  = $date2= $time = '';
-                                    foreach (json_decode($saveBooking->itinerary) as $key => $itinerary){
-                                        if($key == 0){
-                                            $date =  NOgetDate_fn($itinerary->DepartDate) ;
-                                            $date2 =  getDate_fn($itinerary->DepartDate) ?? date('d-m-Y', strtotime($itinerary->DepartDate)) ;
-                                            $time =  date('H:i', strtotime($itinerary->DepartDateTime));
-                                        }
-                                    }
-                                    
-                                    $from = json_decode($saveBooking->itinerary)[0]->DepartCityName ?? json_decode($saveBooking->itinerary)->DepartCityName ?? '';
-                                    $to = json_decode($saveBooking->itinerary)[count(json_decode($saveBooking->itinerary))-1]->ArrivalCityName ?? json_decode($saveBooking->itinerary)->ArrivalCityName ?? '';
-                                   foreach (json_decode($saveBooking->passenger) as $passenger){}
-                                   
-                                    $name = $passenger->FirstName ?? "customer";
-                                    $name =  preg_replace('/\s+/', '%20', $name);
-                                    $PhoneTo = $saveBooking->mobile;
-                                    $from = AirportiatacodesController::getCity($from);
-                                    $from = preg_replace('/\s+/', '%20', $from);
-                                    $to = AirportiatacodesController::getCity($to);
-                                    $to =  preg_replace('/\s+/', '%20', $to);
-                                    $pnr = $saveBooking->gds_pnr;
-                                    $Time = preg_replace('/\s+/', '%20', $time);
-                                    
-                                    $curl = curl_init();
-                                    curl_setopt_array($curl, array(
-                                        CURLOPT_URL => 'https://app-vcapi.smscloud.in/fe/api/v1/send?username=wagnistrip.api&apiKey=eRXjt4GR3ekxHwYHTSRRC1uCgvjU2gbV&unicode=false&from=WAGNIS&to='.$PhoneTo.'&text=Dear%20'.$name.',%20We%27re%20Happy%20to%20Confirm%20your%20Booking.%20PNR-'.$pnr.'%20from%20'.$from.'%20to%20'.$to.'%20at%20'.$date.'%20'.$Time.'.%20For%20any%20query%20click%20https://wagnistrip.com',
-                                        CURLOPT_RETURNTRANSFER => true,
-                                        CURLOPT_ENCODING => '',
-                                        CURLOPT_MAXREDIRS => 10,
-                                        CURLOPT_TIMEOUT => 0,
-                                        CURLOPT_FOLLOWLOCATION => true,
-                                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                        CURLOPT_CUSTOMREQUEST => 'GET',
-                                    ));
-                                    $response = curl_exec($curl);
-                                    curl_close($curl);
-                                    
-                                    // dd($response , $name , $PhoneTo , $from , $to , $pnr , $Time , $date , $date2);
-                                    
-                                    $bookings['bookings'] = $saveBooking;
-                                    
-                                    $bookings['email'] =  $email??$useremail[0]?? '';
-                                    $bookings['title'] =   "Flight Ticket ".$activeTravellers['adults']['fistName'][0]??'';
-                                    
-                                    $files = PDF::loadView('flight-pages.booking-confirm.oneway-amd-flight-booking-confirm-pdf', $bookings);
+                                return redirect()->route('error')->with('message', 'issueTicketResponse  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
 
-                                    \Mail::send('flight-pages.booking-confirm.amd-email_content', $bookings, function($message)use($bookings ,$files) {
-                                        $message->to($bookings['email'])
-                                                ->subject( $bookings['title'])
-                                                ->attachData($files->output(), $bookings['title'].".pdf");
-                                    });
-                                    \Mail::send('flight-pages.booking-confirm.amd-email_content', $bookings, function($message)use( $bookings ,$files) {
-                                        $message->to("customercare@wagnistrip.com")
-                                                ->subject( $bookings['title'])
-                                                ->attachData($files->output(), $bookings['title'].".pdf");
-                                    });
-                                                                       
-                                    ///////////////////////////////////////////////////////////////////////////////////
-                                    ///////////////////////////////////////////////////////////////////////////////////
-                                    
-                                    
-                                    //   return redirect()->route('user-booking')->with('message', 'State saved correctly!');
-                                    return view('flight-pages.booking-confirm.oneway-amd-flight-booking-confirm')->with('bookings', $saveBooking);
-                                // }
-                            // } else {
-            
-                                    // return view('flight-pages.booking-confirm.oneway-amd-flight-booking-confirm')->with('bookings', $saveBooking);
-                               // return redirect()->route('error')->with('message', 'issueTicketResponse ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
-                            // }
+                            }
+
                         } else {
-                            return redirect()->route('error')->with('message', 'pnrRetrieve  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank, Kindly contact on this toll free number 08069145571 for further concern.');
+                            return redirect()->route('error')->with('message', 'pnrRetrieve  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
+
                         }
                     } else {
-                        return redirect()->route('error')->with('message', 'pnrReply  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank, Kindly contact on this toll free number 08069145571 for further concern.');
+                        return redirect()->route('error')->with('message', 'pnrReply  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
+
                     }
+
                 } else {
-                    return redirect()->route('error')->with('message', 'createTstResponse  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank, Kindly contact on this toll free number 08069145571 for further concern.');
+                    return redirect()->route('error')->with('message', 'createTstResponse  ---- Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
+
                 }
+
             } else {
-                return redirect()->route('error')->with('message', 'pricingResponse -----  Your booking could not be completed as we did not receive successful authorisation of the payment from your bank, Kindly contact on this toll free number 08069145571 for further concern.');
+                return redirect()->route('error')->with('message', 'pricingResponse -----  Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
+
             }
+
         } else {
-            return redirect()->route('error')->with('message', 'createdPnr   -----   Your booking could not be completed as we did not receive successful authorisation of the payment from your bank, Kindly contact on this toll free number 08069145571 for further concern.');
+            return redirect()->route('error')->with('message', 'createdPnr   -----   Your booking could not be completed as we did not receive successful authorisation of the payment from your bank.');
+
         }
+
     }
+
 }

@@ -22,7 +22,7 @@ class CancelController extends Controller
             new PnrRetrieveOptions(['recordLocator' => $request['pnr']])
         );
 
-        // dd($pnrRetrieveAndDisplay);
+        dd($pnrRetrieveAndDisplay);
 
         if ($pnrRetrieveAndDisplay->status === Result::STATUS_OK) {
             $getsession = $client->getSessionData();
@@ -40,7 +40,7 @@ class CancelController extends Controller
 
                 $client->securitySignOut();
 
-                return redirect()->back()->with('message', 'Your PNR Successfully Cancilled');
+                return redirect()->back()->with('message', 'Yout Pnr Successfully Cancilled');
             }
 
         }

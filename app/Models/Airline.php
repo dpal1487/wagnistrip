@@ -8,12 +8,4 @@ use Illuminate\Database\Eloquent\Model;
 class Airline extends Model
 {
     use HasFactory;
-    public $fillable=[
-        // 'Title',
-        // 'name',
-        // 'lastname',
-        // 'Mobile',
-        // 'email'
-       
-      ];
 }

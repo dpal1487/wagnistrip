@@ -24,6 +24,5 @@ class AirlineHelperController extends Controller
 
        return $data;
     }
-   
 
 }

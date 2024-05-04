@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Airline\AirportiatacodesController;
-use App\Http\Controllers\Airline\Amadeus\Air_SellFromRecommendationController;
 use App\Http\Controllers\helper\HelperController;
 use App\Http\Controllers\helper\AirlineCodeController;
+use App\Http\Controllers\Airline\Amadeus\{Air_SellFromRecommendationController ,DomesticPnrAddMultiElementsController ,PNR_AddMultiElementsController ,SearchflightController};
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +22,13 @@ use App\Http\Controllers\helper\AirlineCodeController;
 */
 
 Route::post('/review' , [Air_SellFromRecommendationController::class, 'Air_SellFromRecommendation']);
+
+Route::group(['prefix' => 'flight'], function () {
+    Route::get('/search', [SearchFlightController::class, 'Fare_MasterPricerTravelBoardSearch'])->name('search-flight-results');
+    Route::post('/review', [Air_SellFromRecommendationController::class, 'Air_SellFromRecommendation'])->name('flight-review');
+    Route::post('/payment', [PNR_AddMultiElementsController::class, 'PNR_AddMultiElements'])->name('booking.flight-booking');
+    Route::post('/booking-roundtrip-domestic', [DomesticPnrAddMultiElementsController::class, 'DomPnrAddMultiElements'])->name('booking.flight-booking-dom');
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

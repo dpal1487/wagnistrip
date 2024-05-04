@@ -1,35 +1,41 @@
 <?php
 namespace App\Http\Controllers\Hotel\Amadeus;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller; 
 use App\Models\HotelLog;
 use App\Models\Hotel\Hotelcode;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use App\Models\VisitorGeolocation;
+use Illuminate\Support\Facades\Session;
 
 class HeaderController extends Controller
 {
     public function searchCityCode(Request $request)
     {
         $search = $request['search'];
-
+        
         if ($search == '') {
-            $employees = Hotelcode::orderby('updated_at', 'DESC')->select('id', 'city', 'iata', 'country', 'airport')->limit(10)->get();
+            $employees = Hotelcode::orderby('State', 'DESC')->select('id', 'iata', 'city', 'country')->limit(20)->get();
+        //   dd($employees);
         } else {
 
-            $employees = Hotelcode::where('iata', 'like','%'. $search.'%')
-                 ->orWhere('city', 'like', $search .'%')
-                 ->limit(10)->get();
+            $employees = Hotelcode::orderby('State', 'DESC')->where('city', 'like', $search.'%')
+                //  ->orWhere('State', 'like', $search .'%')
+                 ->orWhere('country', 'like', $search .'%')
+                //  ->orWhere('City Code', 'like', $search .'%')
+                //  ->orWhere('State Code', 'like', $search .'%')
+                 ->limit(20)->get();
 
         }
-
         $response = array();
         foreach ($employees as $employee) {
             $response[] = array(
                 "id" => $employee['iata'],
-                "text" => $employee['city'] . " (" . $employee['iata'] . ") " . $employee['country']. $employee['airport'],
+                "text" => $employee['city'] . " ( " .$employee["iata"]  ." ) "  .$employee["country"] ,
             );
         }
 
@@ -66,8 +72,7 @@ class HeaderController extends Controller
         $xml .= '<UserID AgentDutyCode="SU" POS_Type="1" PseudoCityCode="' . $config['office_id'] . '" RequestorType="U"/>';
         $xml .= '</AMA_SecurityHostedUser>';
         $xml .= '</soapenv:Header>';
-        return $xml;
-
+        return $xml;   
     }
 
     public function headerStateFull($action)
@@ -145,15 +150,14 @@ class HeaderController extends Controller
     public static function xmlCallWithBodyAndHeader($xml, $action)
     {
         $config = Config::get('configuration.Amadeus');
+        
         $data = Http::withHeaders([
             "Content-Type" => "application/xml",
             "SoapAction" => $config['action'] . $action,
         ])->send("POST", $config['url'], [
             "body" => $xml,
         ])->body();
-
         $dataSave = "<request>".$xml."<request/><response>".$data."<response/>";
-
         $data = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $data);
         $x = new \SimpleXMLElement($data);
         $header = $x->xpath('//soapHeader')[0];
@@ -201,14 +205,14 @@ class HeaderController extends Controller
 
         $data = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $data);
         $x = new \SimpleXMLElement($data);
-
+        
         // dd($x);
         $header = $x->xpath('//soapenvHeader')[0];
         // $header = $x->xpath('//soapHeader')[0];
 
         $body = $x->xpath('//soapenvBody')[0];
         // $body = $x->xpath('//soapBody')[0];
-
+        
         $headerData = json_decode(json_encode((array) $header, true), true);
         $headerDataSessionId = $headerData['awsseSession']['awsseSessionId'];
         if($actionCh == "PNRADD_17_1_1A_0") {
@@ -257,20 +261,25 @@ class HeaderController extends Controller
         $child = $request['child'];
 
         $room = $request['room'];
-
+        
         $count_A_C = $adult + $child;
 
         $start = date('Y-m-d', strtotime($request['departDate']));
-
         /////////////////////////////// uddeshya changes
         $start1 = date('Y-m-d', strtotime($request['departDate']));
         $end1 = date('Y-m-d', strtotime($request['returnDate']));
         $date1=date_create($start1);
         $date2=date_create($end1);
-        /////////////////////////////// uddeshya
+        /////////////////////////////// uddeshya 
 
         $end = date('Y-m-d', strtotime($request['returnDate']));
+        $query_currency = DB::table('latest_currency_exchanges')
+                            ->distinct('code')
+                            ->groupBy('id')
+                            ->pluck('value' , 'code')
+                            ->toArray();
 
+        $currencyconversion = VisitorGeolocation::geolocationInfo();
         $action = "Hotel_MultiAvailability_10.0";
         $xml = '';
         $xml .= '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:ns="http://www.opentravel.org/OTA/2003/05">';
@@ -299,6 +308,10 @@ class HeaderController extends Controller
         $xml .= '</soapenv:Envelope>';
 
         $hotels = $this->xmlCallWithHeader($xml, $action);
+        // $symbol = !empty($currencyconversion['symbol']) ? $currencyconversion['symbol'] :'INR';
+        // $cvalue = !empty($currencyconversion['value']) ? $currencyconversion['value'] :1; // conversion value
+        $currency_code = !empty(Session::get('currency')) ? Session::get('currency') : 'INR'; 
+        // dd($currencyconversion);
         if (!isset($hotels['OTA_HotelAvailRS']['HotelStays'])) {
             //////////////////////////// uddeshya  changes
             $errorMsg="";
@@ -306,13 +319,13 @@ class HeaderController extends Controller
                 if(isset($hotels['OTA_HotelAvailRS']['Warnings']['Warning']['0'])){
                     $worning = $hotels['OTA_HotelAvailRS']['Warnings']['Warning']['0']['@attributes']['Status'];
                 }else{
-                    $worning = 'Unknon wornging';
+                    $worning = 'Unknown Warning';
                 }
                 // dd($worning);
-                $errorMsg= "This is a worning ". $worning;
+                $errorMsg= "This is a Warning ". $worning;
 
             }elseif(isset($hotels['OTA_HotelAvailRS']['Errors'])){
-
+                
                 $ErrorCode = $hotels['OTA_HotelAvailRS']['Errors']['Error']['@attributes']['Code'];
 
                 if($ErrorCode== '404'){
@@ -325,23 +338,25 @@ class HeaderController extends Controller
                     $errorMsg = 'Out date past End date.';
                 }elseif($ErrorCode =='145'){
                     $errorMsg = 'Duration period or dates incorrect.';
+                }elseif($ErrorCode =='119'){
+                    $errorMsg = 'Too many people in room/unit.';
                 }elseif($ErrorCode=='424'){
                     $errorMsg ='No hotels found which match this input.';
                 }else {
-                    $errorMsg ='Unknwon error code.'.$ErrorCode;
+                    $errorMsg ='Hotels found which match this input.'.$ErrorCode;
                 }
-
+                      
                 // dd($hotels['OTA_HotelAvailRS']['Errors']);
             }
 
             $diff=date_diff($date1,$date2);
-
+            
             if($diff->format("%R%a days") =='+0 days'){
-                $errorMsg.= $diff->format("%R%a days");;
+                // $errorMsg.= $diff->format("%R%a days");
             }elseif($diff->format("%R%a days") =='+1 days'){
-                $errorMsg.= $diff->format("%R%a days");;
+                // $errorMsg.= $diff->format("%R%a days");
             }else{
-                $errorMsg.= $diff->format("%R%a days");
+                // $errorMsg.= $diff->format("%R%a days");
             }
             return redirect()->route('error')->with('msg', $errorMsg);
             /////////////////////////////////
@@ -352,7 +367,22 @@ class HeaderController extends Controller
         // Session()->put('city', $hotels , 'value', $hotels);
         // dd($state ,$start ,$end);
         // Session()->put('value', $hotels);
-        return view('hotel-pages.search-hotel', compact('hotels', 'start', 'end', 'adult', 'child' , 'state' ,'returnDate' ,'departDate'));
+        
+        $searchSession = [
+                'hotels' => $hotels,
+                'start' => $start,
+                'end' => $end,
+                'adult' => $adult,
+                'child' => $child,
+                'state' => $state,
+                'returnDate' => $returnDate,
+                'departDate' => $departDate,
+                'room' => $room,
+        ];
+        Session()->put('searchSession' , $searchSession);
+        
+        // return view('hotel-pages.search-hotel', compact('hotels', 'start', 'end', 'adult', 'child' , 'state' ,'returnDate' ,'departDate', 'room' , 'symbol' , 'cvalue'));
+        return view('hotel-pages.search-hotel', compact('hotels', 'start', 'end', 'adult', 'child' , 'state' ,'returnDate' ,'departDate', 'room' , 'query_currency' , 'currency_code'));
     }
 
     public function HotelInfo($hotelCode)
@@ -383,29 +413,122 @@ class HeaderController extends Controller
         $hotels = $this->xmlCallWithHeader($xml, $action);
         return $hotels['OTA_HotelDescriptiveInfoRS']['HotelDescriptiveContents']['HotelDescriptiveContent'];
     }
-    // code by uddeshya
+    public function HotelInfoAjax(Request $request){
+        if(!empty($request->hotelcode)){
+        $hotelCode = $request->hotelcode;
+        $action = "OTA_HotelDescriptiveInfoRQ_07.1_1A2007A";
+        $xml = '';
+        $xml .= '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:ns="http://www.opentravel.org/OTA/2003/05">';
+        $xml .= $this->headerStateLess($action);
+        $xml .= '<soapenv:Body>';
+        $xml .= '<OTA_HotelDescriptiveInfoRQ xmlns="http://www.opentravel.org/OTA/2003/05" EchoToken="WithParsing" Version="6.001" PrimaryLangID="en">';
+        $xml .= '<HotelDescriptiveInfos>';
+        $xml .= '<HotelDescriptiveInfo HotelCode="' . $hotelCode . '">';
+        $xml .= '<HotelInfo SendData="true"/>';
+        $xml .= '<FacilityInfo SendGuestRooms="true" SendMeetingRooms="true" SendRestaurants="true"/>';
+        $xml .= '<Policies SendPolicies="true"/>';
+        $xml .= '<AreaInfo SendAttractions="true" SendRecreations="true" SendRefPoints="true"/>';
+        $xml .= '<AffiliationInfo SendAwards="true" SendLoyalPrograms="true" />';
+        $xml .= '<ContactInfo SendData="true"/>';
+        $xml .= '<MultimediaObjects SendData="true"/>';
+        $xml .= '<ContentInfos>';
+        $xml .= '<ContentInfo Name="SecureMultimediaURLs"/>';
+        $xml .= '</ContentInfos>';
+        $xml .= '</HotelDescriptiveInfo>';
+        $xml .= '</HotelDescriptiveInfos>';
+        $xml .= '</OTA_HotelDescriptiveInfoRQ>';
+        $xml .= '</soapenv:Body>';
+        $xml .= '</soapenv:Envelope>';
+        $hotels = $this->xmlCallWithHeader($xml, $action);
+        $hotelDescriptiveContent = $hotels['OTA_HotelDescriptiveInfoRS']['HotelDescriptiveContents']['HotelDescriptiveContent'];
+            $hotelDescriptionsImageRoutes = $hotels['OTA_HotelDescriptiveInfoRS']['HotelDescriptiveContents']['HotelDescriptiveContent'];
+            $hotelDescriptionsImageRoutes = !empty($hotelDescriptiveContent['HotelInfo']['Descriptions']['MultimediaDescriptions']['MultimediaDescription']) ? $hotelDescriptiveContent['HotelInfo']['Descriptions']['MultimediaDescriptions']['MultimediaDescription'] : [];
+            if(!empty($hotelDescriptionsImageRoutes)){
+            $hotelDescriptionsImageRoutess = array_column($hotelDescriptionsImageRoutes, 'ImageItems');
+            }
+            else{
+            $hotelDescriptionsImageRoutess = [];
+            }
+            $hotelImagesRow = [];
+            if (!empty($hotelDescriptionsImageRoutess)) {
+                foreach ($hotelDescriptionsImageRoutess as $hotelDescriptionsRow) {
+                    isset($hotelDescriptionsRow['ImageItem'][0]) ? $hotelDescriptionsRowImageItem = $hotelDescriptionsRow['ImageItem'] : $hotelDescriptionsRowImageItem = [$hotelDescriptionsRow['ImageItem']];
+                    foreach ($hotelDescriptionsRowImageItem as $HotelImageArrays) {
+                        if (isset($HotelImageArrays['Description'])) {
+                            //dd($HotelImageArrays);
+                            isset($HotelImageArrays['Description']['@attributes']['Caption'])? 
+                            $HotelImageArraysDescription = $HotelImageArrays['Description']['@attributes']['Caption'] : $HotelImageArraysDescription = $HotelImageArrays['Description'];
+                            
+                            if(!is_array($HotelImageArraysDescription)){
+                                if (strpos($HotelImageArraysDescription, 'Exterior') !== false) {
+                                    array_push($hotelImagesRow, $HotelImageArrays['ImageFormat']);
+                                    break;
+                                } else {
+                                    array_push($hotelImagesRow, $HotelImageArrays['ImageFormat']);
+                                    break;
+                                }
+                            }
+                        } else {
+                            array_push($hotelImagesRow, $HotelImageArrays['ImageFormat']);
+                            break;
+                        }
+                    }
+            }
+            }else{
+                $hotelImagesRow[] = [
+                    ["URL" => asset('assets/images/hotel/h3.jpg')],
+                ];
+            }     
+            if(isset($hotelImagesRow[0][0]['URL'])){
+                $IMGurl =$hotelImagesRow[0][0]['URL'];
+            }else{
+                $IMGurl = '';
+            }
+            return response()->json(['url' => $IMGurl]);
+        }
+    }
+    // code by uddeshya 
     public function errors(Request $request){
         $ErrorCode = $request['code'];
         $ErrorType = $request['type'];
-        $errorMsg ='This is error code '. $ErrorCode . ' This is error type '.$ErrorType;
+        
+        $errorMsg = '';
+        if($ErrorCode== '23'){
+            $errorMsg ="Passenger typr not supported.";
+        }else if($ErrorCode=='450'){
+            $errorMsg ='Unable to proecss';
+        }
+        $errorMsg =$errorMsg;
+        
         return redirect()->route('error')->with('msg', $errorMsg);
-
+        
     }
-    // code end  by uddeshya
+    // code end  by uddeshya 
 
-    public function HotelDetails(Request $request)
-    {
+    public function HotelDetails(Request $request) {
+       $requestdata = $request->all();
+       
+       $searchSession = Session('searchSession');
+          
+    
+        
+        
+    
+        
+        
+        
+        // dd($requestdata ,$searchSession);
         $action = "Hotel_MultiAvailability_10.0";
-        $adult = $request['adult'];
-        $child = $request['child'];
+        $adult = $searchSession['adult'];
+        $child = $searchSession['child'];
         // code by uddeshya  one line
         $state = $request['hotelcitycode'];
         $showdepartDate = $request['showdepartDate'];
         $showreturnDate = $request['showreturnDate'];
 
-        $start = date('Y-m-d', strtotime($request['departDate']));
+        $start = date('Y-m-d', strtotime($searchSession['start']));
 
-        $end = date('Y-m-d', strtotime($request['returnDate']));
+        $end = date('Y-m-d', strtotime($searchSession['end']));
 
         $xml = '';
         $xml .= '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:ns="http://www.opentravel.org/OTA/2003/05">';
@@ -433,9 +556,32 @@ class HeaderController extends Controller
         $xml .= '</soapenv:Body>';
         $xml .= '</soapenv:Envelope>';
         $result = $this->xmlCallWithBodyAndHeader($xml, $action);
+        
+        
         $detail = $result['body'];
         $header = $result['header']['awsseSession'];
-        return view('hotel-pages.details-hotel', compact('detail', 'start', 'end', 'adult', 'child', 'header' ,'state' ,'showdepartDate' , 'showreturnDate' ));
+        
+        $SessionDetails = [
+            'start' => $start,
+            'end' => $end,
+            'adult' => $adult,
+            'child' => $child,
+            'header' => $header,
+            'state' => $state,
+            'showdepartDate' => $showdepartDate,
+            'showreturnDate' => $showreturnDate,
+            'detail' => $detail,
+        ]; 
+        
+        $currencyconversion = VisitorGeolocation::geolocationInfo();
+        $symbol = !empty($currencyconversion['symbol']) ? $currencyconversion['symbol'] : '₹';
+        $cvalue = !empty($currencyconversion['value']) ?  $currencyconversion['value'] : 1;
+        $request->session()->put('SessionDetails', $SessionDetails);
+        // dd($detail);
+        return view('hotel-pages.details-hotel', compact('detail', 'start', 'end', 'adult', 'child', 'header' ,'state' ,'showdepartDate' , 'showreturnDate' , 'symbol' , 'cvalue'));
+    }
+    public function test(Request $request){
+        dd($request);
     }
 
 }

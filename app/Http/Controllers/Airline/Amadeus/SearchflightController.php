@@ -29,10 +29,15 @@ class SearchflightController extends Controller
                 "destinationLocationCode" => $destination,
                 "departureDate" => $departureDate,
                 "adults" => $adults,
+                // "nonStop" => true,
+                // "includedAirlineCodes" =>
+                // "excludedAirlineCodes" =>
+                // "maxPrice" =>
                 // "max" => 6,
+                "currencyCode" => 'INR',
                 "children" => $children,
                 "infants" => $infants,
-                "travelClass" => $travelClass, // Amadeus uses travelClass instead of cabinClass
+                "travelClass" => $travelClass, // Amadeus uses travelClass  Available values : ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
                 // Optional: Comment out if unsure about fare type
                 // "includeFares" => $fareType,
             ]);
@@ -58,8 +63,13 @@ class SearchflightController extends Controller
                 'returnDate' => $returnDate,
                 "max" => 10,
                 "children" => $children,
+                    // "includedAirlineCodes" =>
+                    // "excludedAirlineCodes" =>
+                    // "maxPrice" =>
+                // "nonStop" => true,
                 "infants" => $infants,
-                "travelClass" => $travelClass, // Amadeus uses travelClass instead of cabinClass  ECONOMY , BUSINESS ,  FIRST_CLASS
+                "currencyCode" => 'INR',
+                "travelClass" => $travelClass, // Amadeus uses travelClass Available values : ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
                 // Optional: Comment out if unsure about fare type
                 // "includeFares" => true,  // Include fares for sorting (optional)
                 // "maxNumberOfStops" => 2,  // Retrieve flights with up to 2 connections
@@ -68,18 +78,6 @@ class SearchflightController extends Controller
             // $pricing = $amadeus->getShopping()->getFlightOffers()->getPricing()->postWithFlightOffers($flightOffers);
             $flightOffers = $flightOffers[0]->getResponse()->getBodyAsJsonObject();
             // return $flightOffers->data;
-            $isFormerMilitary = true;
-            // if($isFormerMilitary)
-            // {
-            //     foreach ($flightOffers->data as &$flightOffer) {
-            //         $defenseFareAvailable = $this->isDefenseFareAvailable($flightOffer, $origin, $destination, $departureDate); // Replace with your logic
-            //         if ($defenseFareAvailable && $isFormerMilitary) {
-            //             return "Potential Defense Fare Available (Contact Airline for Details)";
-            //         } else {
-            //             return "No Defense Fare Information Available";
-            //         }
-            //     }
-            // }
             return response()->json($flightOffers);
         } catch (\Amadeus\Exceptions\ResponseException $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -140,15 +138,15 @@ class SearchflightController extends Controller
         $currency_conversion = $this->getvisitorcountrycurrency();
         $availability = [];
         if ($request['trip-type'] === "oneway") {
-            // $oneways = $this->onewayFlight($request ,$departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
+            $oneways = $this->onewayFlight($request ,$departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
             $availability = $authenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
         } else if ($request['trip-type'] === "roundtrip") {
-            // $oneways = $this->roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
+            $oneways = $this->roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
             $availability = $authenticateController->AvailabilityRound($tripType, $request['trip-type'], $request['departDate'], $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
 
-            
+
         }
-        // return $oneways;
+        return $oneways;
         return $availability;
         // return response()->json(['galileo' => $availability , 'amadeus' => $oneways]);
         // return view('flight-pages.oneway-flight-pages.flight-search', compact('oneways', 'travellers', 'availability'));

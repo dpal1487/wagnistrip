@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Hotel\Amadeus;
-use App\Models\OrderHotel;
+use App\Models\OrderHotels;
 use Illuminate\Support\Facades\DB;
 use App\Models\Paymentdata;
 use Illuminate\Support\Facades\Session;
@@ -11,16 +11,40 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\Hotel\Amadeus\HeaderController;
 use Illuminate\Http\Request;
 use App\Models\HotelAddPaymentDetails;
+use App\Models\VisitorGeolocation;
+use App\Models\Hoteluserdata;
 
 class HotelBookingController extends Controller
 {
-    public  function HotelReview(Request $request)
-    {
-    $data = $request->all();
+    public  function HotelReview(Request $request){
+        $data = $request->all();
+        $SessionDetails = session('SessionDetails');
+        $awsseSession = json_decode( $data['header'] , true)['awsseSessionId'];
+        
+        $awsseData =  Hoteluserdata::where('sessionid', '=', $awsseSession)->first();
+        if( $awsseData == null ){
+            
+            // $InputData = new Hoteluserdata;
+            $InputData = new Hoteluserdata;
+            $InputData->sessionid  = $awsseSession ;
+            $InputData->review  = json_encode($data , true);
+            $InputData->save();
+            // dd($data , $SessionDetails , $awsseData);
+            
+        }else{
+            $awsseData->review  = json_encode($data , true);
+            $awsseData->save();
+        }
+        
+        //  dd($SessionDetails );
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
         $showreturnDate = $request['showreturnDate'];
         $showdepartDate = $request['showdepartDate'];
         $HotelCityCode = $request['HotelCityCode'];
         $header = json_decode($request['header']);
+        // dd($data , $SessionDetails );
         $action = "Hotel_EnhancedPricing_2.0";
         $xml = '';
         $xml .= '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:ns="http://www.opentravel.org/OTA/2003/05">';
@@ -32,24 +56,22 @@ class HotelBookingController extends Controller
         $xml .= '<HotelSearchCriteria>';
         $xml .= '<Criterion ExactMatch="true">';
         $xml .= '<HotelRef ChainCode="' . $request['ChainCode'] . '" HotelCode="' . $request['HotelCode'] . '" HotelCityCode="' . $request['HotelCityCode'] . '" HotelCodeContext="' . $request['HotelCodeContext'] . '" />';
-        $xml .= '<StayDateRange Start="' . $request['startDate'] . '" End="' . $request['endDate'] . '" />';
+        $xml .= '<StayDateRange Start="' . $SessionDetails['start'] . '" End="' . $SessionDetails['end'] . '" />';
         $xml .= '<RatePlanCandidates>';
-
-
         
         $HeaderController = new HeaderController();
         $hotelInfo = $HeaderController->HotelInfo($request['HotelCode']);
 
 
-        $xml .= '<RatePlanCandidate RatePlanCode="W20" />';
+        $xml .= '<RatePlanCandidate RatePlanCode="' . $request["RatePlanCode"] . '" />';
         $xml .= '</RatePlanCandidates>';
         $xml .= '<RoomStayCandidates>';
         // dd($request->all());
         $xml .= '<RoomStayCandidate RoomTypeCode="' . $request['RoomTypeCode'] . '" RoomID="1" Quantity="1" BookingCode="' . $request['BookingCode'] . '">';
         $xml .= '<GuestCounts IsPerRoom="true">';
-        $xml .= '<GuestCount AgeQualifyingCode="10" Count="'.$request['adult'].'" />';
-        if(($request['child'])>=1){
-            $xml .= '<GuestCount AgeQualifyingCode="8" Age="7" Count="'.$request['child'].'" />';
+        $xml .= '<GuestCount AgeQualifyingCode="10" Count="'.$SessionDetails['adult'].'" />';
+        if(($SessionDetails['child'])>=1){
+            $xml .= '<GuestCount AgeQualifyingCode="8" Age="7" Count="'.$SessionDetails['child'].'" />';
         }
         $xml .= '</GuestCounts>';
         // dd($request->all(), $xml);
@@ -72,55 +94,112 @@ class HotelBookingController extends Controller
             $requestDetails = $request->all();
             // dd($requestDetails, $detail);
             // change by uddeshya 
+            $request->session()->put('HotelCityCodeReview', $HotelCityCode);
+            $request->session()->put('showdepartDateReview', $showdepartDate);
+            $request->session()->put('requestDetailsReview', $requestDetails);
+            $request->session()->put('headerReview', $header);
+            
             $request->session()->put('amount', $detail);
+            $request->session()->put('requestReview', $data);
+            $request->session()->put('SessionDetails', $SessionDetails);
             //////////////////////////// 
             // dd($request->all(), $hotelInfo , $detail);
-            
-            return view('hotel-pages.review-hotel',compact('detail', 'header', 'requestDetails', 'data','showdepartDate','showdepartDate','HotelCityCode'));
+            $currencyconversion = VisitorGeolocation::geolocationInfo();
+            $symbol = !empty($currencyconversion['symbol']) ? $currencyconversion['symbol'] : '₹';
+            $cvalue = !empty($currencyconversion['value']) ?  $currencyconversion['value'] : 1;               
+            return view('hotel-pages.review-hotel',compact('detail', 'header', 'requestDetails', 'data','showdepartDate','SessionDetails','HotelCityCode' , 'symbol' , 'cvalue'));
         }
     }
 
     public function HotelPay(Request $request){
-        $isLogin  = Auth::check();
-        if (!$isLogin){
-            Session::put('BackRedir', 'true');
-            return redirect('/login');
-        }
+        
+        // $isLogin  = Auth::check();
+        // if (!$isLogin){
+        //     Session::put('BackRedir', 'true');
+        //     return redirect('/login');
+        // }
+        
         $data = $request->all();
-        // dd($data);
+        $SessionDetails = session('SessionDetails');
+        
+        $awsseSession = json_decode( $data['header'] , true)['awsseSessionId'];
+        
+        $awsseData =  Hoteluserdata::where('sessionid', '=', $awsseSession)->first();
+        // dd($awsseData);
+        
+        if( $awsseData == null ){
+            
+            // $InputData = new Hoteluserdata;
+            $InputData = new Hoteluserdata;
+            $InputData->sessionid  = $awsseSession ;
+            $InputData->HotelPay  = json_encode($data , true);
+            $InputData->save();
+            // dd($data , $SessionDetails , $awsseData);
+            
+        }else{
+            $awsseData->HotelPay  = json_encode($data , true);
+            $awsseData->save();
+        }
+        
+        
+        $email =$data['email'];
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        //   echo("$email is a valid email address");
+        } else {
+          die("$email is not a valid email address");
+        }
+        
+        
+        $phone = $data['phoneNumber'];
+        if(preg_match('/^[0-9]{10}+$/', $phone)) {
+            // echo "Valid Phone Number";
+        } else {
+            die ("Invalid Phone Number");
+        }
+
+        $SessionDetails = session('SessionDetails');
+        $amount = session('amount');
+        $requestReview = session('requestReview');
+        // dd($requestReview , $SessionDetails);
         $showreturnDate = $request['showreturnDate'];
         $showdepartDate = $request['showdepartDate'];
         $HotelCityCode  = $request['HotelCityCode '];
         // change by uddeshya 
         $session_data = session('amount');
-         //dd($session_data);
+        //  dd($session_data);
         $amountData=$session_data["OTA_HotelAvailRS"]["RoomStays"]["RoomStay"]["Total"]["@attributes"];
         $AmountAfterTax = $amountData['AmountAfterTax'];
-        $data["amount"] = $AmountAfterTax;
-
+        
+        if($data['Chari'] != "no"){
+            $AmountAfterTax +=10;
+        }
+        if($data['textDis'] != "no"){
+            $AmountAfterTax -=50;
+        }
+        // dd($data , $data["amount"] , $request );
         // change by uddeshya
-        $order = new OrderHotel;
-        $order->user_id= Auth::user()->id;
+        $order = new OrderHotels;
+        $order->user_id=rand(1,1000);
+        // dd(Auth::user()->id);
         $order->product_id=rand(1,1000);
         //dd($order->product_id);
         $order->price=$data["booking_code"];
-        $order->amount=$data["amount"];
+        $order->amount=$AmountAfterTax;
         $order->status=0;
         $order->save();
-       
-        
-    
         // $cashfree = config()->get('cashfree');
         $cashfree =[
 
-            'testMode' => env('TEST_MODE', '1'),
-            'appID' => env('APP_ID', '1168599c318f1b71027db1f38f958611'),
-            'secretKey' => env('SECRET_KEY', 'TEST9c741d444d8c4f2963c4441a98f753f30fc871f7'),
-            'orderCurrency' => env('ORDER_CURRENCY', 'INR'),
-            'orderPrefix' => env('ORDER_PREFIX', 'MCG-6'),
-            ];
+            'testMode' => env('TEST_MODE', '0'),
+            'appID' => env('APP_ID', '1661862c982a09f6d5f1d93900681661'),
+            'secretKey' => env('SECRET_KEY', '781827d26290a6ea98559e65ec895029923b5fa7'),
+            // 'orderCurrency' => env('ORDER_CURRENCY', $request['Checkbasefare']),
+            'orderCurrency' => env('ORDER_CURRENCY', $request['Checkbasefare']),
+            'orderPrefix' => env('ORDER_PREFIX', 'WT-257'),
+        ];
         $action = ($cashfree['testMode']) ?
-                    'https://test.cashfree.com/billpay/checkout/post/submit' :
+                    'https://www.cashfree.com/checkout/post/submit' :
                     'https://www.cashfree.com/checkout/post/submit';
     
         $appID = $cashfree['appID'];
@@ -128,47 +207,62 @@ class HotelBookingController extends Controller
         $orderCurrency = $cashfree['orderCurrency'];
         $returnUrl = url('payments/thankyou');
         $notifyUrl = url('payment/hotel');
-    
-        $customerName = Auth::user()->name;
+        $customerName = $request['adultFirstName'][0].$request['adultLastName'][0];
         $customerEmail = $request->email;
         $customerPhone = $request->phoneNumber;
         $orderId = $cashfree['orderPrefix'] . $order->id;
-        $orderCurrency="INR";
+        // $orderCurrency="INR";
+        $orderCurrency=$cashfree['orderCurrency'];
+        
+        
+        $namelen = count($request->adultFirstName);
+        $adultFirstName = $adultLastName = $adultTitle= '';
+        for($i = 0; $i < $namelen;$i++){
+            $adultTitle .= $request->adultTitle[$i];
+            $adultTitle .= ' | ';
+            $adultFirstName .= $request->adultFirstName[$i];
+            $adultFirstName .= ' | ';
+            $adultLastName .= $request->adultLastName[$i];
+            $adultLastName .= ' | ';
+        }
 
         // dd($data);
         $savedata = new Paymentdata;
-        $savedata->adultTitle  =$request->adultTitle[0];
-        $savedata->adultFirstName  =$request->adultFirstName[0];
-        $savedata->adultLastName  =$request->adultLastName[0];
-        $savedata->adult  =$request->adult;
+        $savedata->adultTitle  =$adultTitle;
+        $savedata->adultFirstName  = $adultFirstName;
+        $savedata->adultLastName  =$adultLastName;
+        
+        $savedata->adult  =$requestReview['adult'];
         $savedata->phoneNumber= $request->phoneNumber;
         $savedata->email= $request->email;
-        $savedata->checkin=$request->checkin;
-        $savedata->checkout=$request->checkout;
+        $savedata->checkin=$requestReview['startDate'];
+        $savedata->checkout=$requestReview['endDate'];
         $savedata->HotelName=$request->hotelname;
-        $savedata->address =$request->address;
+        $savedata->address =$requestReview['location'];
         $savedata->countryCode2= $request->countryCode2;
         $savedata->booking_code= $request->booking_code;
         $savedata->roomtypecode= $request->roomtypecode;
         $savedata->rateplanecode= $request->rateplanecode;
-        $savedata->chaincode= $request->chaincode;
-        $savedata->hotelcode= $request->hotelcode;
+        $savedata->chaincode= $requestReview['ChainCode'];
+        $savedata->hotelcode= $requestReview['HotelCode'];
         $savedata->night= $request->night;
         $savedata->Checkbasefare= $request->Checkbasefare;
-        $savedata->HotelCityCode= $request->HotelCityCode;
-        $savedata->amount= $request->amount;
-        $savedata->header= $request->header;
+        $savedata->HotelCityCode= $requestReview['HotelCityCode'];
+        $savedata->amount= $AmountAfterTax;
+        $savedata->header= $requestReview['header'];
         $savedata->email=$request['email'];
-        $savedata->header=$request['header'];
+        $savedata->header=$requestReview['header'];
         $savedata->save();
-        $id = Paymentdata::orderBy('created_at', 'desc')->first();
-        $id = $id['id'];
-    
+        $id = $savedata->id;
+        // $id = Paymentdata::orderBy('created_at', 'desc')->first();
+        // $id = $id['id'];
+        $qunicid = "WT0000" . $id;
+        
         $postData = array(
             "appId" => $appID,
             "orderId" => $id,
-            "orderAmount" => $order->amount,
-            "orderCurrency" => $orderCurrency,
+            "orderAmount" => (($AmountAfterTax)+500),
+            "orderCurrency" =>$request['Checkbasefare'],
             "orderNote" => $order->id,
             "customerName" => $customerName,
             "customerPhone" => $customerPhone,
@@ -185,6 +279,7 @@ class HotelBookingController extends Controller
         }
         $signature = hash_hmac('sha256', $signatureData, $secretKey, true);
         $signature = base64_encode($signature);
+        
         //////////////////////////////////////////////////////////////////////////
 
         // $dataforbooking =[
@@ -207,12 +302,28 @@ class HotelBookingController extends Controller
 
         // Session::put('dataforbooking', $dataforbooking);
 
-
-        return view('hotel-pages.payment', compact('data','showdepartDate','showreturnDate', 'HotelCityCode' ,'signature', 'postData'));
+        /////////////////////////////////////////////////////////
+        //////////// Ease Buzz data /////////////////////////////
+        $secretKey = 'FW09Z922O6';
+        $salt = '734VHA2I97';
+        $BuzzData = array(
+            'key' => $secretKey,
+            "txnid" => $qunicid,
+            "amount" => (($AmountAfterTax)+500),
+            "email" => $customerEmail,
+            "phone" => $customerPhone,
+            "salt" => '734VHA2I97',
+            "customerName" =>$customerName,
+            "customerEmail" =>  $customerEmail,
+        );
+        
+        $bankData = DB::table('buzzbankcode')->get();
+        
+        /////////////////////////////////////////////////////////
+        return view('hotel-pages.payment', compact('data','showdepartDate','showreturnDate', 'HotelCityCode' ,'signature', 'postData' , 'BuzzData', 'bankData'));
     }
 
-    public function HotelAddPax(Request $request) 
-    {
+    public function HotelAddPax(Request $request) {
         $data = $request->all();
         $postvalue = unserialize(base64_decode($request['data']));
         // dd($postvalue);
@@ -225,7 +336,7 @@ class HotelBookingController extends Controller
         $payModel->phone = $postvalue['phoneNumber'];
         $payModel->email = $postvalue['email'];
         $payModel->amount = $postvalue['amount'];
-        $payModel->uniqueid = "MMTHOTEL".rand(1,1000);
+        $payModel->uniqueid = "WTHOTEL".rand(1,1000);
         $payModel->payment_id = $request['razorpay_payment_id'];
         $payModel->booking_code = $postvalue['booking_code'];
         $payModel->save();
@@ -271,7 +382,7 @@ class HotelBookingController extends Controller
         $xml .= '<miscellaneousRemark>';
         $xml .= '<remarks>';
         $xml .= '<type>RM</type>';
-        $xml .= '<freetext>WAGNIS TRIP PRIVATE LIMITED.</freetext>';
+        $xml .= '<freetext>WAGNISTRIP PRIVATE LIMITED.</freetext>';
         $xml .= '</remarks>';
         $xml .= '</miscellaneousRemark>';
         $xml .= '</dataElementsIndiv>';
@@ -381,10 +492,10 @@ class HotelBookingController extends Controller
         $xmlsell .= '<creditCardInfo>';
         $xmlsell .= '<ccInfo>';
         $xmlsell .= '<vendorCode>VI</vendorCode>';
-        $xmlsell .= '<cardNumber>4263982640269299</cardNumber>';
-        $xmlsell .= '<securityId>837</securityId>';
-        $xmlsell .= '<expiryDate>0223</expiryDate>';
-        $xmlsell .= '<ccHolderName>MAKETRUETRIP</ccHolderName>';
+        $xmlsell .= '<cardNumber>4102020364899002</cardNumber>';
+        $xmlsell .= '<securityId>408</securityId>';
+        $xmlsell .= '<expiryDate>0625</expiryDate>';
+        $xmlsell .= '<ccHolderName>DEEPAK KHANNA</ccHolderName>';
         $xmlsell .= '</ccInfo>';
         $xmlsell .= '</creditCardInfo>';
         $xmlsell .= '</groupCreditCardInfo>';
@@ -416,7 +527,7 @@ class HotelBookingController extends Controller
         $xmlsellRetrive .= '<miscellaneousRemark>';
         $xmlsellRetrive .= '<remarks>';
         $xmlsellRetrive .= '<type>RM</type>';
-        $xmlsellRetrive .= '<freetext>MakeTrueTrip Pvt. Ltd.</freetext>';
+        $xmlsellRetrive .= '<freetext>Wagnistrip Pvt. Ltd.</freetext>';
         $xmlsellRetrive .= '</remarks>';
         $xmlsellRetrive .= '</miscellaneousRemark>';
         $xmlsellRetrive .= '</dataElementsIndiv>';
@@ -461,8 +572,8 @@ class HotelBookingController extends Controller
         $xmlsellRetriveRepeat .= '</retrieve>';
         $xmlsellRetriveRepeat .= '<reservationOrProfileIdentifier>';
         $xmlsellRetriveRepeat .= '<reservation>';
-        // $xmlsellRetriveRepeat .= '<controlNumber>'.$controlNumber.'</controlNumber>';
-        $xmlsellRetriveRepeat .= '<controlNumber>B1</controlNumber>';
+        $xmlsellRetriveRepeat .= '<controlNumber>'.$controlNumber.'</controlNumber>';
+        // $xmlsellRetriveRepeat .= '<controlNumber>B1</controlNumber>';
         $xmlsellRetriveRepeat .= '</reservation>';
         $xmlsellRetriveRepeat .= '</reservationOrProfileIdentifier>';
         $xmlsellRetriveRepeat .= '</retrievalFacts>';

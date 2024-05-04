@@ -8,13 +8,4 @@ use Illuminate\Database\Eloquent\Model;
 class PackageOffer extends Model
 {
     use HasFactory;
-    // public $fillable=[
-    // 'hotelname',
-    // 'airline',
-    // 'tickettype',
-    // 'id',
-    // 'packname',
-    // 'activities',
-    // 'imgs'
-    // ];
 }
