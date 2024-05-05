@@ -44,7 +44,6 @@ Route::get('/Hotel-city', [AirportiatacodesController::class, 'HotelCity'])->nam
 Route::controller(ImageController::class)->group(function () {
     Route::post('/image/{entity}', 'store')->name('api.image.store');
 });
-
 //  --------------- BLOG ------------------
 Route::controller(BlogController::class)->group(function () {
     Route::get('blogs', 'index')->name('api.blog.index');

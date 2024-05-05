@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Airline\Amadeus;
 use App\Http\Controllers\Airline\AirPortIATACodesController;
 use App\Http\Controllers\Airline\Galileo\AuthenticateController;
 use App\Http\Controllers\Controller;
+use App\Models\VisitorGeolocation;
 use App\Services\AmadeusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,9 @@ class SearchflightController extends Controller
 
     public function roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
     {
+        $currencyconversion = VisitorGeolocation::geolocationInfo();
+
+        return json_incode($currencyconversion);
         try {
             $amadeus = $this->amadeus->getClient();
             $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
