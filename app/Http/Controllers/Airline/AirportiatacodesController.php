@@ -8,41 +8,41 @@ use App\Http\Controllers\Controller;
 use App\Models\Country;
 
 
-class AirportiatacodesController extends Controller
+class AirPortIATACodesController extends Controller
 {
     public function searchAirIataCode(Request $request)
     {
 
-      
-        
+
+
         $search = $request['search'];
 
-        
+
 
         if ($search == '') {
             $employees = Airportiatacode::orderby('updated_at', 'DESC')->select('id', 'city', 'iata', 'country', 'airport')->limit(10)->get();
-           
+
         } else {
-            
+
             $employees = Airportiatacode::where('iata', 'like','%'. $search.'%')
                  ->orWhere('city', 'like', $search .'%')
                  ->limit(10)->get();
         }
-    
+
         $response = array();
         foreach ($employees as $employee) {
             $response[] = array(
                 "id" => $employee['iata'],
                 "text" => $employee['city'] . " (" . $employee['iata'] . ") " . $employee['country']."\r\n".$employee['airport']
-              
+
             );
-            
+
         }
 
         echo json_encode($response);
         exit;
     }
-    
+
     public function searchCountryCode(Request $request)
     {
         $search = $request['search'];
@@ -68,7 +68,7 @@ class AirportiatacodesController extends Controller
         echo json_encode($response);
         exit;
     }
-    
+
     public function searchCountryIso(Request $request)
     {
         $search = $request['search'];
@@ -94,7 +94,7 @@ class AirportiatacodesController extends Controller
         echo json_encode($response);
         exit;
     }
-   
+
     public static function getCity($d)
     {
         $res = '';
@@ -105,7 +105,7 @@ class AirportiatacodesController extends Controller
         if ($res != '') {
             return $res;
         }
-        
+
         return $d;
     }
 
@@ -117,7 +117,7 @@ class AirportiatacodesController extends Controller
         if (!isset($res) && empty($res)) {
             return $d;
         }
-       
+
         return $res;
     }
 
@@ -131,38 +131,38 @@ class AirportiatacodesController extends Controller
         if ($res != '') {
             return $res;
         }
-        
+
         return $d;
    }
     public static function CityNamesLists(Request $request)
     {
         $search = $request['search'];
 
-        
+
 
         if ($search == '') {
             $employees = Airportiatacode::orderby('updated_at', 'DESC')->select('id', 'city', 'iata', 'country', 'airport')->limit(10)->get();
-           
+
         } else {
-            
+
             $employees = Airportiatacode::where('iata', 'like','%'. $search.'%')
                  ->orWhere('city', 'like', $search .'%')
                  ->limit(10)->get();
         }
-    
+
         $response = array();
         foreach ($employees as $employee) {
             $response[] = array(
                 "id" => $employee['iata'],
                 "text" => $employee['city'] . " (" . $employee['iata'] . ") " . $employee['country']."\r\n".$employee['airport']
-              
+
             );
-            
+
         }
 
         echo json_encode($response);
         exit;
    }
-   
-   
+
+
 }

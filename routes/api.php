@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\ImageController;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Airline\AirportiatacodesController;

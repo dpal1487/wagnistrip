@@ -17,9 +17,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Config;
+use App\Services\AmadeusService;
 
 class Air_SellFromRecommendationController extends Controller
 {
+
+    private $amadeus;
+    public function __construct(AmadeusService $amadeus) // Or your custom service class
+    {
+        $this->amadeus = $amadeus;
+    }
 
     public function passenger($ADT, $CHD, $INF)
     {
@@ -349,6 +356,43 @@ class Air_SellFromRecommendationController extends Controller
 
     public function Air_SellFromRecommendation(Request $request)
     {
+
+        $jsonData = $request->json()->all();
+
+        $body = json_encode($jsonData);
+
+        try {
+            $amadeus = $this->amadeus->getClient();
+
+            // $body = '{
+            //     "originDestinations": [
+            //       {
+            //         "id": "1",
+            //         "originLocationCode": "PAR",
+            //         "destinationLocationCode": "MAD",
+            //         "departureDateTimeRange": {
+            //           "date": "2024-05-02"
+            //         }
+            //       }
+            //     ],
+            //     "travelers": [
+            //       {
+            //         "id": "1",
+            //         "travelerType": "ADULT"
+            //       }
+            //     ],
+            //     "sources": [
+            //       "GDS"
+            //     ]
+            //   }';
+            $flightOffers = $amadeus->getShopping()->getFlightOffers()->post($body);
+            // $pricing = $amadeus->getShopping()->getFlightOffers()->getPricing()->postWithFlightOffers($flightOffers);
+            // return $pricing->toArray();
+            return $flightOffers[0]->getResponse()->getBodyAsJsonObject();
+        } catch (\Amadeus\Exceptions\ResponseException $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
         // return $request->all();
         $HeaderController = new AmadeusHeaderController;
         $AirPortCodeController = new AirportiatacodesController;
@@ -458,7 +502,7 @@ class Air_SellFromRecommendationController extends Controller
             ]);
 
             $sellResult = $client->airSellFromRecommendation($opt);
-           
+
             if ($sellResult->status === Result::STATUS_OK) {
 
                 $passengers = $this->passenger($request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
@@ -719,8 +763,8 @@ class Air_SellFromRecommendationController extends Controller
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-review', compact('roundtripNonstopTwostop', 'travellers', 'fare', 'otherInformation', 'getsession'));
 
             } else {
-                
-               
+
+
 
                 return redirect()->route('error')->with('message', $sellResult->messages[0]->text);
             }
@@ -775,8 +819,8 @@ class Air_SellFromRecommendationController extends Controller
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-review', compact('roundtripTwostopOnestop', 'travellers', 'fare', 'otherInformation', 'getsession'));
 
             } else {
-                
-               
+
+
 
                 return redirect()->route('error')->with('message', $sellResult->messages[0]->text);
             }
@@ -900,7 +944,7 @@ class Air_SellFromRecommendationController extends Controller
             if ($dom_inbound_onestop['sellResult']->status === Result::STATUS_OK && $dom_gl_outbound_nonstop['Status'] === "Success" && $dom_inbound_onestop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripGalNonstopAmdOnestop = [$dom_gl_outbound_nonstop, $dom_inbound_onestop];
-                
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripGalNonstopAmdOnestop', 'SessionID', 'travellers'));
 
             } else {
@@ -915,7 +959,7 @@ class Air_SellFromRecommendationController extends Controller
             if ($dom_inbound_twostop['sellResult']->status === Result::STATUS_OK && $dom_gl_outbound_nonstop['Status'] === "Success" && $dom_inbound_twostop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripGalNonstopAmdTwostop = [$dom_gl_outbound_nonstop, $dom_inbound_twostop];
-             
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripGalNonstopAmdTwostop', 'SessionID', 'travellers'));
 
             } else {
@@ -927,11 +971,11 @@ class Air_SellFromRecommendationController extends Controller
             $dom_outbound_nonstop = $this->OnewayNonstop($request['outbound_nonstop_marketingCompany'], $request['outbound_nonstop_operatingCompany'], $request['outbound_nonstop_arrivalingTime'], $request['outbound_nonstop_arrivalDate'], $request['outbound_nonstop_departure'], $request['outbound_nonstop_arrival'], $request['outbound_nonstop_departureDate'], $request['outbound_nonstop_departureTime'], $request['outbound_nonstop_flightNumber'], $request['outbound_nonstop_bookingClass'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $dom_gl_inbound_nonstop = $this->GlOnestopReview($request['InboundSessionID'], $request['InboundKey'], $request['InboundPricingkey'], $request['InboundResultIndex'], $request['InboundProvider']);
             $SessionID = $request['InboundSessionID'];
-          
+
             if ($dom_outbound_nonstop['sellResult']->status === Result::STATUS_OK && $dom_gl_inbound_nonstop['Status'] === "Success" && $dom_outbound_nonstop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripAmdNonstopGalNonstop = [$dom_outbound_nonstop, $dom_gl_inbound_nonstop];
-                
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripAmdNonstopGalNonstop', 'SessionID', 'travellers'));
 
             } else {
@@ -943,12 +987,12 @@ class Air_SellFromRecommendationController extends Controller
             $domesticOutboundOnestop = $this->OnewayOnestop($request['outbound_onestop_marketingCompany_1'], $request['outbound_onestop_marketingCompany_2'], $request['outbound_onestop_operatingCompany_1'], $request['outbound_onestop_operatingCompany_2'], $request['outbound_onestop_arrivalingTime'], $request['outbound_onestop_arrivalDate_1'], $request['outbound_onestop_arrivalDate_2'], $request['outbound_onestop_departure_1'], $request['outbound_onestop_departure_2'], $request['outbound_onestop_arrival_1'], $request['outbound_onestop_arrival_2'], $request['outbound_onestop_departureDate_1'], $request['outbound_onestop_departureDate_2'], $request['outbound_onestop_departureTime_1'], $request['outbound_onestop_departureTime_2'], $request['outbound_onestop_flightNumber_1'], $request['outbound_onestop_flightNumber_2'], $request['outbound_onestop_bookingClass_1'], $request['outbound_onestop_bookingClass_2'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $dom_gl_inbound_nonstop = $this->GlOnestopReview($request['InboundSessionID'], $request['InboundKey'], $request['InboundPricingkey'], $request['InboundResultIndex'], $request['InboundProvider']);
             $SessionID = $request['InboundSessionID'];
-           
+
             if ($domesticOutboundOnestop['sellResult']->status === Result::STATUS_OK && $dom_gl_inbound_nonstop['Status'] === "Success"  && $domesticOutboundOnestop['fareInformative']->status === Result::STATUS_OK) {
-             
+
                 $MixRoundtripAmdOnestopGalNonstop = [$domesticOutboundOnestop, $dom_gl_inbound_nonstop];
-                
-            
+
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripAmdOnestopGalNonstop', 'SessionID', 'travellers'));
 
             } else {
@@ -961,10 +1005,10 @@ class Air_SellFromRecommendationController extends Controller
             $dom_outbound_twostop = $this->OnewayTwostop($request['outbound_twostop_marketingCompany_1'], $request['outbound_twostop_marketingCompany_2'], $request['outbound_twostop_marketingCompany_3'], $request['outbound_twostop_operatingCompany_1'], $request['outbound_twostop_operatingCompany_2'], $request['outbound_twostop_operatingCompany_3'], $request['outbound_twostop_arrivalingTime'], $request['outbound_twostop_arrivalDate_1'], $request['outbound_twostop_arrivalDate_2'], $request['outbound_twostop_arrivalDate_3'], $request['outbound_twostop_departure_1'], $request['outbound_twostop_departure_2'], $request['outbound_twostop_departure_3'], $request['outbound_twostop_arrival_1'], $request['outbound_twostop_arrival_2'], $request['outbound_twostop_arrival_3'], $request['outbound_twostop_departureDate_1'], $request['outbound_twostop_departureDate_2'], $request['outbound_twostop_departureDate_3'], $request['outbound_twostop_departureTime_1'], $request['outbound_twostop_departureTime_2'], $request['outbound_twostop_departureTime_3'], $request['outbound_twostop_flightNumber_1'], $request['outbound_twostop_flightNumber_2'], $request['outbound_twostop_flightNumber_3'], $request['outbound_twostop_bookingClass_1'], $request['outbound_twostop_bookingClass_2'], $request['outbound_twostop_bookingClass_3'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $dom_gl_inbound_nonstop = $this->GlOnestopReview($request['InboundSessionID'], $request['InboundKey'], $request['InboundPricingkey'], $request['InboundResultIndex'], $request['InboundProvider']);
             $SessionID = $request['InboundSessionID'];
-           
+
             if ($dom_outbound_twostop['sellResult']->status === Result::STATUS_OK && $dom_gl_inbound_nonstop['Status'] === "Success" && $dom_outbound_twostop['fareInformative']->status === Result::STATUS_OK) {
                 $MixRoundtripAmdTwostopGalNonstop = [$dom_outbound_twostop, $dom_gl_inbound_nonstop];
-               
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripAmdTwostopGalNonstop', 'SessionID', 'travellers'));
 
             } else {
@@ -977,11 +1021,11 @@ class Air_SellFromRecommendationController extends Controller
             $dom_gl_outbound_onestop = $this->GlOnestopReview($request['OutboundSessionID'], $request['OutboundKey'], $request['OutboundPricingkey'], $request['OutboundResultIndex'], $request['OutboundProvider']);
             $dom_inbound_nonstop = $this->OnewayNonstop($request['inbound_nonstop_marketingCompany'], $request['inbound_nonstop_operatingCompany'], $request['inbound_nonstop_arrivalingTime'], $request['inbound_nonstop_arrivalDate'], $request['inbound_nonstop_departure'], $request['inbound_nonstop_arrival'], $request['inbound_nonstop_departureDate'], $request['inbound_nonstop_departureTime'], $request['inbound_nonstop_flightNumber'], $request['inbound_nonstop_bookingClass'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $SessionID = $request['OutboundSessionID'];
-           
+
             if ($dom_inbound_nonstop['sellResult']->status === Result::STATUS_OK && $dom_gl_outbound_onestop['Status'] === "Success" && $dom_inbound_nonstop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripGalOnestopAmdNonstop = [$dom_gl_outbound_onestop, $dom_inbound_nonstop];
-         
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripGalOnestopAmdNonstop', 'SessionID', 'travellers'));
 
             } else {
@@ -993,11 +1037,11 @@ class Air_SellFromRecommendationController extends Controller
             $dom_gl_outbound_onestop = $this->GlOnestopReview($request['OutboundSessionID'], $request['OutboundKey'], $request['OutboundPricingkey'], $request['OutboundResultIndex'], $request['OutboundProvider']);
             $dom_inbound_onestop = $this->OnewayOnestop($request['inbound_onestop_marketingCompany_1'], $request['inbound_onestop_marketingCompany_2'], $request['inbound_onestop_operatingCompany_1'], $request['inbound_onestop_operatingCompany_2'], $request['inbound_onestop_arrivalingTime'], $request['inbound_onestop_arrivalDate_1'], $request['inbound_onestop_arrivalDate_2'], $request['inbound_onestop_departure_1'], $request['inbound_onestop_departure_2'], $request['inbound_onestop_arrival_1'], $request['inbound_onestop_arrival_2'], $request['inbound_onestop_departureDate_1'], $request['inbound_onestop_departureDate_2'], $request['inbound_onestop_departureTime_1'], $request['inbound_onestop_departureTime_2'], $request['inbound_onestop_flightNumber_1'], $request['inbound_onestop_flightNumber_2'], $request['inbound_onestop_bookingClass_1'], $request['inbound_onestop_bookingClass_2'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $SessionID = $request['OutboundSessionID'];
-           
+
             if ($dom_inbound_onestop['sellResult']->status === Result::STATUS_OK && $dom_gl_outbound_onestop['Status'] === "Success" && $dom_inbound_onestop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripGalOnestopAmdOnestop = [$dom_gl_outbound_onestop, $dom_inbound_onestop];
-                
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripGalOnestopAmdOnestop', 'SessionID', 'travellers'));
 
             } else {
@@ -1009,11 +1053,11 @@ class Air_SellFromRecommendationController extends Controller
             $dom_gl_outbound_onestop = $this->GlOnestopReview($request['OutboundSessionID'], $request['OutboundKey'], $request['OutboundPricingkey'], $request['OutboundResultIndex'], $request['OutboundProvider']);
             $dom_inbound_twostop = $this->OnewayTwostop($request['inbound_twostop_marketingCompany_1'], $request['inbound_twostop_marketingCompany_2'], $request['inbound_twostop_marketingCompany_3'], $request['inbound_twostop_operatingCompany_1'], $request['inbound_twostop_operatingCompany_2'], $request['inbound_twostop_operatingCompany_3'], $request['inbound_twostop_arrivalingTime'], $request['inbound_twostop_arrivalDate_1'], $request['inbound_twostop_arrivalDate_2'], $request['inbound_twostop_arrivalDate_3'], $request['inbound_twostop_departure_1'], $request['inbound_twostop_departure_2'], $request['inbound_twostop_departure_3'], $request['inbound_twostop_arrival_1'], $request['inbound_twostop_arrival_2'], $request['inbound_twostop_arrival_3'], $request['inbound_twostop_departureDate_1'], $request['inbound_twostop_departureDate_2'], $request['inbound_twostop_departureDate_3'], $request['inbound_twostop_departureTime_1'], $request['inbound_twostop_departureTime_2'], $request['inbound_twostop_departureTime_3'], $request['inbound_twostop_flightNumber_1'], $request['inbound_twostop_flightNumber_2'], $request['inbound_twostop_flightNumber_3'], $request['inbound_twostop_bookingClass_1'], $request['inbound_twostop_bookingClass_2'], $request['inbound_twostop_bookingClass_3'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $SessionID = $request['OutboundSessionID'];
-           
+
             if ($dom_inbound_twostop['sellResult']->status === Result::STATUS_OK && $dom_gl_outbound_onestop['Status'] === "Success" && $dom_inbound_twostop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripGalOnestopAmdTwostop = [$dom_gl_outbound_onestop, $dom_inbound_twostop];
-                
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripGalOnestopAmdTwostop', 'SessionID', 'travellers'));
 
             } else {
@@ -1025,11 +1069,11 @@ class Air_SellFromRecommendationController extends Controller
             $dom_outbound_nonstop = $this->OnewayNonstop($request['outbound_nonstop_marketingCompany'], $request['outbound_nonstop_operatingCompany'], $request['outbound_nonstop_arrivalingTime'], $request['outbound_nonstop_arrivalDate'], $request['outbound_nonstop_departure'], $request['outbound_nonstop_arrival'], $request['outbound_nonstop_departureDate'], $request['outbound_nonstop_departureTime'], $request['outbound_nonstop_flightNumber'], $request['outbound_nonstop_bookingClass'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $dom_gl_inbound_onestop = $this->GlOnestopReview($request['InboundSessionID'], $request['InboundKey'], $request['InboundPricingkey'], $request['InboundResultIndex'], $request['InboundProvider']);
             $SessionID = $request['InboundSessionID'];
-           
+
             if ($dom_outbound_nonstop['sellResult']->status === Result::STATUS_OK && $dom_gl_inbound_onestop['Status'] === "Success" && $dom_outbound_nonstop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripAmdNonstopGalOnestop = [$dom_outbound_nonstop, $dom_gl_inbound_onestop];
-        
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripAmdNonstopGalOnestop', 'SessionID', 'travellers'));
 
             } else {
@@ -1057,11 +1101,11 @@ class Air_SellFromRecommendationController extends Controller
             $dom_outbound_twostop = $this->OnewayTwostop($request['outbound_twostop_marketingCompany_1'], $request['outbound_twostop_marketingCompany_2'], $request['outbound_twostop_marketingCompany_3'], $request['outbound_twostop_operatingCompany_1'], $request['outbound_twostop_operatingCompany_2'], $request['outbound_twostop_operatingCompany_3'], $request['outbound_twostop_arrivalingTime'], $request['outbound_twostop_arrivalDate_1'], $request['outbound_twostop_arrivalDate_2'], $request['outbound_twostop_arrivalDate_3'], $request['outbound_twostop_departure_1'], $request['outbound_twostop_departure_2'], $request['outbound_twostop_departure_3'], $request['outbound_twostop_arrival_1'], $request['outbound_twostop_arrival_2'], $request['outbound_twostop_arrival_3'], $request['outbound_twostop_departureDate_1'], $request['outbound_twostop_departureDate_2'], $request['outbound_twostop_departureDate_3'], $request['outbound_twostop_departureTime_1'], $request['outbound_twostop_departureTime_2'], $request['outbound_twostop_departureTime_3'], $request['outbound_twostop_flightNumber_1'], $request['outbound_twostop_flightNumber_2'], $request['outbound_twostop_flightNumber_3'], $request['outbound_twostop_bookingClass_1'], $request['outbound_twostop_bookingClass_2'], $request['outbound_twostop_bookingClass_3'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants']);
             $gl_inbound_onestop = $this->GlOnestopReview($request['InboundSessionID'], $request['InboundKey'], $request['InboundPricingkey'], $request['InboundResultIndex'], $request['InboundProvider']);
             $SessionID = $request['InboundSessionID'];
-        
+
             if ($dom_outbound_twostop['sellResult']->status === Result::STATUS_OK && $dom_gl_inbound_onestop['Status'] === "Success" && $dom_outbound_twostop['fareInformative']->status === Result::STATUS_OK) {
 
                 $MixRoundtripAmdTwostopGalOnestop = [$dom_outbound_twostop, $dom_gl_inbound_onestop];
-        
+
                 return view('flight-pages.roundtrip-flight-pages.domestic-flight-pages.flight-mix-review', compact('MixRoundtripAmdTwostopGalOnestop', 'SessionID', 'travellers'));
 
             } else {

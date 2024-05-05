@@ -5,13 +5,8 @@ namespace App\Http\Controllers\Airline\Amadeus;
 use App\Http\Controllers\Airline\AirPortIATACodesController;
 use App\Http\Controllers\Airline\Galileo\AuthenticateController;
 use App\Http\Controllers\Controller;
-use App\Models\VisitorGeolocation;
 use App\Services\AmadeusService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
-
 class SearchflightController extends Controller
 {
     private $amadeus;
@@ -22,9 +17,8 @@ class SearchflightController extends Controller
 
     public function onewayFlight($request, $departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
     {
-
         try {
-            $amadeus = $this->amadeus->getClient();
+            $amadeus = $this->amadeus()->getClient();
             $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
                 "originLocationCode" => $origin,
                 "destinationLocationCode" => $destination,
@@ -35,11 +29,10 @@ class SearchflightController extends Controller
                 // "excludedAirlineCodes" =>
                 // "maxPrice" =>
                 // "max" => 6,
-                "currencyCode" => 'INR',
+                "currencyCode" => $this->getCountryCode(),
                 "children" => $children,
                 "infants" => $infants,
                 "travelClass" => $travelClass, // Amadeus uses travelClass  Available values : ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
-                // Optional: Comment out if unsure about fare type
                 // "includeFares" => $fareType,
             ]);
             // return $amadeus->getShopping()->getFlightOffers()->getPricing()->postWithFlightOffers($flightOffers)->toArray();
@@ -54,10 +47,9 @@ class SearchflightController extends Controller
 
     public function roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType)
     {
-        $currencyconversion = VisitorGeolocation::geolocationInfo();
 
-        return json_incode($currencyconversion);
         try {
+            $currency_conversion = $this->getvisitorcountrycurrency();
             $amadeus = $this->amadeus->getClient();
             $flightOffers = $amadeus->getShopping()->getFlightOffers()->get([
                 "originLocationCode" => $origin,
@@ -67,12 +59,12 @@ class SearchflightController extends Controller
                 'returnDate' => $returnDate,
                 "max" => 10,
                 "children" => $children,
-                    // "includedAirlineCodes" =>
-                    // "excludedAirlineCodes" =>
-                    // "maxPrice" =>
+                // "includedAirlineCodes" =>
+                // "excludedAirlineCodes" =>
+                // "maxPrice" =>
                 // "nonStop" => true,
                 "infants" => $infants,
-                "currencyCode" => 'INR',
+                "currencyCode" => $this->getCountryCode(),
                 "travelClass" => $travelClass, // Amadeus uses travelClass Available values : ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
                 // Optional: Comment out if unsure about fare type
                 // "includeFares" => true,  // Include fares for sorting (optional)
@@ -86,18 +78,6 @@ class SearchflightController extends Controller
         } catch (\Amadeus\Exceptions\ResponseException $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
-
-    private function isDefenseFareAvailable($flightOffer, $origin, $destination, $travelDate)
-    {
-        // Implement logic to check if defense fare is available for this flight
-        // This might involve checking a list of airlines or using an external API (if available)
-        // Example using an airline list (replace with your actual logic)
-        $defenseAirlines = ['AA', 'UA', 'DL', 'AI']; // Placeholder list of airlines offering defense fares
-        $airlineCode = $flightOffer->validatingAirlineCodes[0];
-
-        return in_array($airlineCode, $defenseAirlines);
-
     }
 
     public function Fare_MasterPricerTravelBoardSearch(Request $request)
@@ -139,63 +119,17 @@ class SearchflightController extends Controller
         // trip == Domestic = 1, InterNational = 2, none = 0,
         $authenticateController = new AuthenticateController;
         $travellers = ['noOfAdults' => $adults, 'noOfChilds' => $children, 'noOfInfants' => $infants];
-        $currency_conversion = $this->getvisitorcountrycurrency();
         $availability = [];
         if ($request['trip-type'] === "oneway") {
-            $oneways = $this->onewayFlight($request ,$departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
-            $availability = $authenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
+            // $oneways = $this->onewayFlight($request, $departureDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
+            // $availability = $authenticateController->Availability($tripType, $request['trip-type'], $request['departDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
         } else if ($request['trip-type'] === "roundtrip") {
-            $oneways = $this->roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
+            // $oneways = $this->roundTripFlight($request, $departureDate, $returnDate, $origin, $destination, $adults, $children, $infants, $travelClass, $passengerType);
             $availability = $authenticateController->AvailabilityRound($tripType, $request['trip-type'], $request['departDate'], $request['returnDate'], $request['noOfAdults'], $request['noOfChilds'], $request['noOfInfants'], $request['departure'], $request['arrival'], ucfirst($request['cabinClass']), $request['fare']);
-
-
         }
-        return $oneways;
+        // return $oneways;
         return $availability;
         // return response()->json(['galileo' => $availability , 'amadeus' => $oneways]);
         // return view('flight-pages.oneway-flight-pages.flight-search', compact('oneways', 'travellers', 'availability'));
     }
-
-    public static function getvisitorcountrycurrency()
-    {
-        $session = !empty(Session::get('currency')) ? Session::get('currency') : '';
-        if (empty($session)) {
-            $ip = $_SERVER['REMOTE_ADDR'];
-            $loc = Http::get('http://api.ipstack.com/' . $ip . '?access_key=528d7ed0b65ea7d1f694af15b0ced1a4')->json();
-            $cncode = 'IN';
-            if (!empty($loc)) {
-                if (isset($loc['country_code'])) {
-                    $cncode = $loc['country_code'];
-                }
-            }
-            if ($cncode == 'US') {
-                $currency = 'USD';
-                $currency_symbol = '$';
-            } else if ($cncode == 'IN') {
-                $currency = 'INR';
-                $currency_symbol = '₹';
-            } else {
-                $currency = DB::table('country_currency')
-                    ->where('country', $cncode)
-                    ->first();
-                $currency = $currency->currency;
-                $currency_symbol = $currency->symbol;
-            }
-            Session::forget('currency');
-            Session::push('currency', $currency);
-            Session::forget('currency_symbol');
-            Session::push('currency_symbol', $currency_symbol);
-            return $currency;
-        } else {
-            $currency = 'INR';
-            if (!empty($session)) {
-                $key_cn = $session;
-                $currency = ($key_cn) ? $key_cn[0] : $key_cn;
-            } else {
-                $currency = 'INR';
-            }
-            return $currency;
-        }
-    }
-
 }
